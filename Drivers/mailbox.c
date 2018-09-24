@@ -14,7 +14,7 @@ extern int GET32(int src);
 //unsigned int mailbuffer[22] __attribute__((aligned (16)));
 //https://github.com/raspberrypi/firmware/wiki/Mailbox-property-interface
 void mailboxWrite(int data_addr, int channel){
-	int mailbox = 0x3f00B880;
+	int mailbox = 0x2000B880;
 	while(1){
 		if((GET32(mailbox + 0x18)&0x80000000) == 0) break;
 	}
@@ -24,7 +24,7 @@ void mailboxWrite(int data_addr, int channel){
 
 int mailboxRead(int channel){
 	int ra;
-	int mailbox = 0x3f00B880;
+	int mailbox = 0x2000B880;
 	while(1){
 		while(1){
 			ra = GET32(mailbox + 0x18);

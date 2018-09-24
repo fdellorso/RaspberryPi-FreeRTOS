@@ -20,13 +20,14 @@
 #include <uspios.h>
 #include <FreeRTOS.h>
 #include <task.h>
-#include <video.h>
+// #include <video.h>
+#include <ili9340.h>
 #include <mailbox.h>
 #include <mem.h>
 
 __attribute__((no_instrument_function))
 void MsDelay (unsigned nMilliSeconds){
-	volatile int* timeStamp = (int*)0x3f003004;
+	volatile int* timeStamp = (int*)0x20003004;
 	int stop = *timeStamp + nMilliSeconds * 1000;
 	while (*timeStamp < stop) __asm__("nop");
 	//vTaskDelay(nMilliSeconds);
@@ -34,7 +35,7 @@ void MsDelay (unsigned nMilliSeconds){
 
 __attribute__((no_instrument_function))
 void usDelay (unsigned nMicroSeconds){
-	volatile int* timeStamp = (int*)0x3f003004;
+	volatile int* timeStamp = (int*)0x20003004;
 	int stop = *timeStamp + nMicroSeconds;
 	while (*timeStamp < stop) __asm__("nop");
 }

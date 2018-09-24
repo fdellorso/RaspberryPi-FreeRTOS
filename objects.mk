@@ -37,13 +37,17 @@ OBJECTS += $(BUILD_DIR)Demo/startup.o
 #
 OBJECTS += $(BUILD_DIR)Demo/main.o
 
+#McCauley Library
+OBJECTS += $(BUILD_DIR)Drivers/bcm2835.o
+
 #things
 OBJECTS += $(BUILD_DIR)Drivers/mailbox.o
-OBJECTS += $(BUILD_DIR)Demo/trace.o
+# OBJECTS += $(BUILD_DIR)Demo/trace.o
 OBJECTS += $(BUILD_DIR)Drivers/mem.o
 
 #video stuff
-OBJECTS += $(BUILD_DIR)Drivers/video.o
+# OBJECTS += $(BUILD_DIR)Drivers/video.o
+OBJECTS += $(BUILD_DIR)Drivers/ili9340.o
 
 #smsc9514 (LAN and USB)
 OBJECTS += $(BUILD_DIR)Drivers/lan9514/uspibind.o
@@ -75,14 +79,14 @@ OBJECTS += $(BUILD_DIR)Drivers/lan9514/lib/synchronize.o
 OBJECTS += $(BUILD_DIR)Drivers/lan9514/lib/usbstring.o
 
 #freeRTOS-TCP
-OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_ARP.o
-OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_DHCP.o
-OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_DNS.o
-OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_IP.o
-OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_Sockets.o
-OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_Stream_Buffer.o
-OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_TCP_IP.o
-OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_TCP_WIN.o
-OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_UDP_IP.o
-OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/portable/BufferManagement/BufferAllocation_2.o
-OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/portable/NetworkInterface.o
+# OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_ARP.o
+# OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_DHCP.o
+# OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_DNS.o
+# OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_IP.o
+# OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_Sockets.o
+# OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_Stream_Buffer.o
+# OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_TCP_IP.o
+# OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_TCP_WIN.o
+# OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/FreeRTOS_UDP_IP.o
+# OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/portable/BufferManagement/BufferAllocation_2.o
+# OBJECTS += $(BUILD_DIR)Drivers/FreeRTOS-Plus-TCP/portable/NetworkInterface.o

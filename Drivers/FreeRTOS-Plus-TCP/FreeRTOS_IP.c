@@ -478,7 +478,7 @@ struct freertos_sockaddr xAddress;
 		#endif /* ipconfigCHECK_IP_QUEUE_SPACE */
 
 		iptraceNETWORK_EVENT_RECEIVED( xReceivedEvent.eEventType );
-//printHex("event ", xReceivedEvent.eEventType, 0xFFFFFFFF);
+		//printHex("event ", xReceivedEvent.eEventType, 0xFFFFFFFF);
 		switch( xReceivedEvent.eEventType )
 		{
 			case eNetworkDownEvent :
@@ -1065,7 +1065,7 @@ void FreeRTOS_ReleaseUDPPayloadBuffer( void *pvBuffer )
 
 portBASE_TYPE FreeRTOS_IPInit( const unsigned char ucIPAddress[ ipIP_ADDRESS_LENGTH_BYTES ], const unsigned char ucNetMask[ ipIP_ADDRESS_LENGTH_BYTES ], const unsigned char ucGatewayAddress[ ipIP_ADDRESS_LENGTH_BYTES ], const unsigned char ucDNSServerAddress[ ipIP_ADDRESS_LENGTH_BYTES ], const unsigned char ucMACAddress[ ipMAC_ADDRESS_LENGTH_BYTES ] )
 {
-portBASE_TYPE xReturn = pdFALSE;
+	portBASE_TYPE xReturn = pdFALSE;
 
 	/* This function should only be called once. */
 	configASSERT( xIPIsNetworkTaskReady() == pdFALSE );

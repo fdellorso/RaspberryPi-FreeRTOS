@@ -1,4 +1,4 @@
-RASPPI	?= 2
+RASPPI	?= 1
 
 ifeq ($(strip $(RASPPI)),1)
 ARCH	?= -march=armv6j -mtune=arm1176jzf-s -mfloat-abi=hard 
@@ -10,6 +10,7 @@ AFLAGS ?= $(ARCH) -DRASPPI=$(RASPPI)
 CFLAGS += $(ARCH) -g -std=gnu99 -Wno-psabi -fsigned-char -DRASPPI=$(RASPPI) -nostdlib -Wno-implicit -mfloat-abi=softfp 
 ## CFLAGS += -finstrument-functions
 CFLAGS += -mno-unaligned-access
+# CFLAGS += -Wall -Wextra
 CFLAGS += -I $(BASE)FreeRTOS/Source/portable/GCC/RaspberryPi/
 CFLAGS += -I $(BASE)FreeRTOS/Source/include/
 CFLAGS += -I $(BASE)Drivers/

@@ -46,8 +46,8 @@ void initFB(){
 		attempts++;
 	}*/
 
-	SCREEN_WIDTH = 1920;//mailbuffer[5];
-	SCREEN_HEIGHT = 1080;//mailbuffer[6];
+	SCREEN_WIDTH = 1440;//mailbuffer[5];
+	SCREEN_HEIGHT = 900;//mailbuffer[6];
 
 	mailbuffer[0] = 22 * 4;		//mail buffer size
 	mailbuffer[1] = 0;		//response code
@@ -163,7 +163,7 @@ void println(const char* message, int colour){
 	if(position_y >= SCREEN_HEIGHT){
 		if(position_x + 2 * (SCREEN_WIDTH / 8) > SCREEN_WIDTH){
 
-			volatile int* timeStamp = (int*)0x3f003004;
+			volatile int* timeStamp = (int*)0x20003004;
 			int stop = *timeStamp + 5000 * 1000;
 			while (*timeStamp < stop) __asm__("nop");
 

@@ -28,6 +28,7 @@ endif
 ifeq ($(strip $(TARGETS)),)
 else
 	$(Q)rm $(PRM_FLAGS) $(TARGETS)			$(PRM_PIPE)
+	$(Q)rm $(PRM_FLAGS) $(BUILD_DIR)		$(PRM_PIPE)
 endif
 ifeq ($(CLEAN_EXTRAS), 1)
 	$(Q)rm $(PRM_FLAGS) $(CLEAN_LIST)		$(PRM_PIPE)

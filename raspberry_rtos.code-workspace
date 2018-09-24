@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "/home/fra/RaspberryPi-FreeRTOS_JW"
+		},
+		{
+			"path": "/home/fra/Raspberry_Lib"
+		},
+		{
+			"path": "/media/stufa_sw/documentazione/LaTex"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"freertos.h": "c",
+			"task.h": "c",
+			"interrupts.h": "c"
+		}
+	}
+}

@@ -6,16 +6,15 @@ BUILD_DIR=$(shell pwd)/build/
 
 MODULE_NAME="RaspberryPi BSP"
 
-TARGETS=kernel7.img kernel.list kernel.syms kernel.elf kernel.map
+TARGETS=kernel.img kernel.list kernel.syms kernel.elf kernel.map
 LINKER_SCRIPT=raspberrypi.ld
 
 -include .dbuild/dbuild.mk
 
-
-all: kernel.list kernel7.img kernel.syms
+all: kernel.list kernel.img kernel.syms
 	@$(SIZE) kernel.elf
 
-kernel7.img: kernel.elf
+kernel.img: kernel.elf
 	$(Q)$(PRETTY) IMAGE $(MODULE_NAME) $@
 	$(Q)$(OBJCOPY) kernel.elf -O binary $@
 

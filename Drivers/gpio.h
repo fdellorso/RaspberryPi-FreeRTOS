@@ -15,8 +15,8 @@ enum DETECT_TYPE {
 /* GPIO pull up or down states */
 enum PULL_STATE {
 	PULL_DISABLE,
-	PULL_UP,
 	PULL_DOWN,
+	PULL_UP,
 	PULL_RESERVED
 };
 
