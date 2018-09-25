@@ -1,8 +1,6 @@
 #ifndef _ILI9340_H_
 #define _ILI9340_H_
 
-#include <types.h>
-
 #define  ILI9340_TFTWIDTH    240
 #define  ILI9340_TFTHEIGHT   320
 
@@ -68,24 +66,31 @@
 #define  ILI9340_GMCTRP1     0xE0
 #define  ILI9340_GMCTRN1     0xE1
 
-// #define ILI9340_PWCTR6  0xFC
-
-#define KEY1 18
-#define KEY2 23
-#define KEY3 24
+// #define ILI9340_PWCTR6       0xFC
 
 // Color definitions
-#define	ILI9340_BLACK   0x0000
-#define	ILI9340_BLUE    0x001F
-#define	ILI9340_RED     0xF800
-#define	ILI9340_GREEN   0x07E0
-#define ILI9340_CYAN    0x07FF
-#define ILI9340_MAGENTA 0xF81F
-#define ILI9340_YELLOW  0xFFE0  
-#define ILI9340_WHITE   0xFFFF
-#define ILI9340_GREY    0xAD33
+#define	ILI9340_BLACK        0x0000
+#define	ILI9340_BLUE         0x001F
+#define	ILI9340_RED          0xF800
+#define	ILI9340_GREEN        0x07E0
+#define ILI9340_CYAN         0x07FF
+#define ILI9340_MAGENTA      0xF81F
+#define ILI9340_YELLOW       0xFFE0  
+#define ILI9340_WHITE        0xFFFF
+#define ILI9340_GREY         0xAD33
+
+// Waveshare 3.2" COMMAND GPIO Pins
+#define TOUCH_IRQ            17
+#define DATA_COMMAND         22
+#define LCD_RESET            27
+
+// Waveshare 3.2" KEYS GPIO Pins
+#define KEY1                 18
+#define KEY2                 23
+#define KEY3                 24
 
 char loaded;
+uint16_t width, height;
 
 extern  void        ili9340_write_command   (uint8_t command, int param_len, ...);
 extern  void        ili9340_init            (void);

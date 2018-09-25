@@ -1,11 +1,6 @@
 #ifndef _GPIO_H_
 #define _GPIO_H_
 
-#include "bcm2835_base.h"
-
-// Base Physical Address of the GPIO registers
-#define BCM2835_GPIO_BASE               (BCM2835_PERI_BASE + 0x200000)
-
 /* GPIO event detect types */
 enum DETECT_TYPE {
 	DETECT_NONE,
@@ -31,21 +26,8 @@ enum GPIO_DIR {
 	GPIO_OUT
 };
 
-// Pin Alternate functions
-enum GPIO_FUNC {
-	GPIO_FUNC_INPUT		= 0,
-	GPIO_FUNC_OUTPUT	= 1,
-	GPIO_FUNC_ALT_0		= 4,	// Alternative function 0
-	GPIO_FUNC_ALT_1		= 5,	// Alternative function 1
-	GPIO_FUNC_ALT_2		= 6,	// Alternative function 2
-	GPIO_FUNC_ALT_3		= 7,	// Alternative function 3
-	GPIO_FUNC_ALT_4		= 3,	// Alternative function 4
-	GPIO_FUNC_ALT_5		= 2		// Alternative function 5
-};
-
 /* GPIO pin setup */
-// void SetGpioFunction	(unsigned int pinNum, unsigned int funcNum);
-void SetGpioFunction	(unsigned int pinNum, enum GPIO_FUNC funcNum);
+void SetGpioFunction	(unsigned int pinNum, unsigned int funcNum);
 /* A simple wrapper around SetGpioFunction */
 void SetGpioDirection	(unsigned int pinNum, enum GPIO_DIR dir);
 

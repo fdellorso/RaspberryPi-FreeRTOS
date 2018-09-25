@@ -3,14 +3,19 @@
 //
 //basic text debugging using the framebuffer
 
-#include <video.h>
-#include <mailbox.h>
-#include <5x5_font.h>
-char loaded = 0;
+#include "video.h"
+#include "mailbox.h"
+#include "font_5x5.h"
+
 #define CHAR_WIDTH 6
 #define CHAR_HEIGHT 8
+
 int SCREEN_WIDTH;
 int SCREEN_HEIGHT;
+
+char loaded = 0;
+int position_x = 0;
+int position_y = 0;
 
 void enablelogging(){ loaded = 1;}
 
@@ -46,37 +51,36 @@ void initFB(){
 		attempts++;
 	}*/
 
-	SCREEN_WIDTH = 1440;//mailbuffer[5];
-	SCREEN_HEIGHT = 900;//mailbuffer[6];
+	SCREEN_WIDTH 	= 1440;				//mailbuffer[5];
+	SCREEN_HEIGHT 	= 900;				//mailbuffer[6];
 
-	mailbuffer[0] = 22 * 4;		//mail buffer size
-	mailbuffer[1] = 0;		//response code
+	mailbuffer[0] 	= 22 * 4;			//mail buffer size
+	mailbuffer[1] 	= 0;				//response code
 
-	mailbuffer[2] = 0x00048003;	//set phys display
-	mailbuffer[3] = 8;		//value buffer size
-	mailbuffer[4] = 8;		//Req. + value length (bytes)
-	mailbuffer[5] = SCREEN_WIDTH;	//screen x
-	mailbuffer[6] = SCREEN_HEIGHT;	//screen y
+	mailbuffer[2] 	= 0x00048003;		//set phys display
+	mailbuffer[3] 	= 8;				//value buffer size
+	mailbuffer[4] 	= 8;				//Req. + value length (bytes)
+	mailbuffer[5] 	= SCREEN_WIDTH;		//screen x
+	mailbuffer[6] 	= SCREEN_HEIGHT;	//screen y
 
-	mailbuffer[7] = 0x00048004;	//set virtual display
-	mailbuffer[8] = 8;		//value buffer size
-	mailbuffer[9] = 8;		//Req. + value length (bytes)
-	mailbuffer[10] = SCREEN_WIDTH;	//screen x
-	mailbuffer[11] = SCREEN_HEIGHT; //screen y
+	mailbuffer[7] 	= 0x00048004;		//set virtual display
+	mailbuffer[8] 	= 8;				//value buffer size
+	mailbuffer[9] 	= 8;				//Req. + value length (bytes)
+	mailbuffer[10] 	= SCREEN_WIDTH;		//screen x
+	mailbuffer[11] 	= SCREEN_HEIGHT; 	//screen y
 
-	mailbuffer[12] = 0x0048005;	//set depth
-	mailbuffer[13] = 4;		//value buffer size
-	mailbuffer[14] = 4;		//Req. + value length (bytes)
-	mailbuffer[15] = 32;		//bits per pixel
+	mailbuffer[12] 	= 0x0048005;		//set depth
+	mailbuffer[13] 	= 4;				//value buffer size
+	mailbuffer[14] 	= 4;				//Req. + value length (bytes)
+	mailbuffer[15] 	= 32;				//bits per pixel
 	//pixel format is ARGB, 0xFF0000FF is blue at full alpha transparency
 
-	mailbuffer[16] = 0x00040001;	//allocate buffer
-	mailbuffer[17] = 8;		//value buffer size
-	mailbuffer[18] = 4;		//Req. + value length (bytes)
-	mailbuffer[19] = 0;		//framebuffer address
-	mailbuffer[20] = 0;		//framebuffer size
+	mailbuffer[16] 	= 0x00040001;		//allocate buffer
+	mailbuffer[17] 	= 8;				//value buffer size
+	mailbuffer[18] 	= 4;				//Req. + value length (bytes)
+	mailbuffer[19] 	= 0;				//framebuffer address
+	mailbuffer[20] 	= 0;				//framebuffer size
 
-	mailbuffer[21] = 0;		//terminate buffer
 
 	//spam mail the GPU until the response code is ok
 	while(mailbuffer[1] != 0x80000000){
@@ -132,7 +136,7 @@ void drawChar(unsigned char c, int x, int y, int colour){
 	for (j = 0; j < CHAR_WIDTH; j++) {
 		for (i = 0; i < CHAR_HEIGHT; i++) {
 			//unsigned char temp = font[c][j];
-			if (font[c][j] & (1<<i)) {
+			if (font_5x5[c][j] & (1<<i)) {
 				framebuffer[(y + i) * SCREEN_WIDTH + (x + j)] = colour;
 			}
 		}
@@ -147,8 +151,6 @@ void drawString(const char* str, int x, int y, int colour){
 	}
 }
 
-int position_x = 0;
-int position_y = 0;
 __attribute__((no_instrument_function))
 void println(const char* message, int colour){
 	if(loaded == 0) return; //if video isn't loaded don't bother

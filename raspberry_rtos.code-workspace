@@ -17,7 +17,17 @@
 		"files.associations": {
 			"freertos.h": "c",
 			"task.h": "c",
-			"interrupts.h": "c"
+			"interrupts.h": "c",
+			"gpio.h": "c",
+			"ili9340.h": "c",
+			"string.h": "c",
+			"types.h": "c",
+			"string_prv.h": "c",
+			"video.h": "c",
+			"stddef.h": "c",
+			"projdefs.h": "c",
+			"freertosconfig.h": "c",
+			"portable.h": "c"
 		}
 	}
 }

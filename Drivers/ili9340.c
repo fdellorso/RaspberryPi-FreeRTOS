@@ -1,14 +1,18 @@
 #include <stdarg.h>
-#include "bcm2835.h"
+
 #include "ili9340.h"
+#include "bcm2835_base.h"
+#include "gpio.h"
 #include "font_5x5.h"
+
+#include "prv_types.h"
+
+#include "bcm2835.h"	//TODO da eliminare quando presente libreria SPI
 
 #define CHAR_WIDTH 6
 #define CHAR_HEIGHT 8
 
-extern uint16_t width, height;
-
-uint8_t rotation;
+uint16_t width, height;
 
 char framebuffer[2 * ILI9340_TFTWIDTH * ILI9340_TFTHEIGHT];
 uint16_t dirty_x0;
@@ -25,9 +29,11 @@ void ili9340_write_command(uint8_t command, int param_len, ...) {
 	char buffer[50];
 	va_list args;
 
-	bcm2835_gpio_write(22, LOW);
-	bcm2835_spi_transfer(command);
-	bcm2835_gpio_write(22, HIGH);
+	// bcm2835_gpio_write(22, LOW);
+	SetGpio(DATA_COMMAND, LOW);
+	bcm2835_spi_transfer(command);	//TODO Manca libreria SPI
+	// bcm2835_gpio_write(22, HIGH);
+	SetGpio(DATA_COMMAND, HIGH);
 
 	if (param_len) {
 		va_start(args, param_len);
@@ -35,7 +41,7 @@ void ili9340_write_command(uint8_t command, int param_len, ...) {
 			buffer[i] = (uint8_t)va_arg(args, int);
 		}
 		va_end(args);
-		bcm2835_spi_writenb(buffer, param_len);
+		bcm2835_spi_writenb(buffer, param_len);	//TODO Manca libreria SPI
 	}
 }
 
@@ -223,7 +229,7 @@ void ili9340_update_display() {
 	uint32_t len = 2 * (dirty_x1 - dirty_x0 + 1);
 
 	while (dirty_y0 <= dirty_y1) {
-		bcm2835_spi_writenb(framebuffer + offset, len);
+		bcm2835_spi_writenb(framebuffer + offset, len);	//TODO Manca libreria SPI
 		offset += width << 1;
 		dirty_y0++;
 	}
@@ -243,6 +249,8 @@ uint16_t ili9340_get_height() {
 }
 
 void ili9340_set_rotation(uint8_t m) {
+	uint8_t rotation;
+	
 	rotation = m % 4; // can't be higher than 3
 	switch (rotation) {
 		case 0:
@@ -275,20 +283,32 @@ void ili9340_set_rotation(uint8_t m) {
 }
 
 void ili9340_init(void) {
+	//TODO Manca libreria SPI
 	bcm2835_spi_begin();
 	bcm2835_spi_setDataMode(BCM2835_SPI_MODE0);                  
 	bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_16); 
 	bcm2835_spi_chipSelect(BCM2835_SPI_CS0);		// CS Enable
-	bcm2835_gpio_fsel(22, BCM2835_GPIO_FSEL_OUTP);	// D/C Pin
-	bcm2835_gpio_fsel(27, BCM2835_GPIO_FSEL_OUTP);	// Reset Pin
 
-	bcm2835_gpio_write(27, LOW);
-	bcm2835_gpio_write(27, HIGH);
-	bcm2835_delay(5);
-	bcm2835_gpio_write(27, LOW);
-	bcm2835_delay(20);
-	bcm2835_gpio_write(27, HIGH);
-	bcm2835_delay(150);
+	// bcm2835_gpio_fsel(22, BCM2835_GPIO_FSEL_OUTP);	// D/C Pin
+	SetGpioFunction(DATA_COMMAND, GPIO_FUNC_OUTPUT);
+	// bcm2835_gpio_fsel(27, BCM2835_GPIO_FSEL_OUTP);	// Reset Pin
+	SetGpioFunction(LCD_RESET, GPIO_FUNC_OUTPUT);
+
+	// Waveshare 3.2" RESET Init Cycle
+	// bcm2835_gpio_write(27, LOW);
+	// bcm2835_gpio_write(27, HIGH);
+	// bcm2835_delay(5);
+	// bcm2835_gpio_write(27, LOW);
+	// bcm2835_delay(20);
+	// bcm2835_gpio_write(27, HIGH);
+	// bcm2835_delay(150);
+	SetGpio(LCD_RESET, LOW);
+	SetGpio(LCD_RESET, HIGH);
+	wait_cycles(5);
+	SetGpio(LCD_RESET, LOW);
+	wait_cycles(20);
+	SetGpio(LCD_RESET, HIGH);
+	wait_cycles(150);
 
 	ili9340_write_command(0xEF, 3, 0x03, 0x80, 0x02);
 	ili9340_write_command(0xCF, 3, 0x00 , 0XC1 , 0X30);
@@ -359,7 +379,7 @@ void ili9340_init(void) {
 }
 
 void ili9340_close(void) {
-	bcm2835_spi_end();
+	bcm2835_spi_end();	//TODO Manca libreria SPI
 }
 
 void ili9340_color_test(void) {

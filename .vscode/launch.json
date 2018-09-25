@@ -1,0 +1,42 @@
+{
+    // Usare IntelliSense per informazioni sui possibili attributi.
+    // Al passaggio del mouse vengono visualizzate le descrizioni degli attributi esistenti.
+    // Per ulteriori informazioni, visitare: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceRoot}/kernel.elf",
+            "targetArchitecture": "arm",
+            // "preLaunchTask": "openocd",
+
+            "linux": {
+                "MIMode": "gdb",
+                "miDebuggerPath": "/usr/bin/arm-none-eabi-gdb",
+                // "debugServerPath": "openocd",
+                // "debugServerArgs": "-f /usr/share/openocd/scripts/interface/jlink.cfg -f /home/fra/raspberrypi/armjtag/raspi.cfg"
+            },
+            "setupCommands": [
+                {"text": "file '${workspaceRoot}/kernel.elf'"},
+                {"text": "target remote :3333"}
+                // {"text": "monitor tpwr enable"},
+                // {"text": "monitor swdp_scan"},
+                // {"text": "attach 1"}
+            ],
+            "args": ["'${workspaceRoot}/kernel.elf'"],
+            "stopAtEntry": false,
+            "environment": [],
+            "externalConsole": true,
+
+            "launchCompleteCommand": "exec-run",
+            "debugServerPath": "openocd",
+            // "debugServerArgs": "-s /usr/local/bin/openocd/scripts/ -f interface/stlink-v2-1.cfg -f target/stm32f4x.cfg",
+            "debugServerArgs": "-f /usr/share/openocd/scripts/interface/jlink.cfg -f '${workspaceRoot}/Debug/raspi.cfg'",
+            "serverStarted": "Info\\ :\\ [\\w\\d\\.]*:\\ hardware",
+            "filterStderr": true
+        }
+    ]
+}

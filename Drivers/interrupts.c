@@ -5,9 +5,9 @@
 
 #include "interrupts.h"
 #include "bcm2835_intc.h"
-#include "video.h"
-static INTERRUPT_VECTOR g_VectorTable[BCM2835_INTC_TOTAL_IRQ];
+// #include "video.h"
 
+static INTERRUPT_VECTOR g_VectorTable[BCM2835_INTC_TOTAL_IRQ];
 
 typedef struct {
 	unsigned long	IRQBasic;	// Pending 0
@@ -103,8 +103,8 @@ __attribute__((no_instrument_function))
 int InitInterruptController() {
 	int i;
 	for(i = 0; i < BCM2835_INTC_TOTAL_IRQ; i++) {
-		g_VectorTable[i].pfnHandler 	= stubHandler;
-		g_VectorTable[i].pParam			= (void *) 0;
+		g_VectorTable[i].pfnHandler = stubHandler;
+		g_VectorTable[i].pParam		= (void *) 0;
 	}
 	return 0;
 }
@@ -117,7 +117,7 @@ int RegisterInterrupt(int nIRQ, FN_INTERRUPT_HANDLER pfnHandler, void *pParam) {
 	irqDisable();
 	{
 		g_VectorTable[nIRQ].pfnHandler = pfnHandler;
-		g_VectorTable[nIRQ].pParam		= pParam;
+		g_VectorTable[nIRQ].pParam	   = pParam;
 	}
 	irqEnable();
 	return 0;
