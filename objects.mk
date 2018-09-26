@@ -12,6 +12,7 @@ OBJECTS += $(BUILD_DIR)Demo/startup.o
 #	BCM2835 Hardware Drivers
 #
 OBJECTS += $(BUILD_DIR)Drivers/bcm2835_base.o
+OBJECTS += $(BUILD_DIR)Drivers/arm_timer.o
 OBJECTS += $(BUILD_DIR)Drivers/sys_timer.o
 OBJECTS += $(BUILD_DIR)Drivers/gpio.o
 # OBJECTS += $(BUILD_DIR)Drivers/spi.o
@@ -23,7 +24,7 @@ OBJECTS += $(BUILD_DIR)Drivers/video.o
 OBJECTS += $(BUILD_DIR)Drivers/bcm2835.o
 
 # things
-OBJECTS += $(BUILD_DIR)Demo/prv_string.o
+OBJECTS += $(BUILD_DIR)Drivers/prv_string.o
 OBJECTS += $(BUILD_DIR)Drivers/mem.o
 OBJECTS += $(BUILD_DIR)Drivers/ili9340.o
 # OBJECTS += $(BUILD_DIR)Drivers/clock.o

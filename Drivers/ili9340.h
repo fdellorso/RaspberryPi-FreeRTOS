@@ -91,7 +91,7 @@
 #define KEY2                 23
 #define KEY3                 24
 
-char loaded;
+// char loaded;
 uint16_t width, height;
 
 extern  void        ili9340_write_command   (uint8_t command, int param_len, ...);

@@ -20,9 +20,9 @@ uint16_t dirty_y0;
 uint16_t dirty_x1;
 uint16_t dirty_y1;
 
-char loaded = 0;
-uint16_t position_x = 0;
-uint16_t position_y = 0;
+extern char loaded;
+uint16_t lcd_position_x = 0;
+uint16_t lcd_position_y = 0;
 
 void ili9340_write_command(uint8_t command, int param_len, ...) {
 	uint32_t i;
@@ -112,18 +112,18 @@ void ili9340_println(const char* message, uint16_t color) {
 	// char s_bWereEnabled = nFlags & 0x80 ? 0 : 1; 
 	// if(s_bWereEnabled) __asm volatile ("cpsid i" : : : "memory");
 
-	if(position_y >= height || position_y == 0) {
-		position_y = 0;
+	if(lcd_position_y >= height || lcd_position_y == 0) {
+		lcd_position_y = 0;
 		ili9340_fill_rect(0,0,width,height,ILI9340_BLACK);
 	}
 
-	ili9340_draw_string(message, position_x, position_y, color);
-	position_y = position_y + CHAR_HEIGHT + 1;
+	ili9340_draw_string(message, lcd_position_x, lcd_position_y, color);
+	lcd_position_y = lcd_position_y + CHAR_HEIGHT + 1;
 
 	ili9340_update_display();
 
-	// if(position_y >= height){
-	// 	if(position_x + 2 * (width / 8) > width){
+	// if(lcd_position_y >= height){
+	// 	if(lcd_position_x + 2 * (width / 8) > width){
 
 	// 		volatile int* timeStamp = (int*)0x20003004;
 	// 		int stop = *timeStamp + 5000 * 1000;
@@ -134,11 +134,11 @@ void ili9340_println(const char* message, uint16_t color) {
 	// 			framebuffer[x++] = (ILI9340_BLACK >> 8) & 0xff;
 	// 			framebuffer[x] = ILI9340_BLACK & 0xff;
 	// 		}
-	// 		position_y = 0;
-	// 		position_x = 0;
+	// 		lcd_position_y = 0;
+	// 		lcd_position_x = 0;
 	// 	}else{
-	// 		position_y = 0;
-	// 		position_x += width / 8;
+	// 		lcd_position_y = 0;
+	// 		lcd_position_x += width / 8;
 	// 	}
 	// }
 

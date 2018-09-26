@@ -28,7 +28,11 @@
 			"projdefs.h": "c",
 			"freertosconfig.h": "c",
 			"portable.h": "c",
-			"prv_types.h": "c"
+			"prv_types.h": "c",
+			"mailbox.h": "c",
+			"sys_timer.h": "c",
+			"bcm2835_base.h": "c",
+			"font_5x5.h": "c"
 		}
 	}
 }

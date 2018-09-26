@@ -21,7 +21,7 @@ typedef struct {
 	unsigned long	WRITE ;
 } BCM2835_MAIL0_REGS;
 
-volatile BCM2835_MAIL0_REGS * const pRegs = (BCM2835_MAIL0_REGS *) (BCM2835_MAIL0_BASE);
+static volatile BCM2835_MAIL0_REGS * const pRegs = (BCM2835_MAIL0_REGS *) (BCM2835_MAIL0_BASE);
 
 //Docuentation on the mailbox functions
 //mailbuffer should probably be 16 byte aligned (for gpu at least):

@@ -30,7 +30,7 @@
 #include <uspi/bcm2835.h>
 #include <uspi/synchronize.h>
 #include <uspi/assert.h>
-// #include "video.h"
+#include "video.h"
 #include <ili9340.h>
 #define ARM_IRQ_USB		9		// for ConnectInterrupt()
 

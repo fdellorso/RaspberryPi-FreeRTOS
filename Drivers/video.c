@@ -4,6 +4,7 @@
 //basic text debugging using the framebuffer
 
 #include "video.h"
+#include "bcm2835_base.h"
 #include "mailbox.h"
 #include "font_5x5.h"
 

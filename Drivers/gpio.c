@@ -34,7 +34,7 @@ typedef struct {
 	//Ignoring the reserved and test bytes
 } BCM2835_GPIO_REGS;
 
-volatile BCM2835_GPIO_REGS * const pRegs = (BCM2835_GPIO_REGS *) (BCM2835_GPIO_BASE);
+static volatile BCM2835_GPIO_REGS * const pRegs = (BCM2835_GPIO_REGS *) (BCM2835_GPIO_BASE);
 
 void SetGpioFunction(unsigned int pinNum, enum GPIO_FUNC funcNum) {
 	unsigned long offset = pinNum/10;

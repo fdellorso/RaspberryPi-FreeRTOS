@@ -12,19 +12,6 @@
 #define AQUA_TEXT      0xFF00FFFF
 #define VIOLET_TEXT    0xFFCC88CC
 
-struct fb_info {
-    volatile uint32_t width;
-    volatile uint32_t height;
-    volatile uint32_t virtual_width;
-    volatile uint32_t virtual_height;
-    volatile uint32_t pitch;
-    volatile uint32_t depth;
-    volatile uint32_t x_offset;
-    volatile uint32_t y_offset;
-    volatile uint32_t fb_pointer;
-    volatile uint32_t fb_size;
-};
-
 char loaded;
 
 void enablelogging();

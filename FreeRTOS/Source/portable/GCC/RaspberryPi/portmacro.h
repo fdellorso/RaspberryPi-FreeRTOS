@@ -16,11 +16,11 @@ extern "C" {
  */
 
 /* Type definitions. */
-#define portCHAR			char
-#define portFLOAT			float
+#define portCHAR		char
+#define portFLOAT		float
 #define portDOUBLE		double
-#define portLONG			long
-#define portSHORT			short
+#define portLONG		long
+#define portSHORT		short
 #define portSTACK_TYPE	unsigned portLONG
 #define portBASE_TYPE	portLONG
 
@@ -37,7 +37,7 @@ extern "C" {
 #define portSTACK_GROWTH			( -1 )
 #define portTICK_RATE_MS			( ( portTickType ) 1000 / configTICK_RATE_HZ )		
 #define portBYTE_ALIGNMENT			8
-#define portNOP()						__asm volatile ( "NOP" );
+#define portNOP()					__asm volatile ( "NOP" );
 /*-----------------------------------------------------------*/	
 
 

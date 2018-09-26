@@ -20,44 +20,52 @@
 #include <uspios.h>
 #include <FreeRTOS.h>
 #include <task.h>
-// #include <video.h>
-#include <ili9340.h>
-#include <mailbox.h>
-#include <mem.h>
+
+#include "sys_timer.h"
+#include "mailbox.h"
+#include "mem.h"
+#include "video.h"
+#include "ili9340.h"
 
 __attribute__((no_instrument_function))
-void MsDelay (unsigned nMilliSeconds){
-	volatile int* timeStamp = (int*)0x20003004;
+void MsDelay(unsigned nMilliSeconds) {
+	/* volatile int* timeStamp = (int*)0x20003004;
 	int stop = *timeStamp + nMilliSeconds * 1000;
-	while (*timeStamp < stop) __asm__("nop");
+	while (*timeStamp < stop) __asm__("nop"); */
 	//vTaskDelay(nMilliSeconds);
+
+	DelaySysTimer(nMilliSeconds * 1000);
 }
 
 __attribute__((no_instrument_function))
-void usDelay (unsigned nMicroSeconds){
-	volatile int* timeStamp = (int*)0x20003004;
+void usDelay(unsigned nMicroSeconds) {
+	/* volatile int* timeStamp = (int*)0x20003004;
 	int stop = *timeStamp + nMicroSeconds;
-	while (*timeStamp < stop) __asm__("nop");
+	while (*timeStamp < stop) __asm__("nop"); */
+
+	DelaySysTimer(nMicroSeconds);
 }
 
-unsigned StartKernelTimer (unsigned nDelay, TKernelTimerHandler *pHandler, void *pParam, void *pContext){
+unsigned StartKernelTimer(unsigned nDelay, TKernelTimerHandler *pHandler, void *pParam, void *pContext) {
+	//TimerStartKernelTimer (TimerGet (), nDelay, pHandler, pParam, pContext);
 	println("StartKernelTimer", 0xFFFFFFFF);
-	return 1;//TimerStartKernelTimer (TimerGet (), nDelay, pHandler, pParam, pContext);
+	return 1;
 }
 
-void CancelKernelTimer (unsigned hTimer){
-	println("CancelKernelTimer", 0xFFFFFFFF);//TimerCancelKernelTimer (TimerGet (), hTimer);
+void CancelKernelTimer(unsigned hTimer) {
+	//TimerCancelKernelTimer (TimerGet (), hTimer);
+	println("CancelKernelTimer", 0xFFFFFFFF);
 }
 
 //void ConnectInterrupt (unsigned nIRQ, TInterruptHandler *pfnHandler, void *pParam){
-void ConnectInterrupt (unsigned nIRQ, FN_INTERRUPT_HANDLER pfnHandler, void *pParam){
+void ConnectInterrupt(unsigned nIRQ, FN_INTERRUPT_HANDLER pfnHandler, void *pParam) {
 	//DisableInterrupts();
 	RegisterInterrupt(nIRQ, pfnHandler, pParam);
 	EnableInterrupt(nIRQ);
 	//EnableInterrupts();
 }
 
-int SetPowerStateOn (unsigned nDeviceId){
+int SetPowerStateOn(unsigned nDeviceId) {
 	unsigned int mailbuffer[8] __attribute__((aligned (16)));
 
 	//set power state
@@ -80,7 +88,7 @@ int SetPowerStateOn (unsigned nDeviceId){
 	return 1;
 }
 
-int GetMACAddress (unsigned char Buffer[6]){
+int GetMACAddress(unsigned char Buffer[6]) {
 	unsigned int mailbuffer[7] __attribute__((aligned (16)));
 
 	//get MAC
@@ -111,8 +119,7 @@ int GetMACAddress (unsigned char Buffer[6]){
 }
 
 __attribute__((no_instrument_function))
-void LogWrite (const char *pSource, unsigned Severity, const char *pMessage, ...)
-{
+void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...) {
 	/*va_list var;
 	va_start (var, pMessage);
 
@@ -124,29 +131,29 @@ void LogWrite (const char *pSource, unsigned Severity, const char *pMessage, ...
 
 #ifndef NDEBUG
 
-void uspi_assertion_failed (const char *pExpr, const char *pFile, unsigned nLine){	
+void uspi_assertion_failed(const char *pExpr, const char *pFile, unsigned nLine) {	
 	println(pExpr, 0xFFFFFFFF);
 	println(pFile, 0xFFFFFFFF);
 	printHex("Line ", nLine, 0xFFFFFFFF);
 	while(1){;} //system failure
 }
 
-void DebugHexdump (const void *pBuffer, unsigned nBufLen, const char *pSource){
+void DebugHexdump (const void *pBuffer, unsigned nBufLen, const char *pSource) {
 	println("DebugHexdump", 0xFFFFFFFF);//debug_hexdump (pBuffer, nBufLen, pSource);
 }
 
 #endif
 
-void* malloc(unsigned nSize){
+void* malloc(unsigned nSize) {
 	uspi_EnterCritical();
-//if(loaded == 2) println("malloc", 0xFFFFFFFF);
+	//if(loaded == 2) println("malloc", 0xFFFFFFFF);
 	void* temp = pvPortMalloc(nSize);
 	uspi_LeaveCritical();
 	return temp;
 
 }
 
-void free(void* pBlock){
+void free(void* pBlock) {
 	uspi_EnterCritical();
 	vPortFree(pBlock);
 	uspi_LeaveCritical();

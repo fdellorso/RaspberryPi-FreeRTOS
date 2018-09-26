@@ -7,10 +7,11 @@
 #include <FreeRTOS.h>
 #include <task.h>
 
+#include "bcm2835_base.h"
 #include "interrupts.h"
 #include "gpio.h"
-// #include "video.h"
-#include <ili9340.h>
+#include "video.h"
+#include "ili9340.h"
 #include <bcm2835.h>
 
 // #include "FreeRTOS_IP.h"

@@ -4,7 +4,8 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include <interrupts.h>
+#include "interrupts.h"
+#include "arm_timer.h"
 
 /* Constants required to setup the task context. */
 #define portINITIAL_SPSR						( ( portSTACK_TYPE ) 0x1f ) /* System mode, ARM mode, interrupts enabled. */
@@ -12,26 +13,25 @@
 #define portINSTRUCTION_SIZE					( ( portSTACK_TYPE ) 4 )
 #define portNO_CRITICAL_SECTION_NESTING			( ( portSTACK_TYPE ) 0 )
 
-#define portTIMER_PRESCALE 						( ( unsigned long ) 0xF9 )
+// #define portTIMER_PRESCALE 						( ( unsigned long ) 0xF9 )
 
 
 /* Constants required to setup the VIC for the tick ISR. */
-#define portTIMER_BASE                    		( (unsigned long ) 0x2000B400 )
+// #define portTIMER_BASE                    		( (unsigned long ) 0x2000B400 )
 
-typedef struct _BCM2835_TIMER_REGS {
-	unsigned long LOD;
-	unsigned long VAL;
-	unsigned long CTL;
-	unsigned long CLI;
-	unsigned long RIS;
-	unsigned long MIS;
-	unsigned long RLD;
-	unsigned long DIV;
-	unsigned long CNT;
-} BCM2835_TIMER_REGS;
+// typedef struct {
+// 	unsigned long LOD;
+// 	unsigned long VAL;
+// 	unsigned long CTL;
+// 	unsigned long CLI;
+// 	unsigned long RIS;
+// 	unsigned long MIS;
+// 	unsigned long RLD;
+// 	unsigned long DIV;
+// 	unsigned long CNT;
+// } BCM2835_TIMER_REGS;
 
-static volatile BCM2835_TIMER_REGS * const pRegs = (BCM2835_TIMER_REGS *) (portTIMER_BASE);
-
+// static volatile BCM2835_TIMER_REGS * const pRegs = (BCM2835_TIMER_REGS *) (portTIMER_BASE);
 /*-----------------------------------------------------------*/
 
 /* Setup the timer to generate the tick interrupts. */
@@ -52,9 +52,8 @@ extern void vPortISRStartFirstTask( void );
  * See header file for description. 
  */
 __attribute__((no_instrument_function))
-portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE pxCode, void *pvParameters )
-{
-portSTACK_TYPE *pxOriginalTOS;
+portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE pxCode, void *pvParameters ) {
+	portSTACK_TYPE *pxOriginalTOS;
 
 	pxOriginalTOS = pxTopOfStack;
 
@@ -126,9 +125,9 @@ portSTACK_TYPE *pxOriginalTOS;
 	return pxTopOfStack;
 }
 /*-----------------------------------------------------------*/
+
 __attribute__((no_instrument_function))
-portBASE_TYPE xPortStartScheduler( void )
-{
+portBASE_TYPE xPortStartScheduler( void ) {
 	/* Start the timer that generates the tick ISR.  Interrupts are disabled
 	here already. */
 	prvSetupTimerInterrupt();
@@ -140,9 +139,9 @@ portBASE_TYPE xPortStartScheduler( void )
 	return 0;
 }
 /*-----------------------------------------------------------*/
+
 __attribute__((no_instrument_function))
-void vPortEndScheduler( void )
-{
+void vPortEndScheduler( void ) {
 	/* It is unlikely that the ARM port will require this function as there
 	is nothing to return to.  */
 }
@@ -155,26 +154,24 @@ void vPortEndScheduler( void )
  *	See bt_interrupts.c in the RaspberryPi Drivers folder.
  */
 __attribute__((no_instrument_function))
-void vTickISR(int nIRQ, void *pParam )
-{
+void vTickISR(int nIRQ, void *pParam ) {
 	vTaskIncrementTick();
 
 	#if configUSE_PREEMPTION == 1
 	vTaskSwitchContext();
 	#endif
 
-	pRegs->CLI = 0;			// Acknowledge the timer interrupt.
+	// pRegs->CLI = 0;			// Acknowledge the timer interrupt.
+	TimerIrqClear();
 }
 
 /*
  * Setup the timer 0 to generate the tick interrupts at the required frequency.
  */
 __attribute__((no_instrument_function))
-static void prvSetupTimerInterrupt( void )
-{
+static void prvSetupTimerInterrupt( void ) {
 	unsigned long ulCompareMatch;
 	
-
 	/* Calculate the match value required for our wanted tick rate. */
 	ulCompareMatch = 1000000 / configTICK_RATE_HZ;
 
@@ -188,12 +185,14 @@ static void prvSetupTimerInterrupt( void )
 
 	DisableInterrupts();
 
-	pRegs->CTL = 0x003E0000;
-	pRegs->LOD = 1000 - 1;
-	pRegs->RLD = 1000 - 1;
-	pRegs->DIV = portTIMER_PRESCALE;
-	pRegs->CLI = 0;
-	pRegs->CTL = 0x003E00A2;
+	// pRegs->CTL = 0x003E0000;
+	// pRegs->LOD = 1000 - 1;
+	// pRegs->RLD = 1000 - 1;
+	// pRegs->DIV = portTIMER_PRESCALE;
+	// pRegs->CLI = 0;
+	// pRegs->CTL = 0x003E00A2;
+
+	prvFreeRtosTimerSetup();
 
 	RegisterInterrupt(64, vTickISR, NULL);
 
@@ -202,4 +201,3 @@ static void prvSetupTimerInterrupt( void )
 	EnableInterrupts();
 }
 /*-----------------------------------------------------------*/
-
