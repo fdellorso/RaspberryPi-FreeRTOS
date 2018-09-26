@@ -1,10 +1,10 @@
 //mem.c
 //standard memory functions to avoid using incompatible libraries on ARM
 
-// #include <FreeRTOS.h>
+#include <FreeRTOS.h>
 #include "mem.h"
 
-#include "prv_types.h"
+// #include "prv_types.h"
 
 void *memset(void *s, int c, size_t n){
     unsigned char* p=s;

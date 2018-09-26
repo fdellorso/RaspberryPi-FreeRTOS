@@ -4,7 +4,7 @@
  **/
 
 #include "interrupts.h"
-#include "bcm2835_intc.h"
+// #include "bcm2835_intc.h"
 // #include "video.h"
 
 static INTERRUPT_VECTOR g_VectorTable[BCM2835_INTC_TOTAL_IRQ];

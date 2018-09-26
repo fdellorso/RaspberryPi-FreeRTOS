@@ -1,6 +1,8 @@
 #ifndef _ILI9340_H_
 #define _ILI9340_H_
 
+#include "prv_types.h"
+
 #define  ILI9340_TFTWIDTH    240
 #define  ILI9340_TFTHEIGHT   320
 

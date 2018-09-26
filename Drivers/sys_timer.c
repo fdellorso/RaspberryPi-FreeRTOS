@@ -21,5 +21,5 @@ static volatile BCM2835_ST_REGS * const pRegs = (BCM2835_ST_REGS *) (BCM2835_ST_
 
 // Read the System Timer Counter (64-bits)
 uint64_t ReadSysTimer(void){
-	return (pRegs->CHI << 32) + pRegs->CLO;
+	return ((uint64_t)pRegs->CHI << 32) + (uint64_t)pRegs->CLO;
 }

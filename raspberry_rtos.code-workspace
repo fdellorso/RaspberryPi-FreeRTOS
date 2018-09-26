@@ -27,7 +27,8 @@
 			"stddef.h": "c",
 			"projdefs.h": "c",
 			"freertosconfig.h": "c",
-			"portable.h": "c"
+			"portable.h": "c",
+			"prv_types.h": "c"
 		}
 	}
 }

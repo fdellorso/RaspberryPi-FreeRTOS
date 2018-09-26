@@ -11,10 +11,10 @@ CFLAGS += $(ARCH) -g -std=gnu99 -Wno-psabi -fsigned-char -DRASPPI=$(RASPPI) -nos
 ## CFLAGS += -finstrument-functions
 CFLAGS += -mno-unaligned-access
 # CFLAGS += -Wall -Wextra
-CFLAGS += -I $(BASE)FreeRTOS/Source/portable/GCC/RaspberryPi/
-CFLAGS += -I $(BASE)FreeRTOS/Source/include/
 CFLAGS += -I $(BASE)Drivers/
-CFLAGS += -I $(BASE)Drivers/lan9514/include/
+CFLAGS += -I $(BASE)Drivers/uspi/include/
+CFLAGS += -I $(BASE)FreeRTOS/Source/include/
+CFLAGS += -I $(BASE)FreeRTOS/Source/portable/GCC/RaspberryPi/
 CFLAGS += -I $(BASE)Drivers/FreeRTOS-Plus-TCP/include/
 
 TOOLCHAIN=arm-none-eabi-

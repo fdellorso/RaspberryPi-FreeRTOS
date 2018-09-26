@@ -1,6 +1,8 @@
 #ifndef MEM_H
 #define MEM_H
 
+// #include "prv_types.h"
+
 void* malloc(unsigned nSize);
 void free(void* pBlock);
 void *memset(void *s, int c, size_t n);

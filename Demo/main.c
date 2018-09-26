@@ -54,7 +54,7 @@ int main(void) {
 	ili9340_init();
 	println("StuFA", ILI9340_WHITE);
 
-	USPiInitialize();
+	// USPiInitialize();
 	//videotest();
 
 	// DisableInterrupts();
