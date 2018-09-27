@@ -53,9 +53,10 @@ int main(void) {
 	// Inizializzazione Video per Debug
 	// initFB();
 	ili9340_init();
-	println("StuFA", ILI9340_WHITE);
+	ili9340_println("StuFA", ILI9340_WHITE);
 
-	// USPiInitialize();
+	USPiInitialize();
+
 	//videotest();
 
 	// DisableInterrupts();

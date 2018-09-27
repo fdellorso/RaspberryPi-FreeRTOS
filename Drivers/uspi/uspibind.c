@@ -49,12 +49,14 @@ void usDelay(unsigned nMicroSeconds) {
 unsigned StartKernelTimer(unsigned nDelay, TKernelTimerHandler *pHandler, void *pParam, void *pContext) {
 	//TimerStartKernelTimer (TimerGet (), nDelay, pHandler, pParam, pContext);
 	println("StartKernelTimer", 0xFFFFFFFF);
+	ili9340_println("StartKernelTimer", ILI9340_WHITE);
 	return 1;
 }
 
 void CancelKernelTimer(unsigned hTimer) {
 	//TimerCancelKernelTimer (TimerGet (), hTimer);
 	println("CancelKernelTimer", 0xFFFFFFFF);
+	ili9340_println("CancelKernelTimer", ILI9340_WHITE);
 }
 
 //void ConnectInterrupt (unsigned nIRQ, TInterruptHandler *pfnHandler, void *pParam){
@@ -127,6 +129,7 @@ void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...)
 
 	va_end (var);*/
 	println(pMessage, 0xFFFFFFFF);
+	ili9340_println(pMessage, ILI9340_WHITE);
 }
 
 #ifndef NDEBUG
@@ -135,11 +138,16 @@ void uspi_assertion_failed(const char *pExpr, const char *pFile, unsigned nLine)
 	println(pExpr, 0xFFFFFFFF);
 	println(pFile, 0xFFFFFFFF);
 	printHex("Line ", nLine, 0xFFFFFFFF);
+	ili9340_println(pFile, ILI9340_WHITE);
+	ili9340_println("StartKernelTimer", ILI9340_WHITE);
+	ili9340_printHex("Line ", nLine, ILI9340_WHITE);
 	while(1){;} //system failure
 }
 
 void DebugHexdump (const void *pBuffer, unsigned nBufLen, const char *pSource) {
-	println("DebugHexdump", 0xFFFFFFFF);//debug_hexdump (pBuffer, nBufLen, pSource);
+	//debug_hexdump (pBuffer, nBufLen, pSource);
+	println("DebugHexdump", 0xFFFFFFFF);
+	ili9340_println("DebugHexdump", ILI9340_WHITE);
 }
 
 #endif

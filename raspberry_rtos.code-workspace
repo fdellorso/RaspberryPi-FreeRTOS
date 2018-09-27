@@ -32,7 +32,11 @@
 			"mailbox.h": "c",
 			"sys_timer.h": "c",
 			"bcm2835_base.h": "c",
-			"font_5x5.h": "c"
+			"font_5x5.h": "c",
+			"assert.h": "c",
+			"uspios.h": "c",
+			"font_clock.h": "c",
+			"bcm2835.h": "c"
 		}
 	}
 }

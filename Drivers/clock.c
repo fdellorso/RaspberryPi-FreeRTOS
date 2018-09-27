@@ -3,9 +3,11 @@
  *
  **/
 
-#include "bcm2835.h" // da togliere
+// #include "bcm2835.h" //OPT bcm2835.h
 #include "clock.h"
 #include "ili9340.h"
+#include "gpio.h"
+#include "sys_timer.h"
 #include "font_clock.h"
 
 #include "prv_types.h"
@@ -60,14 +62,20 @@ void ili9340_clock_setup() {
 
     // Impostazione KEY1,2,3 sul Modulo LCD
     // Pull Up on GPIO 18, 23, 24
-    bcm2835_gpio_fsel(KEY1,BCM2835_GPIO_FSEL_INPT); //usare gpio.h
-    bcm2835_gpio_fsel(KEY2,BCM2835_GPIO_FSEL_INPT); //usare gpio.h
-    bcm2835_gpio_fsel(KEY3,BCM2835_GPIO_FSEL_INPT); //usare gpio.h
+    // bcm2835_gpio_set_pud(KEY1,BCM2835_GPIO_PUD_UP); //OPT bcm2835.h
+    // bcm2835_gpio_set_pud(KEY2,BCM2835_GPIO_PUD_UP); //OPT bcm2835.h
+    // bcm2835_gpio_set_pud(KEY3,BCM2835_GPIO_PUD_UP); //OPT bcm2835.h
+    PudGpio(KEY1, PULL_UP);
+    PudGpio(KEY2, PULL_UP);
+    PudGpio(KEY3, PULL_UP);
 
     // Function Select Input for GPIO 18, 23, 24
-    bcm2835_gpio_set_pud(KEY1,BCM2835_GPIO_PUD_UP); //usare gpio.h
-    bcm2835_gpio_set_pud(KEY2,BCM2835_GPIO_PUD_UP); //usare gpio.h
-    bcm2835_gpio_set_pud(KEY3,BCM2835_GPIO_PUD_UP); //usare gpio.h
+    // bcm2835_gpio_fsel(KEY1,BCM2835_GPIO_FSEL_INPT); //OPT bcm2835.h
+    // bcm2835_gpio_fsel(KEY2,BCM2835_GPIO_FSEL_INPT); //OPT bcm2835.h
+    // bcm2835_gpio_fsel(KEY3,BCM2835_GPIO_FSEL_INPT); //OPT bcm2835.h
+    SetGpioFunction(KEY1,GPIO_FUNC_INPUT);
+    SetGpioFunction(KEY2,GPIO_FUNC_INPUT);
+    SetGpioFunction(KEY3,GPIO_FUNC_INPUT);    
 
     // Inizializzazione LCD
     // Impostazioni già presenti nel Main.c
@@ -87,25 +95,30 @@ void ili9340_clock_setup() {
         ili9340_fill_rect(0,0,width,height,ILI9340_BLACK);
 	    ili9340_clock_string(time1, (width - 8*CLOCK_WIDTH)/2, (height - CLOCK_HEIGHT)/2 , ILI9340_RED);
 	    ili9340_update_display();
-        bcm2835_delay(500); //creare bcm2835_base
+        // bcm2835_delay(500); //OPT bcm2835.h
+        DelaySysTimer(500*1000);
 
         ili9340_fill_rect(0,0,width,height,ILI9340_BLACK);
         ili9340_clock_string(time2, (width - 8*CLOCK_WIDTH)/2, (height - CLOCK_HEIGHT)/2 , ILI9340_RED);
 	    ili9340_update_display();
-        bcm2835_delay(500); //creare bcm2835_base
+        // bcm2835_delay(500); //OPT bcm2835.h
+        DelaySysTimer(500*1000);
 
         #if(KEY_IRQ == 0)
-            if(bcm2835_gpio_lev(18) == 0) { //usare gpio.h
+            // if(bcm2835_gpio_lev(18) == 0) { //OPT bcm2835.h
+            if(ReadGpio(KEY1) == 0) {
                 if(hour == 23) hour =  0;
                 else           hour += 1;
             }
 
-            if(bcm2835_gpio_lev(23) == 0) { //usare gpio.h
+            // if(bcm2835_gpio_lev(23) == 0) { //OPT bcm2835.h
+            if(ReadGpio(KEY2) == 0) {
                 if(hour == 0)  hour =  23;
                 else           hour -= 1;
             }
 
-            if(bcm2835_gpio_lev(24) == 0) //usare gpio.h
+            // if(bcm2835_gpio_lev(24) == 0) //OPT bcm2835.h
+            if(ReadGpio(KEY3) == 0)
                 exit_clk = 0;
         #endif
     }
@@ -122,25 +135,30 @@ void ili9340_clock_setup() {
         ili9340_fill_rect(0,0,width,height,ILI9340_BLACK);
 	    ili9340_clock_string(time1, (width - 8*CLOCK_WIDTH)/2, (height - CLOCK_HEIGHT)/2 , ILI9340_RED);
 	    ili9340_update_display();
-        bcm2835_delay(500); //creare bcm2835_base
+        // bcm2835_delay(500); //OPT bcm2835.h
+        DelaySysTimer(500*1000);
 
         ili9340_fill_rect(0,0,width,height,ILI9340_BLACK);
         ili9340_clock_string(time2, (width - 8*CLOCK_WIDTH)/2, (height - CLOCK_HEIGHT)/2 , ILI9340_RED);
 	    ili9340_update_display();
-        bcm2835_delay(500); //creare bcm2835_base
+        // bcm2835_delay(500); //OPT bcm2835.h
+        DelaySysTimer(500*1000);
 
         #if(KEY_IRQ == 0)
-            if(bcm2835_gpio_lev(18) == 0) { //usare gpio.h
+            // if(bcm2835_gpio_lev(18) == 0) { //OPT bcm2835.h
+            if(ReadGpio(KEY1) == 0) {
                 if(minute == 59) minute =  0;
                 else             minute += 1;
             }
 
-            if(bcm2835_gpio_lev(23) == 0) { //usare gpio.h
+            // if(bcm2835_gpio_lev(23) == 0) { //OPT bcm2835.h
+            if(ReadGpio(KEY2) == 0) {
                 if(minute == 0)  minute =  59;
                 else             minute -= 1;
             }
 
-            if(bcm2835_gpio_lev(24) == 0) //usare gpio.h
+            // if(bcm2835_gpio_lev(24) == 0) //OPT bcm2835.h
+            if(ReadGpio(KEY3) == 0)
                 exit_clk = 0;
         #endif
     }
@@ -157,25 +175,30 @@ void ili9340_clock_setup() {
         ili9340_fill_rect(0,0,width,height,ILI9340_BLACK);
 	    ili9340_clock_string(time1, (width - 8*CLOCK_WIDTH)/2, (height - CLOCK_HEIGHT)/2 , ILI9340_RED);
 	    ili9340_update_display();
-        bcm2835_delay(500); //creare bcm2835_base
+        // bcm2835_delay(500); //OPT bcm2835.h
+        DelaySysTimer(500*1000);
 
         ili9340_fill_rect(0,0,width,height,ILI9340_BLACK);
         ili9340_clock_string(time2, (width - 8*CLOCK_WIDTH)/2, (height - CLOCK_HEIGHT)/2 , ILI9340_RED);
 	    ili9340_update_display();
-        bcm2835_delay(500); //creare bcm2835_base
+        // bcm2835_delay(500); //OPT bcm2835.h
+        DelaySysTimer(500*1000);
 
         #if(KEY_IRQ == 0)
-            if(bcm2835_gpio_lev(18) == 0) { //usare gpio.h
+            // if(bcm2835_gpio_lev(18) == 0) { //OPT bcm2835.h
+            if(ReadGpio(KEY1) == 0) {
                 if(second == 59) second =  0;
                 else             second += 1;
             }
 
-            if(bcm2835_gpio_lev(23) == 0) { //usare gpio.h
+            // if(bcm2835_gpio_lev(23) == 0) { //OPT bcm2835.h
+            if(ReadGpio(KEY2) == 0) {
                 if(second == 0)  second =  59;
                 else             second -= 1;
             }
 
-            if(bcm2835_gpio_lev(24) == 0) //usare gpio.h
+            // if(bcm2835_gpio_lev(24) == 0) //OPT bcm2835.h
+            if(ReadGpio(KEY3) == 0)
                 exit_clk = 0;
         #endif
     }

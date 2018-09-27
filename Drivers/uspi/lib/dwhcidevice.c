@@ -1419,7 +1419,8 @@ void DWHCIDeviceDumpRegister (TDWHCIDevice *pThis, const char *pName, u32 nAddre
 	DataMemBarrier ();
 
 	//LogWrite (FromDWHCI, LOG_DEBUG, "0x%08X %s", DWHCIRegisterRead (&Register), pName);
-printHex(pName, DWHCIRegisterRead (&Register), 0xFFFFFFFF);
+	printHex(pName, DWHCIRegisterRead (&Register), 0xFFFFFFFF);
+	ili9340_printHex(pName, DWHCIRegisterRead (&Register), ILI9340_WHITE);
 
 	_DWHCIRegister (&Register);
 }
