@@ -27,8 +27,8 @@ OBJECTS += $(BUILD_DIR)Drivers/bcm2835.o
 OBJECTS += $(BUILD_DIR)Drivers/prv_string.o
 OBJECTS += $(BUILD_DIR)Drivers/mem.o
 OBJECTS += $(BUILD_DIR)Drivers/ili9340.o
-# OBJECTS += $(BUILD_DIR)Drivers/clock.o
-# OBJECTS += $(BUILD_DIR)Demo/trace.o
+OBJECTS += $(BUILD_DIR)Drivers/clock.o
+OBJECTS += $(BUILD_DIR)Demo/trace.o
 
 #smsc9514 (LAN and USB)
 OBJECTS += $(BUILD_DIR)Drivers/uspi/uspibind.o

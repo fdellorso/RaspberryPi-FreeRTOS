@@ -32,3 +32,7 @@ void DelaySysTimer(uint64_t micros) {
 	while(ReadSysTimer() < compare)
 		;
 }
+
+void DelayMilliSysTimer(uint64_t millis) {
+	DelaySysTimer(millis * 1000);
+}

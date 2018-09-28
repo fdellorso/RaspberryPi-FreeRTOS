@@ -36,7 +36,8 @@
 			"assert.h": "c",
 			"uspios.h": "c",
 			"font_clock.h": "c",
-			"bcm2835.h": "c"
+			"bcm2835.h": "c",
+			"synchronize.h": "c"
 		}
 	}
 }

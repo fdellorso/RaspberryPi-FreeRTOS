@@ -9,5 +9,6 @@
 
 uint64_t ReadSysTimer(void);
 void DelaySysTimer(uint64_t micros);
+void DelayMilliSysTimer(uint64_t millis);
 
 #endif

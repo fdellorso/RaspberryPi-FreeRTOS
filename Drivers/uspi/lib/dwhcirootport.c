@@ -62,7 +62,7 @@ boolean DWHCIRootPortInitialize (TDWHCIRootPort *pThis)
 
 		return FALSE;
 	}
-	
+
 	// first create default device
 	assert (pThis->m_pDevice == 0);
 	pThis->m_pDevice = (TUSBDevice *) malloc (sizeof (TUSBDevice));

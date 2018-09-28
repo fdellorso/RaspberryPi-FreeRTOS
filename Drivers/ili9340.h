@@ -114,7 +114,7 @@ extern  void        ili9340_update_display  ();
 
 #endif
 
-#ifndef _VIDEO_H_
-#define println(message, color)         ili9340_println(message, color)
-#define printHex(message, hexi, color)  ili9340_printHex(message, hexi, color)
-#endif
+// #ifndef _VIDEO_H_
+// #define println(message, color)         ili9340_println(message, color)
+// #define printHex(message, hexi, color)  ili9340_printHex(message, hexi, color)
+// #endif

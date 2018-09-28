@@ -3,6 +3,7 @@
 #include "ili9340.h"
 #include "bcm2835_base.h"
 #include "gpio.h"
+#include "sys_timer.h"
 #include "font_5x5.h"
 
 #include "prv_types.h"
@@ -14,7 +15,7 @@
 
 uint16_t width, height;
 
-char framebuffer[2 * ILI9340_TFTWIDTH * ILI9340_TFTHEIGHT];
+char lcdbuffer[2 * ILI9340_TFTWIDTH * ILI9340_TFTHEIGHT];
 uint16_t dirty_x0;
 uint16_t dirty_y0;
 uint16_t dirty_x1;
@@ -68,8 +69,8 @@ void ili9340_draw_pixel(uint16_t x, uint16_t y, uint16_t color) {
 	ili9340_mkdirty(x, y, x, y);
 
 	uint32_t offset = (y * width + x) << 1;
-	framebuffer[offset++] = (color >> 8) & 0xff;
-	framebuffer[offset] = color & 0xff;
+	lcdbuffer[offset++] = (color >> 8) & 0xff;
+	lcdbuffer[offset] = color & 0xff;
 }
 
 void ili9340_draw_char(unsigned char c, uint16_t x, uint16_t y, uint16_t color) {
@@ -131,8 +132,8 @@ void ili9340_println(const char* message, uint16_t color) {
 
 	// 		for(x = 0; x < width * height; x++){
 	// 			// framebuffer[x] = 0xFF000000;
-	// 			framebuffer[x++] = (ILI9340_BLACK >> 8) & 0xff;
-	// 			framebuffer[x] = ILI9340_BLACK & 0xff;
+	// 			lcdbuffer[x++] = (ILI9340_BLACK >> 8) & 0xff;
+	// 			lcdbuffer[x] = ILI9340_BLACK & 0xff;
 	// 		}
 	// 		lcd_position_y = 0;
 	// 		lcd_position_x = 0;
@@ -183,8 +184,8 @@ void ili9340_fill_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t 
 
 	while (h--) {
 		for (i = w; i; i--) {
-			framebuffer[offset++] = hi;
-			framebuffer[offset++] = lo;
+			lcdbuffer[offset++] = hi;
+			lcdbuffer[offset++] = lo;
 		}
 		offset += (width - w) << 1;
 	}
@@ -229,7 +230,7 @@ void ili9340_update_display() {
 	uint32_t len = 2 * (dirty_x1 - dirty_x0 + 1);
 
 	while (dirty_y0 <= dirty_y1) {
-		bcm2835_spi_writenb(framebuffer + offset, len);	//TODO Manca libreria SPI
+		bcm2835_spi_writenb(lcdbuffer + offset, len);	//TODO Manca libreria SPI
 		offset += width << 1;
 		dirty_y0++;
 	}
@@ -304,11 +305,11 @@ void ili9340_init(void) {
 	// bcm2835_delay(150);
 	SetGpio(LCD_RESET, LOW);
 	SetGpio(LCD_RESET, HIGH);
-	wait_cycles(5);
+	DelayMilliSysTimer(5);
 	SetGpio(LCD_RESET, LOW);
-	wait_cycles(20);
+	DelayMilliSysTimer(20);
 	SetGpio(LCD_RESET, HIGH);
-	wait_cycles(150);
+	DelayMilliSysTimer(150);
 
 	ili9340_write_command(0xEF, 3, 0x03, 0x80, 0x02);
 	ili9340_write_command(0xCF, 3, 0x00 , 0XC1 , 0X30);

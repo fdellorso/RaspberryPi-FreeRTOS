@@ -22,7 +22,7 @@ uint8_t exit_clk;
 void ili9340_clock_char(unsigned char c, uint16_t x, uint16_t y, uint16_t color) {
 	uint16_t i, j;
 	uint16_t height_counter;
-	const byte_size = 8;
+	#define byte_size 8
 	
 	//convert the character to an index
 	c = c & 0x7F;

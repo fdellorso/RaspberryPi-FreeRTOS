@@ -8,10 +8,11 @@
 #include <task.h>
 
 #include "bcm2835_base.h"
-#include "interrupts.h"
 #include "gpio.h"
+#include "interrupts.h"
 #include "video.h"
 #include "ili9340.h"
+
 #include <bcm2835.h>
 
 // #include "FreeRTOS_IP.h"
@@ -38,9 +39,19 @@ void task2() {
 	int i = 0;
 	while(1) {
 		i++;
-		vTaskDelay(100);
+		// vTaskDelay(100);
 		SetGpio(47, 0);
-		vTaskDelay(100);
+		vTaskDelay(200);
+	}
+}
+
+void task3() {
+	int i = 0;
+	ili9340_println("Uspi Initialize", ILI9340_WHITE);
+	while(1) {
+		i++;
+		USPiInitialize();
+		vTaskDelay(200);
 	}
 }
 
@@ -53,17 +64,17 @@ int main(void) {
 	// Inizializzazione Video per Debug
 	// initFB();
 	ili9340_init();
-	ili9340_println("StuFA", ILI9340_WHITE);
 
 	USPiInitialize();
-
-	//videotest();
+	
+	// videotest();
 
 	// DisableInterrupts();
 	// InitInterruptController();
 
 	xTaskCreate(task1, "LED_0", 128, NULL, 0, NULL);
 	xTaskCreate(task2, "LED_1", 128, NULL, 0, NULL);
+	// xTaskCreate(task3, "USPI", 128, NULL, 1, NULL);
 
 	//set to 0 for no debug, 1 for debug, or 2 for GCC instrumentation (if enabled in config)
 	loaded = 1;

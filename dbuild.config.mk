@@ -1,5 +1,5 @@
 RASPPI	?= 1
-LOGGING	?= 1
+# LOGGING	?= 1
 
 ifeq ($(strip $(RASPPI)),1)
 ARCH	?= -march=armv6j -mtune=arm1176jzf-s -mfloat-abi=hard 
@@ -11,7 +11,7 @@ AFLAGS ?= $(ARCH) -DRASPPI=$(RASPPI)
 CFLAGS += $(ARCH) -g -std=gnu99 -Wno-psabi -fsigned-char -nostdlib -Wno-implicit -mfloat-abi=softfp 
 # CFLAGS += -finstrument-functions
 CFLAGS += -mno-unaligned-access
-CFLAGS += -DRASPPI=$(RASPPI) -DLOGGING=$(LOGGING)
+CFLAGS += -DRASPPI=$(RASPPI) # -DLOGGING=$(LOGGING)
 # CFLAGS += -Wall -Wextra
 CFLAGS += -I $(BASE)Drivers/
 CFLAGS += -I $(BASE)Drivers/uspi/include/

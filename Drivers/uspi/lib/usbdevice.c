@@ -169,7 +169,7 @@ boolean USBDeviceInitialize (TUSBDevice *pThis)
 
 	assert (pThis->m_pHost != 0);
 	assert (pThis->m_pEndpoint0 != 0);
-	
+
 	assert (sizeof *pThis->m_pDeviceDesc >= USB_DEFAULT_MAX_PACKET_SIZE);
 	if (DWHCIDeviceGetDescriptor (pThis->m_pHost, pThis->m_pEndpoint0,
 				    DESCRIPTOR_DEVICE, DESCRIPTOR_INDEX_DEFAULT,
@@ -229,7 +229,7 @@ boolean USBDeviceInitialize (TUSBDevice *pThis)
 
 		return FALSE;
 	}
-	
+
 	USBDeviceSetAddress (pThis, ucAddress);
 
 	if (   pThis->m_pDeviceDesc->iManufacturer != 0

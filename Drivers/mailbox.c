@@ -31,7 +31,7 @@ void mailboxWrite(int data_addr, int channel){
 	// int mailbox = 0x2000B880;
 	while(1){
 		// if((GET32(mailbox + 0x18)&0x80000000) == 0) break;
-		if(pRegs->STATUS == MAIL_FULL) break;
+		if((pRegs->STATUS & MAIL_FULL) == 0) break;
 	}
 	// PUT32(mailbox + 0x20, data_addr + channel);
 	pRegs->WRITE = data_addr + channel;
@@ -45,7 +45,7 @@ int mailboxRead(int channel){
 		while(1){
 			// ra = GET32(mailbox + 0x18);
 			// if((ra&0x40000000) == 0) break;
-			if(pRegs->STATUS == MAIL_EMPTY) break;
+			if((pRegs->STATUS & MAIL_EMPTY) == 0) break;
 		}
 		// ra = GET32(mailbox + 0x00);
 		ra = pRegs->READ;

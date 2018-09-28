@@ -57,6 +57,7 @@ void DWHCIRegisterWrite (TDWHCIRegister *pThis)
 	assert (pThis->m_bValid);
 	*(u32 *) pThis->m_nAddress = pThis->m_nBuffer;
 	//println("write_return", 0xFFFFFFFF);
+	LogWrite("dwhci", LOG_DEBUG, "write_return");
 }
 
 u32 DWHCIRegisterGet (TDWHCIRegister *pThis)
