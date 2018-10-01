@@ -18,6 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include <uspios.h>
+#include <uspi/stdarg.h>
+#include <uspi/string.h>
 #include <FreeRTOS.h>
 #include <task.h>
 
@@ -122,14 +124,19 @@ int GetMACAddress(unsigned char Buffer[6]) {
 
 __attribute__((no_instrument_function))
 void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...) {
-	/*va_list var;
+	va_list var;
 	va_start (var, pMessage);
 
-	LoggerWriteV (LoggerGet (), pSource, (TLogSeverity) Severity, pMessage, var);
+	TString Message;
+	String (&Message);
+	StringFormatV (&Message, pMessage, var);
 
-	va_end (var);*/
+	// LoggerWriteV (LoggerGet (), pSource, (TLogSeverity) Severity, pMessage, var);
+	ili9340_println(StringGet (&Message), ILI9340_WHITE);
+
+	va_end (var);
 	println(pMessage, 0xFFFFFFFF);
-	ili9340_println(pMessage, ILI9340_WHITE);
+	// ili9340_println(pMessage, ILI9340_WHITE);
 }
 
 #ifndef NDEBUG
@@ -138,8 +145,8 @@ void uspi_assertion_failed(const char *pExpr, const char *pFile, unsigned nLine)
 	println(pExpr, 0xFFFFFFFF);
 	println(pFile, 0xFFFFFFFF);
 	printHex("Line ", nLine, 0xFFFFFFFF);
+	ili9340_println(pExpr, ILI9340_WHITE);
 	ili9340_println(pFile, ILI9340_WHITE);
-	ili9340_println("StartKernelTimer", ILI9340_WHITE);
 	ili9340_printHex("Line ", nLine, ILI9340_WHITE);
 	while(1){;} //system failure
 }

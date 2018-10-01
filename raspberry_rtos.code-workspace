@@ -37,7 +37,10 @@
 			"uspios.h": "c",
 			"font_clock.h": "c",
 			"bcm2835.h": "c",
-			"synchronize.h": "c"
+			"synchronize.h": "c",
+			"dwhciregister.h": "c",
+			"rpi-smartstart.h": "c",
+			"*.inc": "cpp"
 		}
 	}
 }

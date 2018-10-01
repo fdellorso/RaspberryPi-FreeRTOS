@@ -4,6 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/Drivers/uspi/include",
                 "${workspaceFolder}/FreeRTOS/Source/portable/GCC/RaspberryPi"
             ],
             "defines": [],

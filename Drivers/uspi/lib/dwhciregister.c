@@ -21,6 +21,8 @@
 #include <uspios.h>
 #include <uspi/assert.h>
 
+// #include "ili9340.h"
+
 void DWHCIRegister (TDWHCIRegister *pThis, u32 nAddress)
 {
 	assert (pThis != 0);
@@ -55,9 +57,10 @@ void DWHCIRegisterWrite (TDWHCIRegister *pThis)
 {
 	assert (pThis != 0);
 	assert (pThis->m_bValid);
+	// ili9340_printHex("m_nAddress: ", pThis->m_nAddress, ILI9340_WHITE);
+	// ili9340_printHex("m_nBuffer : ", pThis->m_nBuffer, ILI9340_WHITE);
 	*(u32 *) pThis->m_nAddress = pThis->m_nBuffer;
-	//println("write_return", 0xFFFFFFFF);
-	LogWrite("dwhci", LOG_DEBUG, "write_return");
+	// println("write_return", 0xFFFFFFFF);
 }
 
 u32 DWHCIRegisterGet (TDWHCIRegister *pThis)

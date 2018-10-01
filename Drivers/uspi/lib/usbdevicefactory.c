@@ -97,6 +97,7 @@ TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName)
         USBGamePadDevice (pDevice, pParent);
         pResult = (TUSBDevice *) pDevice;
     }
+	// TODO Qua inizia il driver per TIC834
 	// new devices follow
 
 	if (pResult != 0)

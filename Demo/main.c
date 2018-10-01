@@ -25,6 +25,7 @@
 // #include "FreeRTOS_IP_Private.h"
 
 uint16_t width, height;
+xTaskHandle xHandleUSPi;
 
 void task1() {
 	int i = 0;
@@ -39,19 +40,20 @@ void task2() {
 	int i = 0;
 	while(1) {
 		i++;
-		// vTaskDelay(100);
+		vTaskDelay(100);
 		SetGpio(47, 0);
-		vTaskDelay(200);
+		vTaskDelay(100);
 	}
 }
 
 void task3() {
+	int uspiInit = 0;
 	int i = 0;
-	ili9340_println("Uspi Initialize", ILI9340_WHITE);
+	ili9340_println("USPi Initialize", ILI9340_WHITE);
 	while(1) {
 		i++;
-		USPiInitialize();
-		vTaskDelay(200);
+		while(uspiInit == 0) uspiInit = USPiInitialize();
+		vTaskDelete(xHandleUSPi);
 	}
 }
 
@@ -65,16 +67,15 @@ int main(void) {
 	// initFB();
 	ili9340_init();
 
-	USPiInitialize();
-	
 	// videotest();
 
-	// DisableInterrupts();
-	// InitInterruptController();
+	DisableInterrupts();
+	InitInterruptController();
 
 	xTaskCreate(task1, "LED_0", 128, NULL, 0, NULL);
 	xTaskCreate(task2, "LED_1", 128, NULL, 0, NULL);
-	// xTaskCreate(task3, "USPI", 128, NULL, 1, NULL);
+	xTaskCreate(task3, "USPI", 1024, NULL, 1, &xHandleUSPi);
+
 
 	//set to 0 for no debug, 1 for debug, or 2 for GCC instrumentation (if enabled in config)
 	loaded = 1;
