@@ -15,7 +15,7 @@
 char loaded;
 
 void enablelogging();
-void initFB();
+void initFB(int width, int height);
 void drawChar(unsigned char c, int x, int y, int colour);
 void drawString(const char* str, int x, int y, int colour);
 void println(const char* message, int colour);

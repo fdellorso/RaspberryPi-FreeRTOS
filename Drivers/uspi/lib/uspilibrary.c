@@ -81,9 +81,45 @@ int USPiInitialize (void)
 		_String  (&DeviceName);
 	}
 
+	s_pLibrary->pTic0 = (TUSBTicT834Device *) DeviceNameServiceGetDevice (DeviceNameServiceGet (), "tic0", FALSE);
+
 	LogWrite (FromUSPi, LOG_DEBUG, "USPi library successfully initialized");
 
 	return 1;
+}
+
+int USPiTicAvailable (void)
+{
+	assert (s_pLibrary != 0);
+	return s_pLibrary->pTic0 != 0;
+}
+
+int USPiTicQuick (unsigned char nCommand)
+{
+	assert (s_pLibrary != 0);
+	assert (s_pLibrary->pTic0 != 0);
+	return USBTicT834DeviceWriteReg (s_pLibrary->pTic0, nCommand, 0, 0, 0, 0) ? 1 : 0;
+}
+
+int USPiTic7BitWrite (unsigned char nCommand, unsigned short nValue)
+{
+	assert (s_pLibrary != 0);
+	assert (s_pLibrary->pTic0 != 0);
+	return USBTicT834DeviceWriteReg (s_pLibrary->pTic0, nCommand, nValue, 0, 0, 0) ? 1 : 0;
+}
+
+int USPiTic32BitWrite (unsigned char nCommand, unsigned short nValue, unsigned int nIndex)
+{
+	assert (s_pLibrary != 0);
+	assert (s_pLibrary->pTic0 != 0);
+	return USBTicT834DeviceWriteReg (s_pLibrary->pTic0, nCommand, nValue, nIndex, 0, 0) ? 1 : 0;
+}
+
+int USPiTicBlockRead (unsigned char nCommand, unsigned int nIndex, unsigned short nLength, unsigned int *nData)
+{
+	assert (s_pLibrary != 0);
+	assert (s_pLibrary->pTic0 != 0);
+	return USBTicT834DeviceReadReg (s_pLibrary->pTic0, nCommand, 0, nIndex, nLength, nData) ? 1 : 0;
 }
 
 int USPiKeyboardAvailable (void)
@@ -306,6 +342,13 @@ int USPiDeviceGetInformation (unsigned nClass, unsigned nDeviceIndex, TUSPiDevic
 		if (nDeviceIndex < MAX_DEVICES)
 		{
 			pUSBDevice = (TUSBDevice *) s_pLibrary->pUPAD[nDeviceIndex];
+		}
+		break;
+
+	case TICT834_CLASS:
+		if (nDeviceIndex < MAX_DEVICES)
+		{
+			pUSBDevice = (TUSBDevice *) s_pLibrary->pTic0;
 		}
 		break;
 

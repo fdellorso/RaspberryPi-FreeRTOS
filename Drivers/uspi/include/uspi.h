@@ -26,12 +26,24 @@
 extern "C" {
 #endif
 
+#include <uspi/tic_protocol.h>
+
 //
 // USPi initialization
 //
 
 // returns 0 on failure
 int USPiInitialize (void);
+
+//
+// Pololu TicT834 Device
+//
+int USPiTicAvailable (void);
+int USPiTicQuick (unsigned char nCommand);
+int USPiTic7BitWrite (unsigned char nCommand, unsigned short nValue);
+int USPiTic32BitWrite (unsigned char nCommand, unsigned short nValue, unsigned int nIndex);
+int USPiTicBlockRead (unsigned char nCommand, unsigned int nIndex, unsigned short nLength, unsigned int *nData);
+
 
 //
 // Keyboard device
@@ -51,13 +63,13 @@ void USPiKeyboardRegisterShutdownHandler (TUSPiShutdownHandler *pShutdownHandler
 // "raw mode" (if this handler is registered the others are ignored)
 // The raw handler is called when the keyboard sends a status report (on status change and/or continously).
 typedef void TUSPiKeyStatusHandlerRaw (unsigned char	     ucModifiers,
-				       const unsigned char   RawKeys[6]);  // key code or 0 in each byte
+				       				   const unsigned char   RawKeys[6]);  // key code or 0 in each byte
 void USPiKeyboardRegisterKeyStatusHandlerRaw (TUSPiKeyStatusHandlerRaw *pKeyStatusHandlerRaw);
 
 // ucModifiers (bit is set if modifier key is pressed)
 #define LCTRL		(1 << 0)
 #define LSHIFT		(1 << 1)
-#define ALT		(1 << 2)
+#define ALT			(1 << 2)
 #define LWIN		(1 << 3)
 #define RCTRL		(1 << 4)
 #define RSHIFT		(1 << 5)
@@ -73,8 +85,8 @@ int USPiMouseAvailable (void);
 
 // The status handler is called when the mouse sends a status report.
 typedef void TUSPiMouseStatusHandler (unsigned nButtons,
-				      int nDisplacementX,		// -127..127
-				      int nDisplacementY);		// -127..127
+				      				  int nDisplacementX,		// -127..127
+				      				  int nDisplacementY);		// -127..127
 void USPiMouseRegisterStatusHandler (TUSPiMouseStatusHandler *pStatusHandler);
 
 // nButtons (bit is set if button is pressed)
@@ -85,7 +97,7 @@ void USPiMouseRegisterStatusHandler (TUSPiMouseStatusHandler *pStatusHandler);
 // ucModifiers (bit is set if modifier key is pressed)
 #define LCTRL		(1 << 0)
 #define LSHIFT		(1 << 1)
-#define ALT		(1 << 2)
+#define ALT			(1 << 2)
 #define LWIN		(1 << 3)
 #define RCTRL		(1 << 4)
 #define RSHIFT		(1 << 5)
@@ -173,10 +185,11 @@ void USPiGamePadRegisterStatusHandler (TGamePadStatusHandler *pStatusHandler);
 //
 
 #define KEYBOARD_CLASS	1
-#define MOUSE_CLASS	2
+#define MOUSE_CLASS		2
 #define STORAGE_CLASS	3
 #define ETHERNET_CLASS	4
 #define GAMEPAD_CLASS	5
+#define TICT834_CLASS	6
 
 typedef struct TUSPiDeviceInformation
 {
@@ -186,15 +199,15 @@ typedef struct TUSPiDeviceInformation
 	unsigned short	bcdDevice;
 
 	// points to a buffer in the USPi library, empty string if not available
-	const char	*pManufacturer;
-	const char	*pProduct;
+	const char		*pManufacturer;
+	const char		*pProduct;
 }
 TUSPiDeviceInformation;
 
 // returns 0 on failure
-int USPiDeviceGetInformation (unsigned nClass,			// see above
-			      unsigned nDeviceIndex,		// 0-based index
-			      TUSPiDeviceInformation *pInfo);	// provided buffer is filled
+int USPiDeviceGetInformation (unsigned nClass,					// see above
+			      			  unsigned nDeviceIndex,			// 0-based index
+			      			  TUSPiDeviceInformation *pInfo);	// provided buffer is filled
 
 #ifdef __cplusplus
 }

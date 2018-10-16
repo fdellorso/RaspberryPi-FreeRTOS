@@ -5,6 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/Drivers/uspi/include",
+                "${workspaceFolder}/Drivers/uspi/include/uspi",
                 "${workspaceFolder}/FreeRTOS/Source/portable/GCC/RaspberryPi"
             ],
             "defines": [],

@@ -175,7 +175,8 @@ static u32 BitGetUnsigned(void *buffer, u32 offset, u32 length)
     return result;
 }
 
-static s32 BitGetSigned(void* buffer, u32 offset, u32 length) {
+static s32 BitGetSigned(void* buffer, u32 offset, u32 length)
+{
     u32 result = BitGetUnsigned(buffer, offset, length);
 
     if (result & (1 << (length - 1)))

@@ -4,9 +4,6 @@
 			"path": "."
 		},
 		{
-			"path": "/home/fra/RaspberryPi-FreeRTOS_JW"
-		},
-		{
 			"path": "/home/fra/Raspberry_Lib"
 		},
 		{
@@ -40,7 +37,9 @@
 			"synchronize.h": "c",
 			"dwhciregister.h": "c",
 			"rpi-smartstart.h": "c",
-			"*.inc": "cpp"
+			"*.inc": "cpp",
+			"usbtict834.h": "c",
+			"smsc951x.h": "c"
 		}
 	}
 }

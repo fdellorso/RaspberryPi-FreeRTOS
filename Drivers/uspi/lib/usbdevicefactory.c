@@ -28,6 +28,7 @@
 #include <uspi/usbmouse.h>
 #include <uspi/usbgamepad.h>
 #include <uspi/smsc951x.h>
+#include <uspi/usbtict834.h>
 
 TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName);
 
@@ -98,6 +99,13 @@ TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName)
         pResult = (TUSBDevice *) pDevice;
     }
 	// TODO Qua inizia il driver per TIC834
+	else if (StringCompare (pName, "ven1ffb-b5") == 0)
+    {
+        TUSBTicT834Device *pDevice = (TUSBTicT834Device *) malloc (sizeof (TUSBTicT834Device));
+        assert (pDevice != 0);
+        USBTicT834Device (pDevice, pParent);
+        pResult = (TUSBDevice *) pDevice;
+    }
 	// new devices follow
 
 	if (pResult != 0)

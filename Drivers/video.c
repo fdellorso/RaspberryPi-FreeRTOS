@@ -24,7 +24,7 @@ void enablelogging(){ loaded = 1;}
 unsigned int mailbuffer[22] __attribute__((aligned (16)));
 unsigned int* framebuffer;
 
-void initFB(){
+void initFB(int width, int height) {
 	//get the display size
 	/*mailbuffer[0] = 8 * 4;		//mailbuffer size
 	mailbuffer[1] = 0;		//response code
@@ -52,8 +52,8 @@ void initFB(){
 		attempts++;
 	}*/
 
-	SCREEN_WIDTH 	= 1440;				//mailbuffer[5];
-	SCREEN_HEIGHT 	= 900;				//mailbuffer[6];
+	SCREEN_WIDTH 	= width;				//mailbuffer[5];
+	SCREEN_HEIGHT 	= height;				//mailbuffer[6];
 
 	mailbuffer[0] 	= 22 * 4;			//mail buffer size
 	mailbuffer[1] 	= 0;				//response code
@@ -84,7 +84,7 @@ void initFB(){
 
 
 	//spam mail the GPU until the response code is ok
-	while(mailbuffer[1] != 0x80000000){
+	while(mailbuffer[1] != 0x80000000) {
 		mailboxWrite((int)mailbuffer, 8);
 		mailboxRead(8);
 	}
@@ -122,14 +122,15 @@ void drawRect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2
 //	1				1	0
 //	1				1	0
 __attribute__((no_instrument_function))
-void drawChar(unsigned char c, int x, int y, int colour){
+void drawChar(unsigned char c, int x, int y, int colour) {
 	int i, j;
 
 	//convert the character to an index
 	c = c & 0x7F;
 	if (c < ' ') {
 		c = 0;
-	} else {
+	}
+	else {
 		c -= ' ';
 	}
 
@@ -145,7 +146,7 @@ void drawChar(unsigned char c, int x, int y, int colour){
 }
 
 __attribute__((no_instrument_function))
-void drawString(const char* str, int x, int y, int colour){
+void drawString(const char* str, int x, int y, int colour) {
 	while (*str) {
 		drawChar(*str++, x, y, colour);
 		x += CHAR_WIDTH; 
@@ -153,7 +154,7 @@ void drawString(const char* str, int x, int y, int colour){
 }
 
 __attribute__((no_instrument_function))
-void println(const char* message, int colour){
+void println(const char* message, int colour) {
 	if(loaded == 0) return; //if video isn't loaded don't bother
 
 	int nFlags;
@@ -163,19 +164,20 @@ void println(const char* message, int colour){
 
 	drawString(message, position_x, position_y, colour);
 	position_y = position_y + CHAR_HEIGHT + 1;
-	if(position_y >= SCREEN_HEIGHT){
-		if(position_x + 2 * (SCREEN_WIDTH / 8) > SCREEN_WIDTH){
+	if(position_y >= SCREEN_HEIGHT) {
+		if(position_x + 2 * (SCREEN_WIDTH / 8) > SCREEN_WIDTH) {
 
 			volatile int* timeStamp = (int*)0x20003004;
 			int stop = *timeStamp + 5000 * 1000;
 			while (*timeStamp < stop) __asm__("nop");
 
-			for(int x = 0; x < SCREEN_WIDTH * SCREEN_HEIGHT; x++){
+			for(int x = 0; x < SCREEN_WIDTH * SCREEN_HEIGHT; x++) {
 				framebuffer[x] = 0xFF000000;
 			}
 			position_y = 0;
 			position_x = 0;
-		}else{
+		}
+		else {
 			position_y = 0;
 			position_x += SCREEN_WIDTH / 8;
 		}
@@ -185,13 +187,13 @@ void println(const char* message, int colour){
 }
 
 __attribute__((no_instrument_function))
-void printHex(const char* message, int hexi, int colour){
+void printHex(const char* message, int hexi, int colour) {
 if(loaded == 0) return; //if video isn't loaded don't bother
 	char hex[16] = {'0','1','2','3','4','5','6','7',
 					'8','9','A','B','C','D','E','F'};
 	char m[200];
 	int i = 0;
-	while (*message){
+	while (*message) {
 		m[i] = *message++;
 		i++;
 	}
@@ -208,11 +210,11 @@ if(loaded == 0) return; //if video isn't loaded don't bother
 	println(m, colour);
 }
 
-void videotest(){
+void videotest() {
 	//This loop turns on every pixel the screen size allows for.
 	//If the shaded area is larger or smaller than your screen, 
 	//you have under/over scan issues. Add disable_overscan=1 to your config.txt
-	for(int x = 0; x < SCREEN_WIDTH * SCREEN_HEIGHT; x++){
+	for(int x = 0; x < SCREEN_WIDTH * SCREEN_HEIGHT; x++) {
 		framebuffer[x] = 0xFF111111;
 	}
 

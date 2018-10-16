@@ -46,6 +46,46 @@ void task2() {
 	}
 }
 
+void task4() {
+	int i = 0;
+	int result = 0;
+	static const portTickType xDelayTime = 200 / portTICK_RATE_MS;
+
+	uint32_t curr_position;
+
+	ili9340_println("TIC TASK", ILI9340_WHITE);
+	
+	USPiTicBlockRead(TIC_CMD_GET_VARIABLE, TIC_VAR_CURRENT_POSITION, 0x04, &curr_position);
+	ili9340_printHex("Get Current Position: ", curr_position, ILI9340_RED);
+
+	USPiTicBlockRead(TIC_CMD_GET_VARIABLE, TIC_VAR_ERROR_STATUS, 0x02, &curr_position);
+	ili9340_printHex("Get Error Status: ", curr_position, ILI9340_RED);
+	
+	result = USPiTicQuick(TIC_CMD_EXIT_SAFE_START);
+	ili9340_printHex("Exit Safe Start Result: ", result, ILI9340_RED);
+	vTaskDelay(xDelayTime);
+
+	result = USPiTicQuick(TIC_CMD_ENERGIZE);
+	ili9340_printHex("Energize Result: ", result, ILI9340_RED);
+
+	result = USPiTic32BitWrite(TIC_CMD_SET_TARGET_POSITION, 0xFFFF, 0x7FFF);
+	ili9340_printHex("Set Target Position Result: ", result, ILI9340_RED);
+
+	while(1) {
+		i++;
+		USPiTicBlockRead(TIC_CMD_GET_VARIABLE, TIC_VAR_CURRENT_POSITION, 0x04, &curr_position);
+		ili9340_printHex("Get Current Position: ", curr_position, ILI9340_RED);
+
+		result = USPiTicQuick(TIC_CMD_RESET_COMMAND_TIMEOUT);
+		// ili9340_printHex("Reset Command Timeout Result: ", result, ILI9340_RED);
+
+		// USPiTicReadBlock(0xA1, 0, 0x02, 0x02, &curr_position);
+		// ili9340_printHex("Get Error Status: ", curr_position, ILI9340_RED);
+
+		vTaskDelay(200);
+	}
+}
+
 void task3() {
 	int uspiInit = 0;
 	int i = 0;
@@ -53,6 +93,7 @@ void task3() {
 	while(1) {
 		i++;
 		while(uspiInit == 0) uspiInit = USPiInitialize();
+		xTaskCreate(task4, "TIC", 128, NULL, 0, NULL);
 		vTaskDelete(xHandleUSPi);
 	}
 }
@@ -64,8 +105,9 @@ int main(void) {
 	SetGpio(47, 1);
 
 	// Inizializzazione Video per Debug
-	// initFB();
+	initFB(1680, 1050);
 	ili9340_init();
+	ili9340_set_rotation(1);
 
 	// videotest();
 

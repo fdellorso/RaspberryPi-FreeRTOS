@@ -27,6 +27,7 @@
 #include <uspi/usbgamepad.h>
 #include <uspi/usbmassdevice.h>
 #include <uspi/smsc951x.h>
+#include <uspi/usbtict834.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,13 +37,14 @@ extern "C" {
 
 typedef struct TUSPiLibrary
 {
-	TDeviceNameService		 NameService;
-	TDWHCIDevice			 DWHCI;
-	TUSBKeyboardDevice		*pUKBD1;
-	TUSBMouseDevice			*pUMouse1;
+	TDeviceNameService		 		NameService;
+	TDWHCIDevice			 		DWHCI;
+	TUSBKeyboardDevice				*pUKBD1;
+	TUSBMouseDevice					*pUMouse1;
 	TUSBBulkOnlyMassStorageDevice	*pUMSD[MAX_DEVICES];
-	TSMSC951xDevice			*pEth0;
-	TUSBGamePadDevice       	*pUPAD[MAX_DEVICES];
+	TSMSC951xDevice					*pEth0;
+	TUSBGamePadDevice       		*pUPAD[MAX_DEVICES];
+	TUSBTicT834Device				*pTic0;
 }
 TUSPiLibrary;
 

@@ -132,10 +132,11 @@ void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...)
 	StringFormatV (&Message, pMessage, var);
 
 	// LoggerWriteV (LoggerGet (), pSource, (TLogSeverity) Severity, pMessage, var);
+	println(StringGet (&Message), 0xFFFFFFFF);
 	ili9340_println(StringGet (&Message), ILI9340_WHITE);
 
 	va_end (var);
-	println(pMessage, 0xFFFFFFFF);
+	// println(pMessage, 0xFFFFFFFF);
 	// ili9340_println(pMessage, ILI9340_WHITE);
 }
 
