@@ -5,8 +5,6 @@
 
 #include "arm_timer.h"
 
-#include "prv_types.h"
-
 typedef struct _BCM2835_ARM_TIMER_REGS {
 	unsigned long LOD;
 	unsigned long VAL;

@@ -1,18 +1,26 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "ARM",
             "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/Drivers/uspi/include",
-                "${workspaceFolder}/Drivers/uspi/include/uspi",
-                "${workspaceFolder}/FreeRTOS/Source/portable/GCC/RaspberryPi"
+                "${workspaceFolder}/**"
             ],
-            "defines": [],
-            "compilerPath": "/usr/bin/gcc",
-            "cStandard": "c11",
+            "defines": [
+                "RASPPI=1",
+                "MUART",
+                "PRVLIB"
+            ],
+            "compilerPath": "/usr/bin/arm-none-eabi-gcc",
+            "cStandard": "c99",
             "cppStandard": "c++17",
-            "intelliSenseMode": "clang-x64"
+            "intelliSenseMode": "gcc-x64",
+            "browse": {
+                "path": [
+                    ""
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""   
+            }
         }
     ],
     "version": 4

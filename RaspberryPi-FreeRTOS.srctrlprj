@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<config>
+    <source_groups>
+        <source_group_0cb744ab-e3a2-4a79-b3f5-d596c0177978>
+            <c_standard>c11</c_standard>
+            <cross_compilation>
+                <target>
+                    <abi>unknown</abi>
+                    <arch>x86_64</arch>
+                    <sys>unknown</sys>
+                    <vendor>unknown</vendor>
+                </target>
+                <target_options_enabled>0</target_options_enabled>
+            </cross_compilation>
+            <header_search_paths>
+                <header_search_path>Drivers</header_search_path>
+                <header_search_path>Drivers/FreeRTOS-Plus-TCP/include</header_search_path>
+                <header_search_path>Drivers/FreeRTOS-Plus-TCP/protocols/include</header_search_path>
+                <header_search_path>Drivers/pololu-tic/lib/libyaml</header_search_path>
+                <header_search_path>Drivers/uspi/include</header_search_path>
+                <header_search_path>FreeRTOS/Source/include</header_search_path>
+                <header_search_path>FreeRTOS/Source/portable/GCC/RaspberryPi</header_search_path>
+            </header_search_paths>
+            <name>C Source Group</name>
+            <source_extensions>
+                <source_extension>.c</source_extension>
+            </source_extensions>
+            <source_paths>
+                <source_path>./</source_path>
+            </source_paths>
+            <status>enabled</status>
+            <type>C Source Group</type>
+        </source_group_0cb744ab-e3a2-4a79-b3f5-d596c0177978>
+    </source_groups>
+    <version>7</version>
+</config>

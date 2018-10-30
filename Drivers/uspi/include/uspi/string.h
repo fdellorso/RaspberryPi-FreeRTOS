@@ -20,7 +20,11 @@
 #ifndef _uspi_string_h
 #define _uspi_string_h
 
-#include <uspi/stdarg.h>
+#ifndef PRVLIB
+	#include <stdarg.h>
+#else
+	#include "uspi/stdarg.h"
+#endif
 #include <uspi/types.h>
 
 #ifdef __cplusplus

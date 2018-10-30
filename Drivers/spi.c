@@ -5,8 +5,6 @@
 
 #include "spi.h"
 
-#include "prv_types.h"
-
 typedef struct {
 	unsigned long	CS;	  
 	unsigned long	FIFO;

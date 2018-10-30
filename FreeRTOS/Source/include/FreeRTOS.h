@@ -70,7 +70,11 @@
 /*
  * Include the generic headers required for the FreeRTOS port being used.
  */
-#include <stddef.h>
+#ifndef PRVLIB
+	#include <stddef.h>
+#else
+	#include "prvlib/stddef.h"
+#endif
 
 /* Basic FreeRTOS definitions. */
 #include "projdefs.h"

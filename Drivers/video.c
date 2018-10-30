@@ -3,8 +3,13 @@
 //
 //basic text debugging using the framebuffer
 
+#ifndef PRVLIB
+	#include <string.h>
+#else
+	#include "prvlib/string.h"
+#endif
+
 #include "video.h"
-#include "bcm2835_base.h"
 #include "mailbox.h"
 #include "font_5x5.h"
 
@@ -189,8 +194,14 @@ void println(const char* message, int colour) {
 __attribute__((no_instrument_function))
 void printHex(const char* message, int hexi, int colour) {
 if(loaded == 0) return; //if video isn't loaded don't bother
-	char hex[16] = {'0','1','2','3','4','5','6','7',
-					'8','9','A','B','C','D','E','F'};
+
+	// TODO disabilitata perche usa memcpy della stdlib
+	// char hex[16] = {'0','1','2','3','4','5','6','7',
+	// 				'8','9','A','B','C','D','E','F'};
+
+	char *hex;
+	memcpy(hex,"0123456789ABCDEF",sizeof("0123456789ABCDEF"));
+	
 	char m[200];
 	int i = 0;
 	while (*message) {

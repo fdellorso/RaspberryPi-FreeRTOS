@@ -64,10 +64,14 @@
     the SafeRTOS brand: http://www.SafeRTOS.com.
 */
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef PRVLIB
+	// #include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
+#else
+	#include "prvlib/stdlib.h"
+	#include "prvlib/string.h"
+#endif
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when

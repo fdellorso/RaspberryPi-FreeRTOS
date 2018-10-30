@@ -28,5 +28,6 @@ kernel.syms: kernel.elf
 
 kernel.elf: LDFLAGS += -L "/usr/lib/gcc/arm-none-eabi/4.9.3" -lgcc
 kernel.elf: LDFLAGS += -L "/usr/lib/arm-none-eabi/lib" -lc
+
 kernel.elf: $(OBJECTS)
 	$(Q)$(LD) $(OBJECTS) -Map kernel.map -o $@ -T $(LINKER_SCRIPT) $(LDFLAGS)

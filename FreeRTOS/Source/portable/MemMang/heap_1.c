@@ -72,7 +72,11 @@
  * See heap_2.c, heap_3.c and heap_4.c for alternative implementations, and the 
  * memory management pages of http://www.FreeRTOS.org for more information.
  */
-#include <stdlib.h>
+#ifndef PRVLIB
+	#include <stdlib.h>
+#else
+    #include "prvlib/stdlib.h"
+#endif
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when

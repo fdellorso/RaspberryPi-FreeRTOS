@@ -30,8 +30,15 @@
 #include <uspi/bcm2835.h>
 #include <uspi/synchronize.h>
 #include <uspi/assert.h>
-#include "video.h"
-#include "ili9340.h"
+#ifdef VIDEO
+	#include "video.h"
+#endif
+#ifdef ILI9340
+	#include "ili9340.h"
+#endif
+#ifdef MUART
+	#include "muart.h"
+#endif
 
 #define ARM_IRQ_USB		9		// for ConnectInterrupt()
 
@@ -1421,8 +1428,15 @@ void DWHCIDeviceDumpRegister (TDWHCIDevice *pThis, const char *pName, u32 nAddre
 	DataMemBarrier ();
 
 	//LogWrite (FromDWHCI, LOG_DEBUG, "0x%08X %s", DWHCIRegisterRead (&Register), pName);
-	printHex(pName, DWHCIRegisterRead (&Register), 0xFFFFFFFF);
-	ili9340_printHex(pName, DWHCIRegisterRead (&Register), ILI9340_WHITE);
+	#ifdef VIDEO
+		printHex(pName, DWHCIRegisterRead (&Register), 0xFFFFFFFF);
+	#endif
+	#ifdef ILI9340
+		ili9340_printHex(pName, DWHCIRegisterRead (&Register), ILI9340_WHITE);
+	#endif
+	#ifdef MUART
+		muart_printHex(pName, DWHCIRegisterRead (&Register));
+	#endif
 
 	_DWHCIRegister (&Register);
 }

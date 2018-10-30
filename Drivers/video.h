@@ -1,7 +1,7 @@
 #ifndef _VIDEO_H_
 #define _VIDEO_H_
 
-#include "prv_types.h"
+#include "bcm2835_base.h"
 
 #define WHITE_TEXT     0xFFFFFFFF
 #define RED_TEXT       0xFFFF0000

@@ -1,0 +1,32 @@
+{
+    "configurations": [
+        {
+            "name": "ARM",
+            "includePath": [
+                "${workspaceFolder}/**"
+                "/usr/lib/arm-none-eabi/include/",
+                "/usr/lib/gcc/arm-none-eabi/4.9.3/include",
+                "${workspaceFolder}/Drivers/",
+                "${workspaceFolder}/Drivers/uspi/include",
+                "${workspaceFolder}/Drivers/uspi/include/uspi",
+                "${workspaceFolder}/Drivers/pololu-tic/include",
+                "${workspaceFolder}/Drivers/pololu-tic/lib",
+                "${workspaceFolder}/Drivers/pololu-tic/lib/yaml",
+                "${workspaceFolder}/FreeRTOS/Source/include",
+                "${workspaceFolder}/FreeRTOS/Source/portable/GCC/RaspberryPi"
+            ],
+            "defines": [
+                "RASPPI=1",
+                "MUART"
+            ],
+            "compilerPath": "/usr/bin/arm-none-eabi-gcc",
+            "cStandard": "c99",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64",
+            "browse": {
+                
+            }
+        }
+    ],
+    "version": 4
+}

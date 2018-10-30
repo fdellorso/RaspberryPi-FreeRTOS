@@ -26,8 +26,6 @@
 extern "C" {
 #endif
 
-#include <uspi/tic_protocol.h>
-
 //
 // USPi initialization
 //
@@ -43,7 +41,9 @@ int USPiTicQuick (unsigned char nCommand);
 int USPiTic7BitWrite (unsigned char nCommand, unsigned short nValue);
 int USPiTic32BitWrite (unsigned char nCommand, unsigned short nValue, unsigned int nIndex);
 int USPiTicBlockRead (unsigned char nCommand, unsigned int nIndex, unsigned short nLength, unsigned int *nData);
-
+int uspitic_control_transfer(void * handle, unsigned char bmRequestType, unsigned char bRequest, unsigned short wValue, unsigned short wIndex, void * data, unsigned short wLength, size_t * transferred);
+int USPiTicStringRead (unsigned char nString, unsigned char *nData);
+char * USPiTicGetSerialNumber();
 
 //
 // Keyboard device

@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "/media/stufa_sw/documentazione/LaTex"
+		},
+		{
+			"path": "/home/fra/raspbootin"
 		}
 	],
 	"settings": {
@@ -39,7 +42,15 @@
 			"rpi-smartstart.h": "c",
 			"*.inc": "cpp",
 			"usbtict834.h": "c",
-			"smsc951x.h": "c"
+			"smsc951x.h": "c",
+			"stdlib.h": "c",
+			"prv_string.h": "c",
+			"stdarg.h": "c",
+			"mem.h": "c",
+			"stdint.h": "c",
+			"mpu_wrappers.h": "c",
+			"stdio.h": "c",
+			"prv_mem.h": "c"
 		}
 	}
 }

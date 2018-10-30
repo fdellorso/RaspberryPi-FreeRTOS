@@ -30,17 +30,12 @@
 
 typedef struct TUSBTicT834Device
 {
-    TUSBDevice      m_USBDevice;
+    TUSBDevice  m_USBDevice;
 
-    TUSBEndpoint    *m_pEndpointIn;
-    TUSBEndpoint    *m_pEndpointOut;
-
-    s8	       		*serial_number;
-    s8      	  	*os_id;
-    u16		        firmware_version;
-    u8		        product;
-
-    s8              *cached_firmware_version_string;
+    s8          *serial_number;                     // iSerialNumber
+    u16         firmware_version;                   // ->revision->bcddevice
+    u16         vendor;
+    u8          product;                            // product_id
 }
 TUSBTicT834Device;
 
@@ -50,5 +45,8 @@ void _USBTicT834Device (TUSBTicT834Device *pThis);
 boolean USBTicT834DeviceConfigure (TUSBDevice *pUSBDevice);
 boolean USBTicT834DeviceWriteReg (TUSBTicT834Device *pThis, u8 nCommand, u16 nValue, u32 nIndex, u16 nLength, u32 *nData);
 boolean USBTicT834DeviceReadReg (TUSBTicT834Device *pThis, u8 nCommand, u16 nValue, u32 nIndex, u16 nLength, u32 *nData);
+int USBTicT834DeviceControl (TUSBTicT834Device *pThis, u8 nReqType, u8 nCommand, u16 nValue, u32 nIndex, u16 nLength, u32 *nData);
+boolean USBTicT834DeviceReadString (TUSBTicT834Device *pThis, u8 nString, u8 *nData);
+char * USBTicT834DeviceGetSerialNumber(TUSBTicT834Device *pThis);
 
 #endif

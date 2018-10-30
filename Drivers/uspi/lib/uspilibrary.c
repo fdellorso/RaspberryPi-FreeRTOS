@@ -98,21 +98,21 @@ int USPiTicQuick (unsigned char nCommand)
 {
 	assert (s_pLibrary != 0);
 	assert (s_pLibrary->pTic0 != 0);
-	return USBTicT834DeviceWriteReg (s_pLibrary->pTic0, nCommand, 0, 0, 0, 0) ? 1 : 0;
+	return USBTicT834DeviceWriteReg (s_pLibrary->pTic0, nCommand, 0, 0, 0, NULL) ? 1 : 0;
 }
 
 int USPiTic7BitWrite (unsigned char nCommand, unsigned short nValue)
 {
 	assert (s_pLibrary != 0);
 	assert (s_pLibrary->pTic0 != 0);
-	return USBTicT834DeviceWriteReg (s_pLibrary->pTic0, nCommand, nValue, 0, 0, 0) ? 1 : 0;
+	return USBTicT834DeviceWriteReg (s_pLibrary->pTic0, nCommand, nValue, 0, 0, NULL) ? 1 : 0;
 }
 
 int USPiTic32BitWrite (unsigned char nCommand, unsigned short nValue, unsigned int nIndex)
 {
 	assert (s_pLibrary != 0);
 	assert (s_pLibrary->pTic0 != 0);
-	return USBTicT834DeviceWriteReg (s_pLibrary->pTic0, nCommand, nValue, nIndex, 0, 0) ? 1 : 0;
+	return USBTicT834DeviceWriteReg (s_pLibrary->pTic0, nCommand, nValue, nIndex, 0, NULL) ? 1 : 0;
 }
 
 int USPiTicBlockRead (unsigned char nCommand, unsigned int nIndex, unsigned short nLength, unsigned int *nData)
@@ -120,6 +120,36 @@ int USPiTicBlockRead (unsigned char nCommand, unsigned int nIndex, unsigned shor
 	assert (s_pLibrary != 0);
 	assert (s_pLibrary->pTic0 != 0);
 	return USBTicT834DeviceReadReg (s_pLibrary->pTic0, nCommand, 0, nIndex, nLength, nData) ? 1 : 0;
+}
+
+int uspitic_control_transfer(void * handle,
+		unsigned char bmRequestType, unsigned char bRequest,
+    	unsigned short wValue, unsigned short wIndex, void * data,
+		unsigned short wLength, size_t * transferred)
+{
+	assert (s_pLibrary != 0);
+	assert (s_pLibrary->pTic0 != 0);
+
+	*transferred = USBTicT834DeviceControl (s_pLibrary->pTic0, bmRequestType, bRequest, wValue, wIndex, wLength, data);
+	
+	if (transferred >= 0)
+		return 0;
+	else
+		return -1;
+}
+
+int USPiTicStringRead (unsigned char nString, unsigned char *nData)
+{
+	assert (s_pLibrary != 0);
+	assert (s_pLibrary->pTic0 != 0);
+	return USBTicT834DeviceReadString (s_pLibrary->pTic0, nString, nData) ? 1 : 0;
+}
+
+char * USPiTicGetSerialNumber()
+{
+	assert (s_pLibrary != 0);
+	assert (s_pLibrary->pTic0 != 0);
+	return USBTicT834DeviceGetSerialNumber(s_pLibrary->pTic0);
 }
 
 int USPiKeyboardAvailable (void)
@@ -346,7 +376,7 @@ int USPiDeviceGetInformation (unsigned nClass, unsigned nDeviceIndex, TUSPiDevic
 		break;
 
 	case TICT834_CLASS:
-		if (nDeviceIndex < MAX_DEVICES)
+		if (nDeviceIndex == 0)
 		{
 			pUSBDevice = (TUSBDevice *) s_pLibrary->pTic0;
 		}

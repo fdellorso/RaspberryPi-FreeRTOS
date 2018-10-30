@@ -65,7 +65,12 @@
 */
 
 
-#include <stdlib.h>
+#ifndef PRVLIB
+	#include <stdlib.h>
+#else
+	#include "prvlib/stdlib.h"
+#endif
+
 #include "FreeRTOS.h"
 #include "list.h"
 

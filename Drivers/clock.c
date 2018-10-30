@@ -4,14 +4,17 @@
  **/
 
 // #include "bcm2835.h" //OPT bcm2835.h
+#ifndef PRVLIB
+	#include <string.h>
+#else
+	#include "prvlib/string.h"
+#endif
+
 #include "clock.h"
 #include "ili9340.h"
 #include "gpio.h"
 #include "sys_timer.h"
 #include "font_clock.h"
-
-#include "prv_types.h"
-#include "prv_string.h"
 
 #define KEY_IRQ 1
 
@@ -289,25 +292,38 @@ void ili9340_clock2() {
 }
 
 char *int2time(char timep[], uint8_t hour, uint8_t minute, uint16_t second) {
-    char *conv[60] = {"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59"};
+	// TODO disabilitata perche usa memcpy della stdlib
+    // char *conv[60] = {"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59"};
+
+    char **conv;
+    char cdigits[2];
+    int i;
+    for(i = 0; i < 60; i++)
+    {
+        cdigits[0] = '0' + (i / 10);
+        cdigits[1] = '0' + (i % 10);
+        // TODO da provare array conv
+        memcpy(conv[i], cdigits, sizeof(cdigits));
+    }
+
     char *space = "  ";
     char separator[2] = ":";
     char hourp[3], minutep[3], secondp[3];
 
-    if(hour == 99)   str_cpy(space, hourp);
-    else             str_cpy(conv[hour], hourp);
+    if(hour == 99)   strcpy(space, hourp);
+    else             strcpy(conv[hour], hourp);
 
-    if(minute == 99) str_cpy(space, minutep);
-    else             str_cpy(conv[minute], minutep);
+    if(minute == 99) strcpy(space, minutep);
+    else             strcpy(conv[minute], minutep);
 
-    if(second == 99) str_cpy(space, secondp);
-    else             str_cpy(conv[second], secondp);
+    if(second == 99) strcpy(space, secondp);
+    else             strcpy(conv[second], secondp);
 
-    str_cpy(hourp, timep);
-    str_cat(timep, separator);
-    str_cat(timep, minutep);
-    str_cat(timep, separator);
-    str_cat(timep, secondp);
+    strcpy(hourp, timep);
+    strcat(timep, separator);
+    strcat(timep, minutep);
+    strcat(timep, separator);
+    strcat(timep, secondp);
 
     return timep;
 }

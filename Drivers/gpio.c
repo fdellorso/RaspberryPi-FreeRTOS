@@ -3,7 +3,6 @@
  *
  **/
 
-#include "bcm2835_base.h"
 #include "gpio.h"
 
 typedef struct {

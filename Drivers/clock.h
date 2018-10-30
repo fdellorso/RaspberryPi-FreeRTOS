@@ -1,7 +1,7 @@
 #ifndef _CLOCK_H_
 #define _CLOCK_H_
 
-#include "prv_types.h"
+#include "bcm2835_base.h"
 
 #define CLOCK_WIDTH  40
 #define CLOCK_HEIGHT 80

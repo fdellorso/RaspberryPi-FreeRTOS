@@ -18,16 +18,30 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include <uspios.h>
-#include <uspi/stdarg.h>
+#ifndef PRVLIB
+	#include <stdarg.h>
+	#include <stdlib.h>
+#else
+	#include "uspi/stdarg.h"
+	#include "prvlib/stdlib.h"
+#endif
+
 #include <uspi/string.h>
 #include <FreeRTOS.h>
 #include <task.h>
 
 #include "sys_timer.h"
 #include "mailbox.h"
-#include "mem.h"
-#include "video.h"
-#include "ili9340.h"
+
+#ifdef VIDEO
+	#include "video.h"
+#endif
+#ifdef ILI9340
+	#include "ili9340.h"
+#endif
+#ifdef MUART
+	#include "muart.h"
+#endif
 
 __attribute__((no_instrument_function))
 void MsDelay(unsigned nMilliSeconds) {
@@ -50,15 +64,32 @@ void usDelay(unsigned nMicroSeconds) {
 
 unsigned StartKernelTimer(unsigned nDelay, TKernelTimerHandler *pHandler, void *pParam, void *pContext) {
 	//TimerStartKernelTimer (TimerGet (), nDelay, pHandler, pParam, pContext);
-	println("StartKernelTimer", 0xFFFFFFFF);
-	ili9340_println("StartKernelTimer", ILI9340_WHITE);
+
+	#ifdef VIDEO
+		println("StartKernelTimer", 0xFFFFFFFF);
+	#endif
+	#ifdef ILI9340
+		ili9340_println("StartKernelTimer", ILI9340_WHITE);
+	#endif
+	#ifdef MUART
+		muart_println("StartKernelTimer");
+	#endif
+
 	return 1;
 }
 
 void CancelKernelTimer(unsigned hTimer) {
 	//TimerCancelKernelTimer (TimerGet (), hTimer);
-	println("CancelKernelTimer", 0xFFFFFFFF);
-	ili9340_println("CancelKernelTimer", ILI9340_WHITE);
+
+	#ifdef VIDEO
+		println("CancelKernelTimer", 0xFFFFFFFF);
+	#endif
+	#ifdef ILI9340
+		ili9340_println("CancelKernelTimer", ILI9340_WHITE);
+	#endif
+	#ifdef MUART
+		muart_println("CancelKernelTimer");
+	#endif
 }
 
 //void ConnectInterrupt (unsigned nIRQ, TInterruptHandler *pfnHandler, void *pParam){
@@ -132,8 +163,16 @@ void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...)
 	StringFormatV (&Message, pMessage, var);
 
 	// LoggerWriteV (LoggerGet (), pSource, (TLogSeverity) Severity, pMessage, var);
-	println(StringGet (&Message), 0xFFFFFFFF);
-	ili9340_println(StringGet (&Message), ILI9340_WHITE);
+
+	#ifdef VIDEO
+		println(StringGet (&Message), 0xFFFFFFFF);
+	#endif
+	#ifdef ILI9340
+		ili9340_println(StringGet (&Message), ILI9340_WHITE);
+	#endif
+	#ifdef MUART
+		muart_println(StringGet (&Message));
+	#endif
 
 	va_end (var);
 	// println(pMessage, 0xFFFFFFFF);
@@ -143,19 +182,40 @@ void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...)
 #ifndef NDEBUG
 
 void uspi_assertion_failed(const char *pExpr, const char *pFile, unsigned nLine) {	
-	println(pExpr, 0xFFFFFFFF);
-	println(pFile, 0xFFFFFFFF);
-	printHex("Line ", nLine, 0xFFFFFFFF);
-	ili9340_println(pExpr, ILI9340_WHITE);
-	ili9340_println(pFile, ILI9340_WHITE);
-	ili9340_printHex("Line ", nLine, ILI9340_WHITE);
+	
+	
+
+	#ifdef VIDEO
+		println(pExpr, 0xFFFFFFFF);
+		println(pFile, 0xFFFFFFFF);
+		printHex("Line ", nLine, 0xFFFFFFFF);
+	#endif
+	#ifdef ILI9340
+		ili9340_println(pExpr, ILI9340_WHITE);
+		ili9340_println(pFile, ILI9340_WHITE);
+		ili9340_printHex("Line ", nLine, ILI9340_WHITE);
+	#endif
+	#ifdef MUART
+		muart_println(pExpr);
+		muart_println(pFile);
+		muart_printHex("Line ", nLine);
+	#endif
+
 	while(1){;} //system failure
 }
 
 void DebugHexdump (const void *pBuffer, unsigned nBufLen, const char *pSource) {
 	//debug_hexdump (pBuffer, nBufLen, pSource);
-	println("DebugHexdump", 0xFFFFFFFF);
-	ili9340_println("DebugHexdump", ILI9340_WHITE);
+
+	#ifdef VIDEO
+		println("DebugHexdump", 0xFFFFFFFF);
+	#endif
+	#ifdef ILI9340
+		ili9340_println("DebugHexdump", ILI9340_WHITE);
+	#endif
+	#ifdef MUART
+		muart_println("DebugHexdump");
+	#endif
 }
 
 #endif

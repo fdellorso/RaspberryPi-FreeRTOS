@@ -1,7 +1,7 @@
 #ifndef _ILI9340_H_
 #define _ILI9340_H_
 
-#include "prv_types.h"
+#include "bcm2835_base.h"
 
 #define  ILI9340_TFTWIDTH    240
 #define  ILI9340_TFTHEIGHT   320
@@ -91,7 +91,7 @@
 #define KEY2                 23
 #define KEY3                 24
 
-// char loaded;
+extern char loaded;
 uint16_t width, height;
 
 extern  void        ili9340_write_command   (uint8_t command, int param_len, ...);

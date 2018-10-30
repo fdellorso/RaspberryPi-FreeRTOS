@@ -5,8 +5,6 @@
 
 #include "bcm2835_base.h"
 
-#include "prv_types.h"
-
 extern void dummy(unsigned int);
 
 /**

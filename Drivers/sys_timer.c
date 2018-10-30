@@ -2,10 +2,7 @@
  *	Quick and very Dirty SYSTEM TIMER API.
  *
  **/
-
 #include "sys_timer.h"
-
-#include "prv_types.h"
 
 typedef struct {
 	unsigned long	CS;	  

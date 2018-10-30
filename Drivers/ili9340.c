@@ -1,12 +1,15 @@
-#include <stdarg.h>
+#ifndef PRVLIB
+	#include <stdarg.h>
+	#include <string.h>
+#else
+	#include "prvlib/stdarg.h"
+	#include "prvlib/string.h"
+#endif
 
 #include "ili9340.h"
-#include "bcm2835_base.h"
 #include "gpio.h"
 #include "sys_timer.h"
 #include "font_5x5.h"
-
-#include "prv_types.h"
 
 #include "bcm2835.h"	//TODO da eliminare quando presente libreria SPI
 
@@ -148,8 +151,14 @@ void ili9340_println(const char* message, uint16_t color) {
 
 void ili9340_printHex(const char* message, uint32_t hexi, uint16_t color) {
 	if(loaded == 0) return; //if video isn't loaded don't bother
-	char hex[16] = {'0','1','2','3','4','5','6','7',
-					'8','9','A','B','C','D','E','F'};
+
+	// TODO disabilitata perche usa memcpy della stdlib
+	// char hex[16] = {'0','1','2','3','4','5','6','7',
+	// 				'8','9','A','B','C','D','E','F'};
+
+	char *hex;
+	memcpy(hex, "0123456789ABCDEF", sizeof("0123456789ABCDEF"));
+	
 	char m[200];
 	int i = 0;
 	while (*message){

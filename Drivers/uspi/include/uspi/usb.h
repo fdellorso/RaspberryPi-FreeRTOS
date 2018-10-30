@@ -34,9 +34,9 @@ typedef enum
 TUSBPID;
 
 // Device Addresses
-#define USB_DEFAULT_ADDRESS		0
+#define USB_DEFAULT_ADDRESS			0
 #define USB_FIRST_DEDICATED_ADDRESS	1
-#define USB_MAX_ADDRESS			127
+#define USB_MAX_ADDRESS				127
 
 // Speed
 typedef enum
@@ -61,30 +61,30 @@ typedef struct
 PACKED TSetupData;
 
 // Request Types
-#define REQUEST_OUT			0
-#define REQUEST_IN			0x80
+#define REQUEST_OUT					0
+#define REQUEST_IN					0x80
 
-#define REQUEST_CLASS			0x20
-#define REQUEST_VENDOR			0x40
+#define REQUEST_CLASS				0x20
+#define REQUEST_VENDOR				0x40
 
 #define REQUEST_TO_INTERFACE		1
-#define REQUEST_TO_OTHER		3
+#define REQUEST_TO_OTHER			3
 
 // Standard Request Codes
-#define GET_STATUS			0
-#define CLEAR_FEATURE			1
-#define SET_FEATURE			3
-#define SET_ADDRESS			5
-#define GET_DESCRIPTOR			6
-#define SET_CONFIGURATION		9
-#define SET_INTERFACE			11
+#define GET_STATUS					0
+#define CLEAR_FEATURE				1
+#define SET_FEATURE					3
+#define SET_ADDRESS					5
+#define GET_DESCRIPTOR				6
+#define SET_CONFIGURATION			9
+#define SET_INTERFACE				11
 
 // Descriptor Types
-#define DESCRIPTOR_DEVICE		1
+#define DESCRIPTOR_DEVICE			1
 #define DESCRIPTOR_CONFIGURATION	2
-#define DESCRIPTOR_STRING		3
+#define DESCRIPTOR_STRING			3
 #define DESCRIPTOR_INTERFACE		4
-#define DESCRIPTOR_ENDPOINT		5
+#define DESCRIPTOR_ENDPOINT			5
 
 #define DESCRIPTOR_INDEX_DEFAULT	0
 
