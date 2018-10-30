@@ -20,8 +20,8 @@ ifdef $(LIBUSE)
 CFLAGS += -I $(BASE)Drivers/prvlib
 endif
 CFLAGS += -I $(BASE)Drivers/uspi/include/
-CFLAGS += -I $(BASE)Drivers/pololu-tic/include/
-# CFLAGS += -I $(BASE)Drivers/pololu-tic/lib/libyaml
+CFLAGS += -I $(BASE)Drivers/tic/include/
+# CFLAGS += -I $(BASE)Drivers/tic/lib/libyaml
 CFLAGS += -I $(BASE)FreeRTOS/Source/include/
 CFLAGS += -I $(BASE)FreeRTOS/Source/portable/GCC/RaspberryPi/
 # CFLAGS += -I $(BASE)Drivers/FreeRTOS-Plus-TCP/include/

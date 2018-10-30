@@ -73,22 +73,22 @@ OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbtict834.o
 #
 #	Pololu-Tic Library
 #
-OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_baud_rate.o
-OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_current_limit.o
-OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_device.o
-OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_error.o
-OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_get_settings.o
-OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_handle.o
-OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_names.o
-OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_set_settings.o
-OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_settings.o
-OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_settings_fix.o
-OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_string.o
-OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_variables.o
+OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_baud_rate.o
+OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_current_limit.o
+OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_device.o
+OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_error.o
+OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_get_settings.o
+OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_handle.o
+OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_names.o
+OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_set_settings.o
+OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_settings.o
+OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_settings_fix.o
+OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_string.o
+OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_variables.o
 
-# OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_settings_read_from_string.o
-# OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/tic_settings_to_string.o
-# OBJECTS += $(BUILD_DIR)Drivers/pololu-tic/lib/libyaml/yaml.o
+# OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_settings_read_from_string.o
+# OBJECTS += $(BUILD_DIR)Drivers/tic/lib/tic_settings_to_string.o
+# OBJECTS += $(BUILD_DIR)Drivers/tic/lib/libyaml/yaml.o
 
 #
 #	FreeRTOS portable layer for RaspberryPi
