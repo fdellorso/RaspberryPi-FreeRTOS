@@ -1,5 +1,7 @@
+-include dbuild.option.mk
+
 #
-#	Main Test Program
+#	Main Program
 #
 OBJECTS += $(BUILD_DIR)Demo/main.o
 OBJECTS += $(BUILD_DIR)Demo/stufa_task.o
@@ -26,15 +28,19 @@ OBJECTS += $(BUILD_DIR)Drivers/video.o
 #
 #	Private Library
 #
+OBJECTS += $(BUILD_DIR)Drivers/prvlib/stdio.o
 OBJECTS += $(BUILD_DIR)Drivers/prvlib/stdlib.o
-OBJECTS += $(BUILD_DIR)Drivers/prvlib/string.o
+# OBJECTS += $(BUILD_DIR)Drivers/prvlib/string.o
+ifdef $(LIBUSE)
+OBJECTS += $(BUILD_DIR)Drivers/prvlib/syscalls.o
+endif
 
 # McCauley Library
-OBJECTS += $(BUILD_DIR)Drivers/bcm2835.o
+# OBJECTS += $(BUILD_DIR)Drivers/bcm2835.o
 
 # LCD ili9340 Library
-OBJECTS += $(BUILD_DIR)Drivers/ili9340.o
-OBJECTS += $(BUILD_DIR)Drivers/clock.o
+# OBJECTS += $(BUILD_DIR)Drivers/ili9340.o
+# OBJECTS += $(BUILD_DIR)Drivers/clock.o
 
 # smsc9514 (LAN and USB)
 OBJECTS += $(BUILD_DIR)Drivers/uspi/uspibind.o

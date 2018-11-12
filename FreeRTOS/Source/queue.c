@@ -69,7 +69,8 @@
 	#include <string.h>
 #else
 	#include "prvlib/stdlib.h"
-	#include "prvlib/string.h"
+	// #include "prvlib/string.h"
+    #include <uspi/util.h>
 #endif
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining

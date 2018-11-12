@@ -4,44 +4,46 @@
 
 #define PIN_COUNT 5
 
-struct tic_variables
-{
-  uint8_t product;
-  uint8_t operation_state;
-  bool energized;
-  bool position_uncertain;
-  uint16_t error_status;
-  uint32_t errors_occurred;
-  uint8_t planning_mode;
-  int32_t target_position;
-  int32_t target_velocity;
-  uint32_t starting_speed;
-  uint32_t max_speed;
-  uint32_t max_decel;
-  uint32_t max_accel;
-  int32_t current_position;
-  int32_t current_velocity;
-  int32_t acting_target_position;
-  uint32_t time_since_last_step;
-  uint8_t device_reset;
-  uint16_t vin_voltage;
-  uint32_t up_time;
-  int32_t encoder_position;
-  uint16_t rc_pulse_width;
-  uint8_t step_mode;
-  uint8_t current_limit_code;
-  uint8_t decay_mode;
-  uint8_t input_state;
-  uint16_t input_after_averaging;
-  uint16_t input_after_hysteresis;
-  int32_t input_after_scaling;
+// struct tic_variables
+// {
+//   uint8_t product;
+//   uint8_t operation_state;
+//   bool energized;
+//   bool position_uncertain;
+//   uint16_t error_status;
+//   uint32_t errors_occurred;
+//   uint8_t planning_mode;
+//   int32_t target_position;
+//   int32_t target_velocity;
+//   uint32_t starting_speed;
+//   uint32_t max_speed;
+//   uint32_t max_decel;
+//   uint32_t max_accel;
+//   int32_t current_position;
+//   int32_t current_velocity;
+//   int32_t acting_target_position;
+//   uint32_t time_since_last_step;
+//   uint8_t device_reset;
+//   uint16_t vin_voltage;
+//   uint32_t up_time;
+//   int32_t encoder_position;
+//   uint16_t rc_pulse_width;
+//   uint8_t step_mode;
+//   uint8_t current_limit_code;
+//   uint8_t decay_mode;
+//   uint8_t input_state;
+//   uint16_t input_after_averaging;
+//   uint16_t input_after_hysteresis;
+//   int32_t input_after_scaling;
 
-  struct {
-    uint16_t analog_reading;
-    bool digital_reading;
-    uint8_t pin_state;
-  } pin_info[TIC_CONTROL_PIN_COUNT];
-};
+//   struct {
+//     uint16_t analog_reading;
+//     bool digital_reading;
+//     uint8_t pin_state;
+//   } pin_info[TIC_CONTROL_PIN_COUNT];
+// };
+
+tic_error * tic_variables_create(tic_variables ** variables);
 
 tic_error * tic_variables_create(tic_variables ** variables)
 {
@@ -97,7 +99,7 @@ tic_error * tic_variables_copy(const tic_variables * source, tic_variables ** de
 
   if (error == NULL)
   {
-    memcpy(new_variables, source, sizeof(tic_variables));
+    memcpy2(new_variables, source, sizeof(tic_variables));
   }
 
   if (error == NULL)
@@ -209,11 +211,23 @@ tic_error * tic_get_variables(tic_handle * handle, tic_variables ** variables,
 
   // Read all the variables from the device.
   uint8_t buf[TIC_VARIABLES_SIZE];
-  if (error == NULL)
+  // if (error == NULL)
   {
+    memset(buf, 0, sizeof(buf));
     size_t index = 0;
-    error = tic_get_variable_segment(handle, index, sizeof(buf), buf,
+    while (index < sizeof(buf) && error == NULL)
+    {
+      size_t length = TIC_MAX_USB_RESPONSE_SIZE;
+      if (index + length > sizeof(buf))
+      {
+        length = sizeof(buf) - index;
+      }
+      // error = tic_get_variable_segment(handle, index, sizeof(buf), buf,
+      // clear_errors_occurred);
+      error = tic_get_variable_segment(handle, index, length, buf + index,
       clear_errors_occurred);
+      index += length;
+    }
   }
 
   // Store the variables in the new variables object.

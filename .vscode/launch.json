@@ -8,35 +8,28 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceRoot}/kernel.elf",
+            "program": "${workspaceFolder}/kernel.elf",
+            "args": [],
             "targetArchitecture": "arm",
-            // "preLaunchTask": "openocd",
-
-            "linux": {
-                "MIMode": "gdb",
-                "miDebuggerPath": "/usr/bin/arm-none-eabi-gdb",
-                // "debugServerPath": "openocd",
-                // "debugServerArgs": "-f /usr/share/openocd/scripts/interface/jlink.cfg -f /home/fra/raspberrypi/armjtag/raspi.cfg"
-            },
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/home/fra/gcc-arm-none-eabi/bin/arm-none-eabi-gdb",
             "setupCommands": [
-                {"text": "file '${workspaceRoot}/kernel.elf'"},
-                {"text": "target remote :3333"}
-                // {"text": "monitor tpwr enable"},
-                // {"text": "monitor swdp_scan"},
-                // {"text": "attach 1"}
+                {"text": "file '${workspaceFolder}/kernel.elf'"},
+                {"text": "target remote :3333"},
+                {"text": "load"}
             ],
-            "args": ["'${workspaceRoot}/kernel.elf'"],
-            "stopAtEntry": false,
-            "environment": [],
-            "externalConsole": true,
-
             "launchCompleteCommand": "exec-run",
-            "debugServerPath": "openocd",
-            // "debugServerArgs": "-s /usr/local/bin/openocd/scripts/ -f interface/stlink-v2-1.cfg -f target/stm32f4x.cfg",
-            "debugServerArgs": "-f /usr/share/openocd/scripts/interface/jlink.cfg -f '${workspaceRoot}/Debug/raspi.cfg'",
-            "serverStarted": "Info\\ :\\ [\\w\\d\\.]*:\\ hardware",
-            "filterStderr": true
+            "debugServerPath": "JLinkGDBServer",
+            "debugServerArgs": "-device ARM11 -if JTAG -port 3333 -speed auto -halt -rtos /opt/SEGGER/JLink/GDBServer/RTOSPlugin_FreeRTOS.so",
+            "logging": {
+                "engineLogging": true,
+                "moduleLoad": true,
+                "programOutput": true,
+                "exceptions": true
+            }
         }
     ]
 }

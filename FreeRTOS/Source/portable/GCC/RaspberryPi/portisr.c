@@ -143,22 +143,22 @@ void vFreeRTOS_ISR( void ) {
 
 	void vPortDisableInterruptsFromThumb( void ) {
 		__asm volatile ( 
-			"STMDB	SP!, {R0}		\n\t"	/* Push R0.									*/
-			"MRS	R0, CPSR		\n\t"	/* Get CPSR.								*/
-			"ORR	R0, R0, #0xC0	\n\t"	/* Disable IRQ, FIQ.						*/
-			"MSR	CPSR, R0		\n\t"	/* Write back modified value.				*/
-			"LDMIA	SP!, {R0}		\n\t"	/* Pop R0.									*/
-			"BX		R14" );					/* Return back to thumb.					*/
+			"STMDB	SP!, {R0}		\n\t"	/* Push R0.							*/
+			"MRS	R0, CPSR		\n\t"	/* Get CPSR.						*/
+			"ORR	R0, R0, #0xC0	\n\t"	/* Disable IRQ, FIQ.				*/
+			"MSR	CPSR, R0		\n\t"	/* Write back modified value.		*/
+			"LDMIA	SP!, {R0}		\n\t"	/* Pop R0.							*/
+			"BX		R14" );					/* Return back to thumb.			*/
 	}
 			
 	void vPortEnableInterruptsFromThumb( void ) {
 		__asm volatile ( 
-			"STMDB	SP!, {R0}		\n\t"	/* Push R0.									*/	
-			"MRS	R0, CPSR		\n\t"	/* Get CPSR.								*/	
-			"BIC	R0, R0, #0xC0	\n\t"	/* Enable IRQ, FIQ.							*/	
-			"MSR	CPSR, R0		\n\t"	/* Write back modified value.				*/	
-			"LDMIA	SP!, {R0}		\n\t"	/* Pop R0.									*/
-			"BX		R14" );					/* Return back to thumb.					*/
+			"STMDB	SP!, {R0}		\n\t"	/* Push R0.							*/	
+			"MRS	R0, CPSR		\n\t"	/* Get CPSR.						*/	
+			"BIC	R0, R0, #0xC0	\n\t"	/* Enable IRQ, FIQ.					*/	
+			"MSR	CPSR, R0		\n\t"	/* Write back modified value.		*/	
+			"LDMIA	SP!, {R0}		\n\t"	/* Pop R0.							*/
+			"BX		R14" );					/* Return back to thumb.			*/
 	}
 
 #endif /* THUMB_INTERWORK */
@@ -176,13 +176,13 @@ void vPortEnterCritical( void ){
 	s_bWereEnabled = nFlags & 0x80 ? 0 : 1; 
 	if(!s_bWereEnabled) return;
 
-	/* Disable interrupts as per portDISABLE_INTERRUPTS(); 							*/
+	/* Disable interrupts as per portDISABLE_INTERRUPTS(); 						*/
 	__asm volatile ( 
-		"STMDB	SP!, {R0}			\n\t"	/* Push R0.								*/
-		"MRS	R0, CPSR			\n\t"	/* Get CPSR.							*/
-		"ORR	R0, R0, #0xC0		\n\t"	/* Disable IRQ, FIQ.					*/
-		"MSR	CPSR, R0			\n\t"	/* Write back modified value.			*/
-		"LDMIA	SP!, {R0}" );				/* Pop R0.								*/
+		"STMDB	SP!, {R0}			\n\t"	/* Push R0.							*/
+		"MRS	R0, CPSR			\n\t"	/* Get CPSR.						*/
+		"ORR	R0, R0, #0xC0		\n\t"	/* Disable IRQ, FIQ.				*/
+		"MSR	CPSR, R0			\n\t"	/* Write back modified value.		*/
+		"LDMIA	SP!, {R0}" );				/* Pop R0.							*/
 
 	/* Now interrupts are disabled ulCriticalNesting can be accessed 
 	directly.  Increment ulCriticalNesting to keep a count of how many times
@@ -195,7 +195,7 @@ void vPortExitCritical( void ){
 	if(!s_bWereEnabled) return;
 
 	if( ulCriticalNesting > portNO_CRITICAL_NESTING ) {
-		/* Decrement the nesting count as we are leaving a critical section. */
+		/* Decrement the nesting count as we are leaving a critical section.	*/
 		ulCriticalNesting--;
 
 		/* If the nesting level has reached zero then interrupts should be

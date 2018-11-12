@@ -83,7 +83,7 @@ void vListInitialise( xList *pxList )
 	/* The list structure contains a list item which is used to mark the
 	end of the list.  To initialise the list the list end is inserted
 	as the only list entry. */
-	pxList->pxIndex = ( xListItem * ) &( pxList->xListEnd );
+	pxList->pxIndex = ( xListItem * ) & ( pxList->xListEnd );
 
 	/* The list end value is the highest possible value in the list to
 	ensure it remains at the end of the list. */
@@ -91,8 +91,8 @@ void vListInitialise( xList *pxList )
 
 	/* The list end next and previous pointers point to itself so we know
 	when the list is empty. */
-	pxList->xListEnd.pxNext = ( xListItem * ) &( pxList->xListEnd );
-	pxList->xListEnd.pxPrevious = ( xListItem * ) &( pxList->xListEnd );
+	pxList->xListEnd.pxNext = ( xListItem * ) & ( pxList->xListEnd );
+	pxList->xListEnd.pxPrevious = ( xListItem * ) & ( pxList->xListEnd );
 
 	pxList->uxNumberOfItems = ( unsigned portBASE_TYPE ) 0U;
 }
@@ -165,7 +165,7 @@ portTickType xValueOfInsertion;
 		See http://www.freertos.org/FAQHelp.html for more tips.
 		**********************************************************************/
 		
-		for( pxIterator = ( xListItem * ) &( pxList->xListEnd ); pxIterator->pxNext->xItemValue <= xValueOfInsertion; pxIterator = pxIterator->pxNext )
+		for( pxIterator = ( xListItem * ) & ( pxList->xListEnd ); pxIterator->pxNext->xItemValue <= xValueOfInsertion; pxIterator = pxIterator->pxNext )
 		{
 			/* There is nothing to do here, we are just iterating to the
 			wanted insertion position. */

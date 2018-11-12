@@ -19,9 +19,9 @@
 //
 #include <uspi/usbstandardhub.h>
 #include <uspi/usbdevicefactory.h>
-#include <uspios.h>
 #include <uspi/macros.h>
 #include <uspi/assert.h>
+#include <uspios.h>
 
 boolean USBStandardHubEnumeratePorts (TUSBStandardHub *pThis);
 

@@ -1,7 +1,7 @@
 #ifndef _MAILBOX_H_
 #define _MAILBOX_H_
 
-#include "bcm2835_base.h"
+#include <rpi_header.h>
 
 // Base Physical Address of the mailbox and framebuffer registers
 #define BCM2835_MAIL0_BASE				(BCM2835_PERI_BASE + 0xB880)

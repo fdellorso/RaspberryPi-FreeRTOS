@@ -20,7 +20,7 @@
 #ifndef _uspi_types_h
 #define _uspi_types_h
 
-#include "FreeRTOS.h"
+#include <FreeRTOS.h>
 
 typedef unsigned char		u8;
 typedef unsigned short		u16;

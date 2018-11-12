@@ -1,45 +1,29 @@
 //main.c
-//authored by Jared Hull
+//authored by Francesco Dell'Orso
 //
-//tasks 1 and 2 blink the ACT LED
-//main initialises the devices and IP tasks
+
+#include "stufa_task.h"
+
+#include <rpi_header.h>
 
 #include <FreeRTOS.h>
 #include <task.h>
 
-#include "bcm2835_base.h"
-#include "gpio.h"
-#include "interrupts.h"
-#include "stufa_task.h"
 
-#ifdef VIDEO
-	#include "video.h"
-#endif
-#ifdef ILI9340
-	#include "ili9340.h"
-#endif
-#ifdef MUART
-	#include "muart.h"
-#endif
-
-#include <bcm2835.h>
-
+extern xTaskHandle xHandleWDog;
 extern xTaskHandle xHandleUSPi;
+extern xTaskHandle xHandleTicCtrl;
+extern xTaskHandle xHandleTicCnsl;
+
 
 int main(void) {
-	bcm2835_init();
-
-	SetGpioFunction(47, 1);			// RDY led
-	SetGpio(47, 1);
-
-	
-	// ili9340_println("StuFA",ILI9340_RED);
 
 	#ifdef VIDEO
 		// Inizializzazione Video per Debug
 		initFB(1680, 1050);
 	#endif
 	#ifdef ILI9340
+		bcm2835_init();
 		ili9340_init();
 		ili9340_set_rotation(1);
 	#endif
@@ -50,8 +34,30 @@ int main(void) {
 	DisableInterrupts();
 	InitInterruptController();
 
-	xTaskCreate(prvTask_WatchDog, "WatchDog", 128, NULL, configMAX_PRIORITIES - 1, NULL);
-	xTaskCreate(prvTask_UspiInit, "UspiInit", 1024, NULL, 0, &xHandleUSPi);
+	if(xTaskCreate(prvTask_WatchDog, (signed char *) "WatchDog", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &xHandleWDog) == pdPASS) {
+		if(uxTaskPriorityGet(xHandleWDog) < configMAX_CO_ROUTINE_PRIORITIES) {
+			vTaskSuspend(xHandleWDog);
+		}
+	}
+
+	if(xTaskCreate(prvTask_UspiInit, (signed char *) "UspiInit", 8 * configMINIMAL_STACK_SIZE, NULL, configMAX_CO_ROUTINE_PRIORITIES, &xHandleUSPi) == pdPASS) {
+		if(uxTaskPriorityGet(xHandleUSPi) < configMAX_CO_ROUTINE_PRIORITIES) {
+			vTaskSuspend(xHandleUSPi);
+		}
+	}
+
+	if(xTaskCreate(prvTask_TicControl, (signed char *) "TicControl", 8 * configMINIMAL_STACK_SIZE, NULL, 0, &xHandleTicCtrl) == pdPASS) {
+		if(uxTaskPriorityGet(xHandleTicCtrl) < configMAX_CO_ROUTINE_PRIORITIES) {
+			vTaskSuspend(xHandleTicCtrl);
+		}
+	}
+
+	if(xTaskCreate(prvTask_TicConsole, (signed char *) "TicConsole", 8 * configMINIMAL_STACK_SIZE, NULL, 0, &xHandleTicCnsl) == pdPASS) {
+		if(uxTaskPriorityGet(xHandleTicCnsl) < configMAX_CO_ROUTINE_PRIORITIES) {
+			vTaskSuspend(xHandleTicCnsl);
+		}
+	}
+
 	vTaskStartScheduler();
 
 	/*

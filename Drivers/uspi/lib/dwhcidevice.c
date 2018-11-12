@@ -22,23 +22,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include "FreeRTOS.h"
-#include "task.h"
-
 #include <uspi/dwhcidevice.h>
-#include <uspios.h>
 #include <uspi/bcm2835.h>
 #include <uspi/synchronize.h>
 #include <uspi/assert.h>
-#ifdef VIDEO
-	#include "video.h"
-#endif
-#ifdef ILI9340
-	#include "ili9340.h"
-#endif
-#ifdef MUART
-	#include "muart.h"
-#endif
+#include <uspios.h>
+
+// #include <FreeRTOS.h>
+// #include <task.h>
+
+#include <rpi_logger.h>
 
 #define ARM_IRQ_USB		9		// for ConnectInterrupt()
 
@@ -256,7 +249,7 @@ int DWHCIDeviceControlMessage (TDWHCIDevice *pThis, TUSBEndpoint *pEndpoint,
 	TUSBRequest URB;
 	USBRequest (&URB, pEndpoint, pData, usDataSize, pSetup);
 
-	int nResult = -1;
+	int nResult = 0;
 
 	if (DWHCIDeviceSubmitBlockingRequest (pThis, &URB))
 	{
@@ -742,7 +735,7 @@ boolean DWHCIDeviceTransferStage (TDWHCIDevice *pThis, TUSBRequest *pURB, boolea
 		portYIELD_WITHIN_API();
 	}
 
-	return USBRequestGetStatus (pURB);
+	return USBRequestGetStatus (pURB);	// FIXME
 }
 
 void DWHCIDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pContext)
@@ -751,6 +744,9 @@ void DWHCIDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pConte
 	assert (pThis != 0);
 
 	pThis->m_bWaiting = FALSE;
+
+	(void)pURB;		// FIXME Wunused
+	(void)pParam;	// FIXME Wunused
 }
 
 boolean DWHCIDeviceTransferStageAsync (TDWHCIDevice *pThis, TUSBRequest *pURB, boolean bIn, boolean bStatusStage)
@@ -1250,6 +1246,8 @@ void DWHCIDeviceInterruptHandler (int nIRQ, void *pParam){
 	
 	_DWHCIRegister (&IntStatus);
 	if(l == 2) loaded = 2;
+	
+	(void)nIRQ; // FIXME Wunused
 }
 
 void DWHCIDeviceTimerHandler (unsigned hTimer, void *pParam, void *pContext)
@@ -1283,6 +1281,8 @@ void DWHCIDeviceTimerHandler (unsigned hTimer, void *pParam, void *pContext)
 	DWHCIDeviceStartTransaction (pThis, pStageData);
 
 	DataMemBarrier ();
+
+	(void)hTimer;	// FIXME Wunused
 }
 
 unsigned DWHCIDeviceAllocateChannel (TDWHCIDevice *pThis)

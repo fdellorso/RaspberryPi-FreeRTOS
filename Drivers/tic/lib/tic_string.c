@@ -52,7 +52,7 @@ void tic_sprintf(tic_string * str, const char * format, ...)
     char x[1];
     va_list ap2;
     va_copy(ap2, ap);
-    int result = 0; //vsnprintf(x, 0, format, ap2);   // TODO vsnprintf
+    int result = vsnprintf(x, 0, format, ap2);
     va_end(ap2);
     if (result > 0)
     {
@@ -110,7 +110,7 @@ void tic_sprintf(tic_string * str, const char * format, ...)
   }
 
   // Add the new content and a null terminator.
-  int result = 0; //vsnprintf(str->data + str->length, length_increase + 1, format, ap);    // TODO vsnprintf
+  int result = vsnprintf(str->data + str->length, length_increase + 1, format, ap);
   (void)result;  // suppress unused variable warnings in release builds
   assert((size_t)result == length_increase);
   str->data[new_length] = 0;

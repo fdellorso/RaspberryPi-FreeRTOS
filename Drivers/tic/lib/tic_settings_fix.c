@@ -132,6 +132,8 @@ static void tic_settings_fix_core(tic_settings * settings, tic_string * warnings
   case TIC_CONTROL_MODE_ENCODER_SPEED:
     speed_control_mode = true;
     break;
+  default:
+    break;
   }
 
   bool analog_control_mode = false;
@@ -141,6 +143,8 @@ static void tic_settings_fix_core(tic_settings * settings, tic_string * warnings
   case TIC_CONTROL_MODE_ANALOG_POSITION:
   case TIC_CONTROL_MODE_ANALOG_SPEED:
     analog_control_mode = true;
+    break;
+  default:
     break;
   }
 
@@ -545,6 +549,8 @@ static void tic_settings_fix_core(tic_settings * settings, tic_string * warnings
           "Warning: The RX pin must be used as an encoder input "
           "so its function will be changed to the default.\n");
       }
+      break;
+    default:
       break;
     }
 

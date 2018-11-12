@@ -407,6 +407,7 @@ void bcm2835_spi_end(void)
 void bcm2835_spi_setBitOrder(uint8_t order)
 {
 	// BCM2835_SPI_BIT_ORDER_MSBFIRST is the only one suported by SPI0
+	// (void)order;	// Just prevent warnings
 }
 
 // defaults to 0, which means a divider of 65536.

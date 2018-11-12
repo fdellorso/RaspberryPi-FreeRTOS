@@ -17,31 +17,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include <uspios.h>
-#ifndef PRVLIB
-	#include <stdarg.h>
-	#include <stdlib.h>
-#else
-	#include "uspi/stdarg.h"
-	#include "prvlib/stdlib.h"
-#endif
-
+#include <uspi/stdarg.h>
 #include <uspi/string.h>
+#include <uspi/synchronize.h>
+#include <prvlib/stdlib.h>
+#include <uspios.h>	
+
 #include <FreeRTOS.h>
 #include <task.h>
 
-#include "sys_timer.h"
-#include "mailbox.h"
-
-#ifdef VIDEO
-	#include "video.h"
-#endif
-#ifdef ILI9340
-	#include "ili9340.h"
-#endif
-#ifdef MUART
-	#include "muart.h"
-#endif
+#include <rpi_header.h>
+#include <rpi_logger.h>
 
 __attribute__((no_instrument_function))
 void MsDelay(unsigned nMilliSeconds) {
@@ -76,6 +62,11 @@ unsigned StartKernelTimer(unsigned nDelay, TKernelTimerHandler *pHandler, void *
 	#endif
 
 	return 1;
+
+	(void)nDelay;	// FIXME Wunused
+	(void)pHandler;	// FIXME Wunused
+	(void)pParam;	// FIXME Wunused
+	(void)pContext;	// FIXME Wunused
 }
 
 void CancelKernelTimer(unsigned hTimer) {
@@ -90,6 +81,8 @@ void CancelKernelTimer(unsigned hTimer) {
 	#ifdef MUART
 		muart_println("CancelKernelTimer");
 	#endif
+
+	(void)hTimer;	// FIXME Wunused
 }
 
 //void ConnectInterrupt (unsigned nIRQ, TInterruptHandler *pfnHandler, void *pParam){
@@ -124,7 +117,7 @@ int SetPowerStateOn(unsigned nDeviceId) {
 }
 
 int GetMACAddress(unsigned char Buffer[6]) {
-	unsigned int mailbuffer[7] __attribute__((aligned (16)));
+	unsigned int mailbuffer[8] __attribute__((aligned (16)));
 
 	//get MAC
 	mailbuffer[0] = 8 * 4;		//mailbuffer size
@@ -177,14 +170,15 @@ void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...)
 	va_end (var);
 	// println(pMessage, 0xFFFFFFFF);
 	// ili9340_println(pMessage, ILI9340_WHITE);
+
+	(void)pSource;	// FIXME Wunused
+	(void)Severity;	// FIXME Wunused
 }
 
 #ifndef NDEBUG
 
-void uspi_assertion_failed(const char *pExpr, const char *pFile, unsigned nLine) {	
+void uspi_assertion_failed(const char *pExpr, const char *pFile, unsigned nLine) {
 	
-	
-
 	#ifdef VIDEO
 		println(pExpr, 0xFFFFFFFF);
 		println(pFile, 0xFFFFFFFF);
@@ -216,6 +210,10 @@ void DebugHexdump (const void *pBuffer, unsigned nBufLen, const char *pSource) {
 	#ifdef MUART
 		muart_println("DebugHexdump");
 	#endif
+
+	(void)pBuffer;	// FIXME Wunused
+	(void)nBufLen;	// FIXME Wunused
+	(void)pSource;	// FIXME Wunused
 }
 
 #endif
@@ -226,7 +224,6 @@ void* malloc(unsigned nSize) {
 	void* temp = pvPortMalloc(nSize);
 	uspi_LeaveCritical();
 	return temp;
-
 }
 
 void free(void* pBlock) {

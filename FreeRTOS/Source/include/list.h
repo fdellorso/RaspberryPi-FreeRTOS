@@ -215,7 +215,7 @@ xList * const pxConstList = ( pxList );													\
 	/* Increment the index to the next item and return the item, ensuring */			\
 	/* we don't return the marker used at the end of the list.  */						\
 	( pxConstList )->pxIndex = ( pxConstList )->pxIndex->pxNext;						\
-	if( ( pxConstList )->pxIndex == ( xListItem * ) &( ( pxConstList )->xListEnd ) )	\
+	if( ( pxConstList )->pxIndex == ( xListItem * ) & ( ( pxConstList )->xListEnd ) )	\
 	{																					\
 		( pxConstList )->pxIndex = ( pxConstList )->pxIndex->pxNext;					\
 	}																					\
@@ -282,7 +282,7 @@ xList * const pxConstList = ( pxList );													\
  * \page listGET_END_MARKER listGET_END_MARKER
  * \ingroup LinkedList
  */
-#define listGET_END_MARKER( pxList )	( ( xListItem const * ) ( &( ( pxList )->xListEnd ) ) )
+#define listGET_END_MARKER( pxList )	( ( xListItem const * ) ( & ( ( pxList )->xListEnd ) ) )
 
 /*
  * Return the list a list item is contained within (referenced from).

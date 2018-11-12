@@ -2,62 +2,62 @@
 
 #include "tic_internal.h"
 
-struct tic_settings
-{
-  uint8_t product;
+// struct tic_settings
+// {
+//   uint8_t product;
 
-  uint8_t control_mode;
-  bool never_sleep;
-  bool disable_safe_start;
-  bool ignore_err_line_high;
-  bool auto_clear_driver_error;
-  uint8_t soft_error_response;
-  int32_t soft_error_position;
-  uint32_t serial_baud_rate;
-  uint8_t serial_device_number;
-  uint16_t command_timeout;
-  bool serial_crc_enabled;
-  uint8_t serial_response_delay;
-  uint16_t low_vin_timeout;
-  uint16_t low_vin_shutoff_voltage;
-  uint16_t low_vin_startup_voltage;
-  uint16_t high_vin_shutoff_voltage;
-  int16_t vin_calibration;
-  uint16_t rc_max_pulse_period;
-  uint16_t rc_bad_signal_timeout;
-  uint8_t rc_consecutive_good_pulses;
-  uint8_t input_averaging_enabled;
-  uint16_t input_hysteresis;
-  uint16_t input_error_min;
-  uint16_t input_error_max;
-  uint8_t input_scaling_degree;
-  bool input_invert;
-  uint16_t input_min;
-  uint16_t input_neutral_min;
-  uint16_t input_neutral_max;
-  uint16_t input_max;
-  int32_t output_min;
-  int32_t output_max;
-  uint32_t encoder_prescaler;
-  uint32_t encoder_postscaler;
-  bool encoder_unlimited;
-  struct {
-    uint8_t func;
-    bool pullup;
-    bool analog;
-    bool polarity;
-  } pin_settings[TIC_CONTROL_PIN_COUNT];
+//   uint8_t control_mode;
+//   bool never_sleep;
+//   bool disable_safe_start;
+//   bool ignore_err_line_high;
+//   bool auto_clear_driver_error;
+//   uint8_t soft_error_response;
+//   int32_t soft_error_position;
+//   uint32_t serial_baud_rate;
+//   uint8_t serial_device_number;
+//   uint16_t command_timeout;
+//   bool serial_crc_enabled;
+//   uint8_t serial_response_delay;
+//   uint16_t low_vin_timeout;
+//   uint16_t low_vin_shutoff_voltage;
+//   uint16_t low_vin_startup_voltage;
+//   uint16_t high_vin_shutoff_voltage;
+//   int16_t vin_calibration;
+//   uint16_t rc_max_pulse_period;
+//   uint16_t rc_bad_signal_timeout;
+//   uint8_t rc_consecutive_good_pulses;
+//   uint8_t input_averaging_enabled;
+//   uint16_t input_hysteresis;
+//   uint16_t input_error_min;
+//   uint16_t input_error_max;
+//   uint8_t input_scaling_degree;
+//   bool input_invert;
+//   uint16_t input_min;
+//   uint16_t input_neutral_min;
+//   uint16_t input_neutral_max;
+//   uint16_t input_max;
+//   int32_t output_min;
+//   int32_t output_max;
+//   uint32_t encoder_prescaler;
+//   uint32_t encoder_postscaler;
+//   bool encoder_unlimited;
+//   struct {
+//     uint8_t func;
+//     bool pullup;
+//     bool analog;
+//     bool polarity;
+//   } pin_settings[TIC_CONTROL_PIN_COUNT];
 
-  uint32_t current_limit;
-  int32_t current_limit_during_error;
-  uint8_t step_mode;
-  uint8_t decay_mode;
-  uint32_t starting_speed;
-  uint32_t max_speed;
-  uint32_t max_decel;
-  uint32_t max_accel;
-  bool invert_motor_direction;
-};
+//   uint32_t current_limit;
+//   int32_t current_limit_during_error;
+//   uint8_t step_mode;
+//   uint8_t decay_mode;
+//   uint32_t starting_speed;
+//   uint32_t max_speed;
+//   uint32_t max_decel;
+//   uint32_t max_accel;
+//   bool invert_motor_direction;
+// };
 
 void tic_settings_fill_with_defaults(tic_settings * settings)
 {
@@ -180,7 +180,7 @@ tic_error * tic_settings_copy(const tic_settings * source, tic_settings ** dest)
 
   if (error == NULL)
   {
-    memcpy(new_settings, source, sizeof(tic_settings));
+    memcpy2(new_settings, source, sizeof(tic_settings));
   }
 
   if (error == NULL)

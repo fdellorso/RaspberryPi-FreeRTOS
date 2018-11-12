@@ -8,7 +8,7 @@
 #ifndef _INTERRUPTS_H_
 #define _INTERRUPTS_H_
 
-#include <bcm2835_base.h>
+#include <rpi_header.h>
 
 #define BCM2835_INTC_TOTAL_IRQ		64 + 8
 
@@ -57,11 +57,11 @@ typedef struct {
 	void 				   *pParam;				// A special parameter that the use can pass to the IRQ.
 } INTERRUPT_VECTOR;
 
-int InitInterruptController	();
+int InitInterruptController	(void);
 int RegisterInterrupt		(int nIRQ, FN_INTERRUPT_HANDLER pfnHandler, void *pParam);
 int EnableInterrupt			(int nIRQ);
 int DisableInterrupt		(int nIRQ);
-int EnableInterrupts		();
-int DisableInterrupts		();
+int EnableInterrupts		(void);
+int DisableInterrupts		(void);
 
 #endif

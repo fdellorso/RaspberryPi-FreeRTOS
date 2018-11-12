@@ -94,7 +94,6 @@
 #define configUSE_16_BIT_TICKS		            0
 #define configIDLE_SHOULD_YIELD		            1
 #define configUSE_APPLICATION_TASK_TAG	        1
-
 // #define configUSE_TIMERS                        1
 
 /* Co-routine definitions. */
@@ -112,6 +111,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelayUntil			        1
 #define INCLUDE_vTaskDelay				        1
 #define INCLUDE_xTaskGetCurrentTaskHandle       1
+#define INCLUDE_xEventGroupSetBitFromISR        0
 
 /* This is the raw value as per the Cortex-M3 NVIC.  Values can be 255
 (lowest) to 0 (1?) (highest). */

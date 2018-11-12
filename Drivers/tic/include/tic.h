@@ -252,7 +252,12 @@ bool tic_look_up_decay_mode_code(const char * name,
 /// indicates success.  If the pointer is not NULL, the caller can use the
 /// pointer to get information about the error, and then must free the error at
 /// some point by calling tic_error_free.
-typedef struct tic_error tic_error;
+typedef struct tic_error {
+  bool do_not_free;
+  char * message;
+  size_t code_count;
+  uint32_t * code_array;
+} tic_error;
 
 /// Each ::tic_error can have 0 or more error codes that give additional
 /// information about the error that might help the caller take the right action
@@ -308,7 +313,61 @@ const char * tic_error_get_message(const tic_error *);
 
 /// Represents the settings for a Tic.  This object is just plain old data; it
 /// does not have any pointers or handles for other resources.
-typedef struct tic_settings tic_settings;
+typedef struct tic_settings {
+  uint8_t product;
+
+  uint8_t control_mode;
+  bool never_sleep;
+  bool disable_safe_start;
+  bool ignore_err_line_high;
+  bool auto_clear_driver_error;
+  uint8_t soft_error_response;
+  int32_t soft_error_position;
+  uint32_t serial_baud_rate;
+  uint8_t serial_device_number;
+  uint16_t command_timeout;
+  bool serial_crc_enabled;
+  uint8_t serial_response_delay;
+  uint16_t low_vin_timeout;
+  uint16_t low_vin_shutoff_voltage;
+  uint16_t low_vin_startup_voltage;
+  uint16_t high_vin_shutoff_voltage;
+  int16_t vin_calibration;
+  uint16_t rc_max_pulse_period;
+  uint16_t rc_bad_signal_timeout;
+  uint8_t rc_consecutive_good_pulses;
+  uint8_t input_averaging_enabled;
+  uint16_t input_hysteresis;
+  uint16_t input_error_min;
+  uint16_t input_error_max;
+  uint8_t input_scaling_degree;
+  bool input_invert;
+  uint16_t input_min;
+  uint16_t input_neutral_min;
+  uint16_t input_neutral_max;
+  uint16_t input_max;
+  int32_t output_min;
+  int32_t output_max;
+  uint32_t encoder_prescaler;
+  uint32_t encoder_postscaler;
+  bool encoder_unlimited;
+  struct {
+    uint8_t func;
+    bool pullup;
+    bool analog;
+    bool polarity;
+  } pin_settings[TIC_CONTROL_PIN_COUNT];
+
+  uint32_t current_limit;
+  int32_t current_limit_during_error;
+  uint8_t step_mode;
+  uint8_t decay_mode;
+  uint32_t starting_speed;
+  uint32_t max_speed;
+  uint32_t max_decel;
+  uint32_t max_accel;
+  bool invert_motor_direction;
+} tic_settings;
 
 /// Creates a new settings object.
 ///
@@ -914,7 +973,43 @@ bool tic_settings_get_invert_motor_direction(const tic_settings *);
 
 /// Represents run-time variables that have been read from the Tic using the Get
 /// Variables command.
-typedef struct tic_variables tic_variables;
+typedef struct tic_variables {
+  uint8_t product;
+  uint8_t operation_state;
+  bool energized;
+  bool position_uncertain;
+  uint16_t error_status;
+  uint32_t errors_occurred;
+  uint8_t planning_mode;
+  int32_t target_position;
+  int32_t target_velocity;
+  uint32_t starting_speed;
+  uint32_t max_speed;
+  uint32_t max_decel;
+  uint32_t max_accel;
+  int32_t current_position;
+  int32_t current_velocity;
+  int32_t acting_target_position;
+  uint32_t time_since_last_step;
+  uint8_t device_reset;
+  uint16_t vin_voltage;
+  uint32_t up_time;
+  int32_t encoder_position;
+  uint16_t rc_pulse_width;
+  uint8_t step_mode;
+  uint8_t current_limit_code;
+  uint8_t decay_mode;
+  uint8_t input_state;
+  uint16_t input_after_averaging;
+  uint16_t input_after_hysteresis;
+  int32_t input_after_scaling;
+
+  struct {
+    uint16_t analog_reading;
+    bool digital_reading;
+    uint8_t pin_state;
+  } pin_info[TIC_CONTROL_PIN_COUNT];
+} tic_variables;
 
 /// Copies a tic_variables object.  If this function is successful, the caller must
 /// free the settings later by calling tic_settings_free().
@@ -1191,10 +1286,15 @@ uint8_t tic_variables_get_pin_state(const tic_variables *, uint8_t pin);
 
 /// Represents a Tic that is or was connected to the computer.
 ///
-typedef struct tic_device tic_device;
+typedef struct tic_device {
+  char * serial_number;
+  char * os_id;
+  uint16_t firmware_version;
+  uint8_t product;
+}tic_device;
 
 TIC_API
-tic_error * tic_device_create(tic_device * fill_struct);
+tic_error * tic_device_create(tic_device ** device);
 
 /// Finds all the Tic devices connected to the computer via USB and returns a
 /// list of them.
@@ -1220,17 +1320,15 @@ tic_error * tic_device_create(tic_device * fill_struct);
 
 /// Makes a copy of a device object.  If this function is successful, you will
 /// need to free the copy by calling tic_device_free() at some point.
-// TODO device_copy disabled
-// TIC_API TIC_WARN_UNUSED
-// tic_error * tic_device_copy(
-//   const tic_device * source,
-//   tic_device ** dest);
+TIC_API TIC_WARN_UNUSED
+tic_error * tic_device_copy(
+  const tic_device * source,
+  tic_device ** dest);
 
 /// Frees a device object.  Passing a NULL pointer to this function is OK.  Do
 /// not free the same non-NULL pointer twice.
-// TODO device_free disabled
-// TIC_API
-// void tic_device_free(tic_device *);
+TIC_API
+void tic_device_free(tic_device *);
 
 /// Gets the product code of the device, which will be one of the TIC_PRODUCT_*
 /// macros.  If the device is NULL, returns 0 instead.
@@ -1274,10 +1372,14 @@ uint16_t tic_device_get_firmware_version(const tic_device *);
 
 /// Represents an open handle that can be used to read and write data from a
 /// device.
-typedef struct tic_handle tic_handle;
+typedef struct tic_handle {
+  void * usb_handle;
+  tic_device * device;
+  char * cached_firmware_version_string;
+} tic_handle;
 
 TIC_API
-tic_error * tic_handle_create(tic_device * device, tic_handle * handle);
+tic_error * tic_handle_create(tic_device * device, tic_handle ** handle);
 
 /// Opens a handle to the specified device.  The handle must later be closed
 /// with tic_handle_close().
@@ -1291,9 +1393,8 @@ tic_error * tic_handle_create(tic_device * device, tic_handle * handle);
 
 /// Closes and frees the specified handle.  It is OK to pass NULL to this
 /// function.  Do not close the same non-NULL handle twice.
-// TODO handle_open disabled
-// TIC_API
-// void tic_handle_close(tic_handle *);
+TIC_API
+void tic_handle_close(tic_handle *);
 
 /// Gets the device object that corresponds to this handle.
 /// The device object will be valid for at least as long as the handle.

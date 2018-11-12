@@ -37,6 +37,8 @@ void __cyg_profile_func_enter (void *this_fn, void *call_site){
 		m[0] = '.';
 		printHex(m, (int)this_fn, 0xFF00FF00); //green for call
 		//uspi_LeaveCritical();
+
+		(void)call_site;	// FIXME Wunused
 	}
 }
 
@@ -65,5 +67,7 @@ void __cyg_profile_func_exit  (void *this_fn, void *call_site){
 		printHex(m, (int)this_fn, 0xFFFF0000); //red for return
 		depth--;
 		//uspi_LeaveCritical();
+
+		(void)call_site;	// FIXME Wunused
 	}
 }

@@ -18,12 +18,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include <uspi/uspilibrary.h>
-#include <uspi.h>
-#include <uspios.h>
 #include <uspi/usbdevice.h>
 #include <uspi/string.h>
 #include <uspi/util.h>
 #include <uspi/assert.h>
+#include <uspios.h>
+#include <uspi.h>
 
 static const char FromUSPi[] = "uspi";
 
@@ -124,18 +124,20 @@ int USPiTicBlockRead (unsigned char nCommand, unsigned int nIndex, unsigned shor
 
 int uspitic_control_transfer(void * handle,
 		unsigned char bmRequestType, unsigned char bRequest,
-    	unsigned short wValue, unsigned short wIndex, void * data,
-		unsigned short wLength, size_t * transferred)
+    	unsigned short wValue, unsigned short wIndex, unsigned char * data,
+		unsigned short wLength, unsigned char * transferred)
 {
 	assert (s_pLibrary != 0);
 	assert (s_pLibrary->pTic0 != 0);
 
-	*transferred = USBTicT834DeviceControl (s_pLibrary->pTic0, bmRequestType, bRequest, wValue, wIndex, wLength, data);
+	*transferred = (unsigned char) USBTicT834DeviceControl (s_pLibrary->pTic0, bmRequestType, bRequest, wValue, wIndex, wLength, data);
 	
-	if (transferred >= 0)
+	if (*transferred > 0)
 		return 0;
 	else
 		return -1;
+	
+	(void)handle;	// FIXME Wunused
 }
 
 int USPiTicStringRead (unsigned char nString, unsigned char *nData)
@@ -145,7 +147,7 @@ int USPiTicStringRead (unsigned char nString, unsigned char *nData)
 	return USBTicT834DeviceReadString (s_pLibrary->pTic0, nString, nData) ? 1 : 0;
 }
 
-char * USPiTicGetSerialNumber()
+char * USPiTicGetSerialNumber(void)
 {
 	assert (s_pLibrary != 0);
 	assert (s_pLibrary->pTic0 != 0);

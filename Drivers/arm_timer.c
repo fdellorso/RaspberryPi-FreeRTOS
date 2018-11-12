@@ -19,11 +19,11 @@ typedef struct _BCM2835_ARM_TIMER_REGS {
 
 static volatile BCM2835_ARM_TIMER_REGS * const pRegs = (BCM2835_ARM_TIMER_REGS *) (BCM2835_ARM_TIMER_BASE);
 
-void TimerIrqClear() {
+void TimerIrqClear(void) {
 	pRegs->CLI = 0;
 }
 
-void prvFreeRtosTimerSetup() {
+void prvFreeRtosTimerSetup(void) {
 	pRegs->CTL = 0x003E0000;
 	pRegs->LOD = 1000 - 1;
 	pRegs->RLD = 1000 - 1;

@@ -58,7 +58,8 @@
 #ifndef FREERTOS_IP_CONFIG_H
 #define FREERTOS_IP_CONFIG_H
 
-#include "prvlib/string.h"     // TODO string o stdlib?
+// #include "prvlib/string.h"     // TODO string o stdlib?
+#include <uspi/util.h>
 
 #define FreeRTOS_debug_print = 1
 #define FreeRTOS_debug_printf( MSG ) println(MSG, 0xFFFFFFFF);

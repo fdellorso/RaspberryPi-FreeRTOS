@@ -1,22 +1,10 @@
-#ifndef PRVLIB
-	#include <stdarg.h>
-	#include <string.h>
-#else
-	#include "prvlib/stdarg.h"
-	#include "prvlib/string.h"
-#endif
-
 #include "ili9340.h"
-#include "gpio.h"
-#include "sys_timer.h"
 #include "font_5x5.h"
-
-#include "bcm2835.h"	//TODO da eliminare quando presente libreria SPI
 
 #define CHAR_WIDTH 6
 #define CHAR_HEIGHT 8
 
-uint16_t width, height;
+uint32_t width, height;
 
 char lcdbuffer[2 * ILI9340_TFTWIDTH * ILI9340_TFTHEIGHT];
 uint16_t dirty_x0;
@@ -27,6 +15,9 @@ uint16_t dirty_y1;
 extern char loaded;
 uint16_t lcd_position_x = 0;
 uint16_t lcd_position_y = 0;
+
+void ili9340_draw_line(void);
+void ili9340_color_test(void);
 
 void ili9340_write_command(uint8_t command, int param_len, ...) {
 	uint32_t i;
@@ -41,8 +32,8 @@ void ili9340_write_command(uint8_t command, int param_len, ...) {
 
 	if (param_len) {
 		va_start(args, param_len);
-		for (i = 0; i < param_len; i++) {
-			buffer[i] = (uint8_t)va_arg(args, int);
+		for (i = 0; i < (uint32_t) param_len; i++) {
+			buffer[i] = (uint8_t) va_arg(args, int);
 		}
 		va_end(args);
 		bcm2835_spi_writenb(buffer, param_len);	//TODO Manca libreria SPI
@@ -107,7 +98,7 @@ void ili9340_draw_string(const char* str, uint16_t x, uint16_t y, uint16_t color
 }
 
 void ili9340_println(const char* message, uint16_t color) {
-	int x;
+	// int x;
 
 	if(loaded == 0) return; //if video isn't loaded don't bother
 
@@ -153,11 +144,11 @@ void ili9340_printHex(const char* message, uint32_t hexi, uint16_t color) {
 	if(loaded == 0) return; //if video isn't loaded don't bother
 
 	// TODO disabilitata perche usa memcpy della stdlib
-	// char hex[16] = {'0','1','2','3','4','5','6','7',
-	// 				'8','9','A','B','C','D','E','F'};
+	char hex[16] = {'0','1','2','3','4','5','6','7',
+					'8','9','A','B','C','D','E','F'};
 
-	char *hex;
-	memcpy(hex, "0123456789ABCDEF", sizeof("0123456789ABCDEF"));
+	// char *hex;
+	// memcpy(hex, "0123456789ABCDEF", sizeof("0123456789ABCDEF"));
 	
 	char m[200];
 	int i = 0;
@@ -216,7 +207,7 @@ void ili9340_mkdirty(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
 	if (y1 > dirty_y1) dirty_y1 = y1;
 }
 
-void ili9340_update_display() {
+void ili9340_update_display(void) {
 	if (dirty_x0 >= width || dirty_x1 >= width ||
 			dirty_y0 >= height || dirty_y1 >= height) {
 		dirty_x0 = 0;
@@ -250,11 +241,11 @@ void ili9340_update_display() {
 	dirty_y1 = 0;
 }
 
-uint16_t ili9340_get_width() {
+uint16_t ili9340_get_width(void) {
 	return width;
 }
 
-uint16_t ili9340_get_height() {
+uint16_t ili9340_get_height(void) {
 	return height;
 }
 
@@ -283,6 +274,8 @@ void ili9340_set_rotation(uint8_t m) {
 					| ILI9340_MADCTL_MX | ILI9340_MADCTL_BGR);
 			width  = ILI9340_TFTHEIGHT;
 			height = ILI9340_TFTWIDTH;
+			break;
+		default:
 			break;
 	}
 

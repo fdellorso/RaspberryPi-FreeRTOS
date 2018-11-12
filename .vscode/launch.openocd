@@ -1,0 +1,37 @@
+{
+    // Usare IntelliSense per informazioni sui possibili attributi.
+    // Al passaggio del mouse vengono visualizzate le descrizioni degli attributi esistenti.
+    // Per ulteriori informazioni, visitare: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/kernel.elf",
+            "args": [],
+            "targetArchitecture": "arm",
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/home/fra/gcc-arm-none-eabi/bin/arm-none-eabi-gdb",
+            "setupCommands": [
+                {"text": "file '${workspaceFolder}/kernel.elf'"},
+                {"text": "target remote :3333"},
+                {"text": "load"}
+            ],
+            "launchCompleteCommand": "exec-run",
+            "debugServerPath": "openocd",
+            "debugServerArgs": "-f ${workspaceFolder}/Debug/jlink.cfg -f ${workspaceFolder}/Debug/raspi.cfg",
+            "serverStarted": "Info\\ :\\ [\\w\\d\\.]*:\\ hardware",
+            "filterStderr": true,
+            "logging": {
+                "engineLogging": true,
+                "moduleLoad": true,
+                "programOutput": true,
+                "exceptions": true
+            }
+        }
+    ]
+}

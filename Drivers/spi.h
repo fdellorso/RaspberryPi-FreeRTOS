@@ -1,7 +1,7 @@
-#ifndef _SYS_TIMER_H_
-#define _SYS_TIMER_H_
+#ifndef _SPI_H_
+#define _SPI_H_
 
-#include "bcm2835_base.h"
+#include <rpi_header.h>
 
 // Base Physical Address of the SPI0 registers
 #define BCM2835_SPI0_BASE    			(BCM2835_PERI_BASE + 0x204000)

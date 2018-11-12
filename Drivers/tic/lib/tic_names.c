@@ -314,6 +314,7 @@ bool tic_look_up_decay_mode_name(uint8_t decay_mode,
     case TIC_PRODUCT_T825: name_table = tic_decay_mode_names_t825_snake; break;
     case TIC_PRODUCT_T834: name_table = tic_decay_mode_names_t834_snake; break;
     case TIC_PRODUCT_T500: name_table = tic_decay_mode_names_t500_snake; break;
+    default: break;
     }
   }
   else
@@ -326,6 +327,7 @@ bool tic_look_up_decay_mode_name(uint8_t decay_mode,
     case TIC_PRODUCT_T825: name_table = tic_decay_mode_names_t825_ui; break;
     case TIC_PRODUCT_T834: name_table = tic_decay_mode_names_t834_ui; break;
     case TIC_PRODUCT_T500: name_table = tic_decay_mode_names_t500_ui; break;
+    default: break;
     }
   }
 

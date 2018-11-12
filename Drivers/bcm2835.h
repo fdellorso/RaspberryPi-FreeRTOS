@@ -314,12 +314,10 @@
 #ifndef _BCM2835_H_
 #define _BCM2835_H_
 
-#include <bcm2835_base.h>
-
-// typedef unsigned char           uint8_t;
-// typedef unsigned short int      uint16_t;
-// typedef unsigned int            uint32_t;
-// typedef unsigned long long int  uint64_t;
+typedef unsigned char           uint8_t;
+typedef unsigned short int      uint16_t;
+typedef unsigned int            uint32_t;
+typedef unsigned long long int  uint64_t;
 
 #define MAP_FAILED	((void *) -1)
 

@@ -10,32 +10,25 @@
 
 // #include <yaml.h>
 #ifndef PRVLIB
-  // #include <assert.h>
-  #include "prvlib/assert.h"
-  // #include <errno.h>
+  #include <assert.h>
+  #include <errno.h>
   #include <stdarg.h>
-  // #include <stdio.h>
+  #include <stdio.h>
   #include <stdlib.h>
   #include <string.h>
-  // #include <time.h>
-  // #include <unistd.h>
+  #include <time.h>
+  #include <unistd.h>
 #else
-  #include "prvlib/assert.h"
-  #include "prvlib/stdbool.h"
-  #include "prvlib/stdlib.h"
-  #include "prvlib/stdarg.h"
-  #include "prvlib/string.h"
+  #include <rpi_library.h>
 #endif
-
+#include <rpi_header.h>
 #include <uspi.h>
-#include <sys_timer.h>
 
-
-#ifdef _MSC_VER
-#define TIC_PRINTF(f, a)
-#else
-#define TIC_PRINTF(f, a) __attribute__((format (printf, f, a)))
-#endif
+// #ifdef _MSC_VER
+// #define TIC_PRINTF(f, a)
+// #else
+// #define TIC_PRINTF(f, a) __attribute__((format (printf, f, a)))
+// #endif
 
 // A setup packet bRequest value from USB 2.0 Table 9-4
 #define USB_REQUEST_GET_DESCRIPTOR 6

@@ -8,13 +8,13 @@
 #endif
 #endif
 
-struct tic_error
-{
-  bool do_not_free;
-  char * message;
-  size_t code_count;
-  uint32_t * code_array;
-};
+// struct tic_error
+// {
+//   bool do_not_free;
+//   char * message;
+//   size_t code_count;
+//   uint32_t * code_array;
+// };
 
 static uint32_t tic_mem_error_code_array[1] = { TIC_ERROR_MEMORY };
 
@@ -45,6 +45,8 @@ static tic_error tic_error_blank =
   .code_count = 0,
   .code_array = NULL,
 };
+
+tic_error * tic_error_add_v(tic_error * error, const char * format, va_list ap);
 
 void tic_error_free(tic_error * error)
 {
@@ -84,7 +86,7 @@ tic_error * tic_error_copy(const tic_error * src_error)
 
   if (code_count != 0)
   {
-    memcpy(new_code_array, src_error->code_array, code_count * sizeof(uint32_t));
+    memcpy2(new_code_array, src_error->code_array, code_count * sizeof(uint32_t));
   }
   strncpy(new_message, src_message, message_length + 1);
   new_error->do_not_free = false;
@@ -112,20 +114,21 @@ static tic_error * tic_error_make_mutable(tic_error * error)
 // have been freed.
 tic_error * tic_error_add_v(tic_error * error, const char * format, va_list ap)
 {
+  char x[1] = "";
+  
   if (format == NULL) { return error; }
 
   error = tic_error_make_mutable(error);
   if (error == NULL || error->do_not_free) { return error; }
 
-  if (error->message == NULL) { error->message = ""; }
+  if (error->message == NULL) { error->message = x; }
 
   // Determine all the string lengths.
   size_t outer_message_length = 0;
   {
-    char x[1];
     va_list ap2;
     va_copy(ap2, ap);
-    int result = 0; // vsnprintf(x, 0, format, ap2);   // TODO vsnprintf
+    int result = vsnprintf(x, 0, format, ap2);
     if (result > 0)
     {
       outer_message_length = result;
@@ -144,7 +147,7 @@ tic_error * tic_error_add_v(tic_error * error, const char * format, va_list ap)
   }
 
   // Assemble the message.
-  // vsnprintf(message, outer_message_length + 1, format, ap);    // TODO vsnprintf
+  vsnprintf(message, outer_message_length + 1, format, ap);
   strncpy(message + outer_message_length, "  ", separator_length + 1);
   strncpy(message + outer_message_length + separator_length,
     error->message, inner_message_length + 1);

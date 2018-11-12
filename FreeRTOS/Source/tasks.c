@@ -65,12 +65,13 @@
 */
 
 #ifndef PRVLIB
-	// #include <stdio.h>
+	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
 #else
+	#include "prvlib/stdio.h"
 	#include "prvlib/stdlib.h"
-	#include "prvlib/string.h"
+	#include "uspi/util.h"
 #endif
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
@@ -406,7 +407,9 @@ static tskTCB *prvAllocateTCBAndStack( unsigned short usStackDepth, portSTACK_TY
 
 /*lint +e956 */
 
-
+// void vTaskPlaceOnUnorderedEventList( xList * pxEventList, const portTickType xItemValue, const portTickType xTicksToWait );
+// portBASE_TYPE xTaskRemoveFromUnorderedEventList( xListItem * pxEventListItem, const portTickType xItemValue );
+// portTickType uxTaskResetEventItemValue( void );
 
 /*-----------------------------------------------------------
  * TASK CREATION API documented in task.h

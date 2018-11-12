@@ -107,6 +107,7 @@ void KeyMap (TKeyMap *pThis)
 
 void _KeyMap (TKeyMap *pThis)
 {
+	(void)pThis;	// FIXME Wunused
 }
 
 boolean KeyMapClearTable (TKeyMap *pThis, u8 nTable)
@@ -207,6 +208,9 @@ u8 KeyMapTranslate (TKeyMap *pThis, u8 nPhyCode, u8 nModifiers)
 	case KeyScrollLock:
 		pThis->m_bScrollLock = !pThis->m_bScrollLock;
 		return ActionSwitchScrollLock;
+		
+	default:
+    	break;
 	}
 
 	return nLogCode;

@@ -3,14 +3,7 @@
 //
 //basic text debugging using the framebuffer
 
-#ifndef PRVLIB
-	#include <string.h>
-#else
-	#include "prvlib/string.h"
-#endif
-
 #include "video.h"
-#include "mailbox.h"
 #include "font_5x5.h"
 
 #define CHAR_WIDTH 6
@@ -23,11 +16,17 @@ char loaded = 0;
 int position_x = 0;
 int position_y = 0;
 
-void enablelogging(){ loaded = 1;}
+void enablelogging(void) { loaded = 1; }
 
 //mailbuffer must be 16 byte aligned for GPU
 unsigned int mailbuffer[22] __attribute__((aligned (16)));
 unsigned int* framebuffer;
+
+__attribute__((no_instrument_function))
+void drawPixel(unsigned int x, unsigned int y, int colour);
+
+__attribute__((no_instrument_function))
+void drawRect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, int colour);
 
 void initFB(int width, int height) {
 	//get the display size
@@ -196,11 +195,11 @@ void printHex(const char* message, int hexi, int colour) {
 if(loaded == 0) return; //if video isn't loaded don't bother
 
 	// TODO disabilitata perche usa memcpy della stdlib
-	// char hex[16] = {'0','1','2','3','4','5','6','7',
-	// 				'8','9','A','B','C','D','E','F'};
+	char hex[16] = {'0','1','2','3','4','5','6','7',
+					'8','9','A','B','C','D','E','F'};
 
-	char *hex;
-	memcpy(hex,"0123456789ABCDEF",sizeof("0123456789ABCDEF"));
+	// char *hex;
+	// memcpy(hex,"0123456789ABCDEF",sizeof("0123456789ABCDEF"));
 	
 	char m[200];
 	int i = 0;
@@ -221,7 +220,7 @@ if(loaded == 0) return; //if video isn't loaded don't bother
 	println(m, colour);
 }
 
-void videotest() {
+void videotest(void) {
 	//This loop turns on every pixel the screen size allows for.
 	//If the shaded area is larger or smaller than your screen, 
 	//you have under/over scan issues. Add disable_overscan=1 to your config.txt

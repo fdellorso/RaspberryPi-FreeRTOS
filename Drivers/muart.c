@@ -3,15 +3,8 @@
  *
  **/
 
-#ifndef PRVLIB
-	#include <string.h>
-#else
-	#include "prvlib/string.h"
-#endif
-
-#include "aux.h"
 #include "muart.h"
-#include "gpio.h"
+#include <uspi/string.h>
 
 typedef struct {
 	unsigned long	AUXIRQ;	  
@@ -38,7 +31,7 @@ static volatile BCM2835_MUART_REGS * const pRegs = (BCM2835_MUART_REGS *) (BCM28
 
 extern char loaded;
 
-void muart_init() {
+void muart_init(void) {
 	pAux->AUXENB			= Mini_UART_ENB;	// Enable Mini UART
 
 	pRegs->AUX_MU_IER_REG 	= 0;				// Disable Interrupt
@@ -79,15 +72,15 @@ void muart_println(const char *message) {
 
 }
 
-void muart_printHex(const char *message, uint32_t hexi) {
+void muart_printHex(const char *message, unsigned int hexi) {
 	if(loaded == 0) return; //if video isn't loaded don't bother
 
 	// TODO disabilitata perche usa memcpy della stdlib
-	// char hex[16] = {'0','1','2','3','4','5','6','7',
-	// 				'8','9','A','B','C','D','E','F'};
+	char hex[16] = {'0','1','2','3','4','5','6','7',
+					'8','9','A','B','C','D','E','F'};
 
-	char *hex;
-	memcpy(hex, "0123456789ABCDEF", sizeof("0123456789ABCDEF"));
+	// char *hex;
+	// memcpy(hex, "0123456789ABCDEF", sizeof("0123456789ABCDEF"));
 	
 	char m[200];
 	int i = 0;
@@ -109,7 +102,21 @@ void muart_printHex(const char *message, uint32_t hexi) {
 	muart_println(m);
 }
 
-unsigned char muart_getc() {
+void muart_printf(const char *pMessage, ...) {
+	va_list var;
+	va_start (var, pMessage);
+
+	TString Message;
+	String(&Message);
+	StringFormatV(&Message, pMessage, var);
+
+	muart_println(StringGet(&Message));
+
+	_String(&Message);
+	va_end (var);
+}
+
+unsigned char muart_getc(void) {
 	while(1) if(pRegs->AUX_MU_LSR_REG & FIFO_DATA_READY) break;
 	return (unsigned char) pRegs->AUX_MU_IO_REG;
 }

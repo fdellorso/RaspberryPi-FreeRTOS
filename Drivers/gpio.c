@@ -71,30 +71,30 @@ int ReadGpio(unsigned int pinNum) {
 	return ((pRegs->GPLEV[pinNum/32])>>(pinNum%32))&1;
 }
 
-int PudGpio(unsigned int pinNum, enum PULL_STATE state) {
+void PudGpio(unsigned int pinNum, enum PULL_STATE state) {
 	unsigned long offset = pinNum/32;
 	unsigned long mask	 = (1<<(pinNum%32));
 
 	// Setup direction register:
-	pRegs->GPPUD[1] = state;
+	pRegs->GPPUD[0] = state;
 
 	// Wait 150 cycles to set up the control signal:
 	wait_cycles(150);
 
 	// Activate clock signal for this pin:
-	pRegs->GPPUD[offset] |= mask;
+	pRegs->GPPUDCLK[offset] |= mask;
 
 	// Wait 150 cycles to hold the control signal:
 	wait_cycles(150);
 
 	// Remove control signal:
-	pRegs->GPPUD[1] = 0;
+	pRegs->GPPUD[0] = 0;
 
 	// Wait 150 cycles to hold the control signal:
 	wait_cycles(150);
 
 	// Remove clock signal:
-	pRegs->GPPUD[offset] = 0;
+	pRegs->GPPUDCLK[offset] = 0;
 }
 
 void EnableGpioDetect(unsigned int pinNum, enum DETECT_TYPE type) {
@@ -121,6 +121,8 @@ void EnableGpioDetect(unsigned int pinNum, enum DETECT_TYPE type) {
 		pRegs->GPAFEN[offset]|=mask;
 		break;
 	case DETECT_NONE:
+		break;
+	default:
 		break;
 	}
 }
@@ -149,6 +151,8 @@ void DisableGpioDetect(unsigned int pinNum, enum DETECT_TYPE type) {
 		pRegs->GPAFEN[offset]&=mask;
 		break;
 	case DETECT_NONE:
+		break;
+	default:
 		break;
 	}
 }

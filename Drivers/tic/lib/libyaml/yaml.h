@@ -20,8 +20,10 @@ extern "C" {
     #include <stdlib.h>
     #include <string.h>
 #else
+    #include "prvlib/stdio.h"
     #include "prvlib/stdlib.h"
-    #include "prvlib/string.h"
+    // #include "prvlib/string.h"
+    #include <uspi/util.h>
 #endif
 
 /**

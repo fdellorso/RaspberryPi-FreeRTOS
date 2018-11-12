@@ -298,6 +298,8 @@ portBASE_TYPE xTimeoutOccurred = pdFALSE;
 	//traceEVENT_GROUP_SYNC_END( xEventGroup, uxBitsToSet, uxBitsToWaitFor, xTimeoutOccurred );
 
 	return uxReturn;
+
+	(void)xTimeoutOccurred;		// FIXME Wunused
 }
 /*-----------------------------------------------------------*/
 
@@ -446,6 +448,8 @@ portBASE_TYPE xTimeoutOccurred = pdFALSE;
 	//traceEVENT_GROUP_WAIT_BITS_END( xEventGroup, uxBitsToWaitFor, xTimeoutOccurred );
 
 	return uxReturn;
+
+	(void)xTimeoutOccurred;		// FIXME Wunused
 }
 /*-----------------------------------------------------------*/
 

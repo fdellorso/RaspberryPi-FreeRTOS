@@ -3,12 +3,17 @@
         {
             "name": "ARM",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/Drivers",
+                "${workspaceFolder}/Drivers/tic/include",
+                "${workspaceFolder}/Drivers/uspi/include",
+                "${workspaceFolder}/FreeRTOS/Source/include",
+                "${workspaceFolder}/FreeRTOS/Source/portable/GCC/RaspberryPi"
             ],
             "defines": [
                 "RASPPI=1",
                 "MUART",
-                "PRVLIB"
+                "PRVLIB",
+                "configBLUETHUNDER=0"
             ],
             "compilerPath": "/usr/bin/arm-none-eabi-gcc",
             "cStandard": "c99",
@@ -19,7 +24,7 @@
                     ""
                 ],
                 "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": ""   
+                "databaseFilename": ""
             }
         }
     ],

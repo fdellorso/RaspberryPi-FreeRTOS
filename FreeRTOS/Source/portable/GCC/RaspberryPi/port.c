@@ -12,8 +12,8 @@
 #define portTHUMB_MODE_BIT						( ( portSTACK_TYPE ) 0x20 )
 #define portINSTRUCTION_SIZE					( ( portSTACK_TYPE ) 4 )
 #define portNO_CRITICAL_SECTION_NESTING			( ( portSTACK_TYPE ) 0 )
-
 // #define portTIMER_PRESCALE 						( ( unsigned long ) 0xF9 )
+#define portPRESCALE_VALUE						0
 
 
 /* Constants required to setup the VIC for the tick ISR. */
@@ -44,6 +44,8 @@ static void prvSetupTimerInterrupt( void );
 extern void vPortISRStartFirstTask( void );
 
 /*-----------------------------------------------------------*/
+
+__attribute__((no_instrument_function)) void vTickISR(int nIRQ, void *pParam );
 
 /* 
  * Initialise the stack of a task to look exactly as if a call to 
@@ -157,12 +159,17 @@ __attribute__((no_instrument_function))
 void vTickISR(int nIRQ, void *pParam ) {
 	vTaskIncrementTick();
 
-	#if configUSE_PREEMPTION == 1
-	vTaskSwitchContext();
+	#if ( configUSE_PREEMPTION == 1 )
+	{
+		vTaskSwitchContext();
+	}
 	#endif
 
 	// pRegs->CLI = 0;			// Acknowledge the timer interrupt.
 	TimerIrqClear();
+
+	(void)nIRQ;		// FIXME Wunused
+	(void)pParam;	// FIXME Wunused
 }
 
 /*
@@ -172,12 +179,14 @@ __attribute__((no_instrument_function))
 static void prvSetupTimerInterrupt( void ) {
 	unsigned long ulCompareMatch;
 	
+	(void)ulCompareMatch;
+	
 	/* Calculate the match value required for our wanted tick rate. */
 	ulCompareMatch = 1000000 / configTICK_RATE_HZ;
 
 	/* Protect against divide by zero.  Using an if() statement still results
 	in a warning - hence the #if. */
-	#if portPRESCALE_VALUE != 0
+	#if ( portPRESCALE_VALUE != 0 )
 	{
 		ulCompareMatch /= ( portPRESCALE_VALUE + 1 );
 	}

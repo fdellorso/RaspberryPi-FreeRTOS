@@ -28,7 +28,7 @@
 
 #define DWHCI_MAX_CHANNELS		16
 
-#define DWHCI_DATA_FIFO_SIZE 		0x1000
+#define DWHCI_DATA_FIFO_SIZE 	0x1000
 
 //
 // Core Registers

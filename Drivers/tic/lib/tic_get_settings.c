@@ -328,7 +328,7 @@ tic_error * tic_get_settings(tic_handle * handle, tic_settings ** settings)
   uint8_t buf[TIC_SETTINGS_SIZE];
   {
     memset(buf, 0, sizeof(buf));
-    size_t index = 1;
+    size_t index = 0;
     while (index < sizeof(buf) && error == NULL)
     {
       size_t length = TIC_MAX_USB_RESPONSE_SIZE;

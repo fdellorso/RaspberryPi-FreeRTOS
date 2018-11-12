@@ -1,7 +1,7 @@
 #ifndef _VIDEO_H_
 #define _VIDEO_H_
 
-#include "bcm2835_base.h"
+#include <rpi_header.h>
 
 #define WHITE_TEXT     0xFFFFFFFF
 #define RED_TEXT       0xFFFF0000
@@ -14,13 +14,13 @@
 
 char loaded;
 
-void enablelogging();
+void enablelogging(void);
 void initFB(int width, int height);
 void drawChar(unsigned char c, int x, int y, int colour);
 void drawString(const char* str, int x, int y, int colour);
 void println(const char* message, int colour);
 void printHex(const char* message, int hexi, int colour);
-void videotest();
-void dumpDebug();
+void videotest(void);
+void dumpDebug(void);
 
 #endif

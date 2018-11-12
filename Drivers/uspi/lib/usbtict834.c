@@ -66,7 +66,7 @@ boolean USBTicT834DeviceConfigure (TUSBDevice *pUSBDevice)
     pThis->product = pDeviceDesc->idProduct;
 
     // Get Serial Number from String Descriptor
-    uint8_t buffer[pDeviceDesc->bMaxPacketSize0];
+    unsigned char buffer[pDeviceDesc->bMaxPacketSize0];
 
     if(!DWHCIDeviceGetDescriptor (USBDeviceGetHost (&pThis->m_USBDevice),
                                   USBDeviceGetEndpoint0 (&pThis->m_USBDevice),
@@ -113,8 +113,9 @@ boolean USBTicT834DeviceConfigure (TUSBDevice *pUSBDevice)
 
 	_String (&DeviceName);
 
-    LogWrite (FromTicT834, LOG_NOTICE, "Serial Number is %s", pThis->serial_number);
-    LogWrite (FromTicT834, LOG_NOTICE, "Firmware Version is %x", pThis->firmware_version);
+    // LogWrite (FromTicT834, LOG_NOTICE, "Serial Number is\t%s", pThis->serial_number);
+    // LogWrite (FromTicT834, LOG_NOTICE, "Firmware Version is\t%x", pThis->firmware_version);
+    // LogWrite (FromTicT834, LOG_NOTICE, "Max Packet Size is\t%u", pDeviceDesc->bMaxPacketSize0);
 
 	return TRUE;
 }
@@ -139,13 +140,13 @@ boolean USBTicT834DeviceReadReg (TUSBTicT834Device *pThis, u8 nCommand, u16 nVal
             nValue, nIndex, nData, nLength) >= 0;
 }
 
-int USBTicT834DeviceControl (TUSBTicT834Device *pThis, u8 nReqType, u8 nCommand, u16 nValue, u32 nIndex, u16 nLength, u32 *nData)
+int USBTicT834DeviceControl (TUSBTicT834Device *pThis, u8 nReqType, u8 nCommand, u16 nValue, u32 nIndex, u16 nLength, u8 *nData)
 {
 	assert (pThis != 0);
 
 	return DWHCIDeviceControlMessage (USBDeviceGetHost (&pThis->m_USBDevice),
             USBDeviceGetEndpoint0 (&pThis->m_USBDevice),
-            nReqType, nCommand,nValue, nIndex, nData, nLength);
+            nReqType, nCommand, nValue, nIndex, nData, nLength);
 }
 
 boolean USBTicT834DeviceReadString (TUSBTicT834Device *pThis, u8 nString, u8 *nData)

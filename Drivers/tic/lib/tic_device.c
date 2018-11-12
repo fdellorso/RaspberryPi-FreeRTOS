@@ -2,29 +2,39 @@
 
 #include "tic_internal.h"
 
-struct tic_device
-{
-  // TODO usb_interface disabled
-  // libusbp_generic_interface * usb_interface;
-  char * serial_number;
-  char * os_id;
-  uint16_t firmware_version;
-  uint8_t product;
-};
+// struct tic_device
+// {
+//   // TODO usb_interface disabled
+//   // libusbp_generic_interface * usb_interface;
+//   char * serial_number;
+//   char * os_id;
+//   uint16_t firmware_version;
+//   uint8_t product;
+// };
 
-tic_error * tic_device_create(tic_device * device)
+tic_error * tic_device_create(tic_device ** device)
 {
   if (device == NULL)
   {
     return tic_error_create("Device struct output pointer is null.");
   }
 
+  *device = NULL;
+
   tic_error * error = NULL;
 
-  TUSPiDeviceInformation * pInfo;
+  tic_device * new_device = NULL;
+  if (error == NULL)
+  {
+    new_device = (tic_device *) calloc(1, sizeof(tic_device));
+    if (new_device == NULL) { error = &tic_error_no_memory; }
+  }
+
+  // OLD PART
+  TUSPiDeviceInformation * pInfo = (TUSPiDeviceInformation *) malloc(sizeof(TUSPiDeviceInformation));
   if (!USPiDeviceGetInformation(TICT834_CLASS, 0, pInfo))
   {
-    return tic_error_create("Device list output pointer is null.");
+    error = tic_error_create("USPi Tic Driver error.");
   }
 
   uint16_t vendor_id;
@@ -34,35 +44,48 @@ tic_error * tic_device_create(tic_device * device)
 
   if (vendor_id != TIC_VENDOR_ID)
   { 
-    return tic_error_create("Wrong Vendor");
+    error = tic_error_create("Wrong Vendor");
   }
 
   product_id = pInfo->idProduct;
 
-  device->serial_number = USPiTicGetSerialNumber();;
-  device->os_id = NULL;
-  device->firmware_version = pInfo->bcdDevice;
-  device->product = 0;
-  
+  new_device->serial_number = USPiTicGetSerialNumber();
+  new_device->os_id = NULL; // FIXME
+  new_device->firmware_version = pInfo->bcdDevice;
+  new_device->product = 0;
+
   // Get the product code.
   switch (product_id)
   {
     case TIC_PRODUCT_ID_T825:
-      device->product = TIC_PRODUCT_T825;
+      new_device->product = TIC_PRODUCT_T825;
       break;
     case TIC_PRODUCT_ID_T834:
-      device->product = TIC_PRODUCT_T834;
+      new_device->product = TIC_PRODUCT_T834;
       break;
     case TIC_PRODUCT_ID_T500:
-      device->product = TIC_PRODUCT_T500;
+      new_device->product = TIC_PRODUCT_T500;
       break;
+    default:
+		  break;
   }
 
-  if (device->product == 0)
+  if (new_device->product == 0)
   {
     // Should not ever happen.
-    return tic_error_create("Unknown Product.");
+    error = tic_error_create("Unknown Product.");
   }
+  // OLD PART
+
+  if (error == NULL)
+  {
+    *device = new_device;
+    new_device = NULL;
+    pInfo = NULL;
+  }
+
+  tic_device_free(new_device);
+  free(pInfo);
 
   return error;
 }
@@ -224,87 +247,86 @@ tic_error * tic_device_create(tic_device * device)
 //   free(list);
 // }
 
-// TODO device_copy disabled
-// tic_error * tic_device_copy(const tic_device * source, tic_device ** dest)
-// {
-//   if (dest == NULL)
-//   {
-//     return tic_error_create("Device output pointer is null.");
-//   }
+tic_error * tic_device_copy(const tic_device * source, tic_device ** dest)
+{
+  if (dest == NULL)
+  {
+    return tic_error_create("Device output pointer is null.");
+  }
 
-//   *dest = NULL;
+  *dest = NULL;
 
-//   if (source == NULL)
-//   {
-//     return NULL;
-//   }
+  if (source == NULL)
+  {
+    return NULL;
+  }
 
-//   tic_error * error = NULL;
+  tic_error * error = NULL;
 
-//   tic_device * new_device = malloc(sizeof(tic_device));
-//   if (new_device == NULL)
-//   {
-//     error = &tic_error_no_memory;
-//   }
+  tic_device * new_device = malloc(sizeof(tic_device));
+  if (new_device == NULL)
+  {
+    error = &tic_error_no_memory;
+  }
 
-//   if (error == NULL)
-//   {
-//     error = tic_usb_error(libusbp_generic_interface_copy(
-//         source->usb_interface, &new_device->usb_interface));
-//   }
+  // if (error == NULL)
+  // {
+  //   error = tic_usb_error(libusbp_generic_interface_copy(
+  //       source->usb_interface, &new_device->usb_interface));
+  // }
 
-//   if (error == NULL)
-//   {
-//     new_device->product = source->product;
-//   }
+  if (error == NULL)
+  {
+    new_device->product = source->product;
+  }
 
-//   if (error == NULL)
-//   {
-//     new_device->serial_number = strdup(source->serial_number);
-//     if (new_device->serial_number == NULL)
-//     {
-//       error = &tic_error_no_memory;
-//     }
-//   }
+  if (error == NULL)
+  {
+    new_device->serial_number = strdup(source->serial_number);
+    if (new_device->serial_number == NULL)
+    {
+      error = &tic_error_no_memory;
+    }
+  }
 
-//   if (error == NULL)
-//   {
-//     new_device->os_id = strdup(source->os_id);
-//     if (new_device->os_id == NULL)
-//     {
-//       error = &tic_error_no_memory;
-//     }
-//   }
+  if (error == NULL)
+  {
+    if (source->os_id == NULL) new_device->os_id = NULL;
+    else new_device->os_id = strdup(source->os_id);
+    // if (new_device->os_id == NULL)
+    // {
+    //   error = &tic_error_no_memory;
+    // }
+  }
 
-//   if (error == NULL)
-//   {
-//     new_device->firmware_version = source->firmware_version;
-//     new_device->product = source->product;
-//   }
+  if (error == NULL)
+  {
+    new_device->firmware_version = source->firmware_version;
+    new_device->product = source->product;
+  }
 
-//   if (error == NULL)
-//   {
-//     // Success.  Give the copy to the caller.
-//     *dest = new_device;
-//     new_device = NULL;
-//   }
+  if (error == NULL)
+  {
+    // Success.  Give the copy to the caller.
+    *dest = new_device;
+    new_device = NULL;
+  }
 
-//   tic_device_free(new_device);
+  tic_device_free(new_device);
 
-//   return error;
-// }
+  return error;
+}
 
-// TODO device_free disabled
-// void tic_device_free(tic_device * device)
-// {
-//   if (device != NULL)
-//   {
-//     libusbp_generic_interface_free(device->usb_interface);
-//     libusbp_string_free(device->os_id);
-//     libusbp_string_free(device->serial_number);
-//     free(device);
-//   }
-// }
+void tic_device_free(tic_device * device)
+{
+  // if (device != NULL)
+  // {
+    // libusbp_generic_interface_free(device->usb_interface);
+    // libusbp_string_free(device->os_id);
+    // libusbp_string_free(device->serial_number);
+    free(device);
+  // }
+}
 
 uint8_t tic_device_get_product(const tic_device * device)
 {

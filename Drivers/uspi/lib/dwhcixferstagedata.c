@@ -22,8 +22,8 @@
 #include <uspi/dwhciframeschednper.h>
 #include <uspi/dwhciframeschednsplit.h>
 #include <uspi/dwhci.h>
-#include <uspios.h>
 #include <uspi/assert.h>
+#include <uspios.h>
 
 void DWHCITransferStageData (TDWHCITransferStageData *pThis, unsigned nChannel, TUSBRequest *pURB, boolean bIn, boolean bStatusStage)
 {
@@ -244,6 +244,7 @@ unsigned DWHCITransferStageDataGetSubState (TDWHCITransferStageData *pThis)
 boolean DWHCITransferStageDataBeginSplitCycle (TDWHCITransferStageData *pThis)
 {
 	return TRUE;
+	(void)pThis;	// FIXME Wunused
 }
 
 unsigned DWHCITransferStageDataGetChannelNumber (TDWHCITransferStageData *pThis)
@@ -289,7 +290,9 @@ u8 DWHCITransferStageDataGetEndpointType (TDWHCITransferStageData *pThis)
 	case EndpointTypeInterrupt:
 		nEndpointType = DWHCI_HOST_CHAN_CHARACTER_EP_TYPE_INTERRUPT;
 		break;
-
+	case EndpointTypeIsochronous:
+		nEndpointType = DWHCI_HOST_CHAN_CHARACTER_EP_TYPE_ISO;
+		break;
 	default:
 		assert (0);
 		break;

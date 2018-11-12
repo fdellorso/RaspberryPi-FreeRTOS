@@ -1,20 +1,27 @@
-//mem.c
-//standard memory functions to avoid using incompatible libraries on ARM
+/**
+ *	Quick and very Dirty STRING API.
+ *
+ **/
 
-#include <FreeRTOS.h>
-#include "prvlib/string.h"
+#include <prvlib/string.h>
+#include <prvlib/stdlib.h>
 
+// STRING PART
 char *strcat(char *dest, char *src) {
     char *ret = dest;
     while(*ret++);
-    while (*ret++ = *src++);
+    while(*ret) {
+		*ret++ = *src++;
+	}
     *ret = '\0';  
     return dest;
 }
 
 char *strcpy(char *dest, const char *src) {
     char *ret = dest;
-    while (*ret++ = *src++);
+    while(*ret) {
+		*ret++ = *src++;
+	}
     *ret = '\0';
     return dest;
 }
@@ -22,12 +29,19 @@ char *strcpy(char *dest, const char *src) {
 char *strncpy(char *dest, const char *src, size_t n) {
     char *ret = dest;
     do {
-        if (!n--)
-            return ret;
-    } while (*dest++ = *src++);
-    while (n--)
-        *dest++ = 0;
+        if (!n--) return ret;
+		*dest++ = *src++;
+    } while (dest);
+    while (n--) *dest++ = 0;
     return ret;
+}
+
+char *strdup(const char *src) {
+    size_t len = strlen(src) + 1;
+    char *s = malloc(len);
+    if (s == NULL)
+        return NULL;
+    return (char *)memcpy2(s, src, len);
 }
 
 size_t strlen(const char *s) {
@@ -65,6 +79,65 @@ int strcmp(const char *pString1, const char *pString2) {
 	return 0;
 }
 
+// char *strchr(const char *s, int c) {
+//     do {
+//         if (*s == c) return (char*)s;
+//     } while (*s++);
+//     return (0);
+// }
+
+// unsigned long strtoul(const char *nptr, char **endptr, register int base)
+// {
+//     register const char *s = nptr;
+//     register unsigned long acc;
+//     register int c;
+//     register unsigned long cutoff;
+//     register int neg = 0, any, cutlim;
+
+// 	/*
+// 	 * See strtol for comments as to the logic used.
+// 	 */
+// 	do {
+// 		c = *s++;
+// 	} while (ISSPACE(c));
+// 	if (c == '-') {
+// 		neg = 1;
+// 		c = *s++;
+// 	} else if (c == '+')
+// 		c = *s++;
+// 	if ((base == 0 || base == 16) &&
+// 	    c == '0' && (*s == 'x' || *s == 'X')) {
+// 		c = s[1];
+// 		s += 2;
+// 		base = 16;
+// 	}
+// 	if (base == 0) base = c == '0' ? 8 : 10;
+// 	cutoff = (unsigned long)ULONG_MAX / (unsigned long)base;
+// 	cutlim = (unsigned long)ULONG_MAX % (unsigned long)base;
+// 	for (acc = 0, any = 0;; c = *s++) {
+// 		if (ISDIGIT(c)) c -= '0';
+// 		else if (ISALPHA(c)) c -= ISUPPER(c) ? 'A' - 10 : 'a' - 10;
+// 		else break;
+// 		if (c >= base) break;
+// 		if (any < 0 || acc > cutoff || (acc == cutoff && c > cutlim)) any = -1;
+// 		else {
+// 			any = 1;
+// 			acc *= base;
+// 			acc += c;
+// 		}
+// 	}
+// 	if (any < 0) {
+// 		acc = ULONG_MAX;
+// 		// errno = ERANGE;
+// 	} else if (neg)
+// 		acc = -acc;
+// 	if (endptr != 0)
+// 		*endptr = (char *) (any ? s - 1 : nptr);
+// 	return (acc);
+// }
+
+
+// MEM PART
 void *memset(void *s, int c, size_t n) {
     unsigned char* p=s;
     while(n--)
@@ -77,10 +150,9 @@ void *memcpy2(void *dest, const void *src, size_t n) {
 	for sizes not a multiple of 4,
 	this function does not work
 	just use a loop inline*/
-    char *dp = dest;
-    const char *sp = src;
-    while (n--)
-        *dp++ = *sp++;
+    char *destp = dest;
+    const char *srcp = src;
+    while (n--) *destp++ = *srcp++;
 	return dest;
 }
 

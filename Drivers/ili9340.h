@@ -1,7 +1,9 @@
 #ifndef _ILI9340_H_
 #define _ILI9340_H_
 
-#include "bcm2835_base.h"
+#include <rpi_header.h>
+#include <prvlib/stdint.h>
+#include <uspi/stdarg.h>
 
 #define  ILI9340_TFTWIDTH    240
 #define  ILI9340_TFTHEIGHT   320
@@ -92,7 +94,7 @@
 #define KEY3                 24
 
 extern char loaded;
-uint16_t width, height;
+uint32_t width, height;
 
 extern  void        ili9340_write_command   (uint8_t command, int param_len, ...);
 extern  void        ili9340_init            (void);
@@ -107,9 +109,9 @@ extern  void        ili9340_fill_rect       (uint16_t x, uint16_t y, uint16_t  w
 extern  void        ili9340_draw_line_v     (uint16_t x, uint16_t y, uint16_t  h, uint16_t color);  
 extern  void        ili9340_draw_line_h     (uint16_t x, uint16_t y, uint16_t  w, uint16_t color);  
 extern  void        ili9340_set_rotation    (uint8_t m);       
-extern  uint16_t    ili9340_get_width       ();              
-extern  uint16_t    ili9340_get_height      ();             
-extern  void        ili9340_update_display  ();
+extern  uint16_t    ili9340_get_width       (void);              
+extern  uint16_t    ili9340_get_height      (void);             
+extern  void        ili9340_update_display  (void);
         void        ili9340_mkdirty         (uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 
 #endif

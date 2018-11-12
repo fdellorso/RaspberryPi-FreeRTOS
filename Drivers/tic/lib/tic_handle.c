@@ -2,21 +2,21 @@
 
 #include "tic_internal.h"
 
-struct tic_handle
-{
-  void * usb_handle;
-  tic_device * device;
-  char * cached_firmware_version_string;
-};
+// struct tic_handle
+// {
+//   void * usb_handle;
+//   tic_device * device;
+//   char * cached_firmware_version_string;
+// };
 
-tic_error * tic_handle_create(tic_device * device, tic_handle * handle)
+tic_error * tic_handle_create(tic_device * device, tic_handle ** handle)
 {
   if (handle == NULL)
   {
     return tic_error_create("Handle output pointer is null.");
   }
 
-  handle = NULL;
+  *handle = NULL;
 
   if (device == NULL)
   {
@@ -37,73 +37,33 @@ tic_error * tic_handle_create(tic_device * device, tic_handle * handle)
     }
   }
 
-  handle->device = device;      // FIXME forse ci vuole device_copy ?!?
+  tic_handle * new_handle = NULL;
+  if (error == NULL)
+  {
+    new_handle = calloc(1, sizeof(tic_handle));
+    if (new_handle == NULL)
+    {
+      error = &tic_error_no_memory;
+    }
+  }
+
+  if (error == NULL)
+  {
+    error = tic_device_copy(device, &new_handle->device);
+  }
+
+  new_handle->usb_handle                      = NULL; // FIXME
+  new_handle->cached_firmware_version_string  = NULL; // FIXME
+
+  if (error == NULL)
+  {
+    *handle = new_handle;
+    new_handle = NULL;
+  }
+
+  tic_handle_close(new_handle);
 
   return error;
-}
-
-const char * tic_get_firmware_version_string(tic_handle * handle)
-{
-  if (handle == NULL) { return ""; }
-
-  if (handle->cached_firmware_version_string != NULL)
-  {
-    return handle->cached_firmware_version_string;
-  }
-
-  // Allocate memory for the string.
-  // - Initial part, e.g. "99.99": up to 5 bytes
-  // - Modification string: up to 127 bytes
-  // - Null terminator: 1 byte
-  char * new_string = malloc(32);
-  if (new_string == NULL)
-  {
-    return "";
-  }
-
-  size_t index = 0;
-
-  // Format the firmware version number and put it in the string.
-  uint16_t version_bcd = tic_device_get_firmware_version(handle->device);
-
-  if (version_bcd & 0xF000)
-  {
-    new_string[index++] = '0' + (version_bcd >> 12 & 0xF);
-  }
-  new_string[index++] = '0' + (version_bcd >> 8 & 0xF);
-  new_string[index++] = '.';
-  new_string[index++] = '0' + (version_bcd >> 4 & 0xF);
-  new_string[index++] = '0' + (version_bcd >> 0 & 0xF);
-
-  // Get the firmware modification string from the device.
-  tic_error * error = NULL;
-  size_t transferred = 0;
-  uint8_t buffer[32];
-
-  transferred = USPiTicStringRead(TIC_FIRMWARE_MODIFICATION_STRING_INDEX, buffer);
-                      
-  if (transferred < 1)
-  {
-    // Let's make this be a non-fatal error because it's not so important.
-    // Just add a question mark so we can tell if something is wrong.
-    new_string[index++] = '0';
-  }
-
-  // Ignore the modification string if it is just a dash.
-  if (buffer[0] == 4 && buffer[2] == '-') transferred = 0;
-  else transferred = buffer[0];
-
-  // Add the modification string to the firmware version string.
-  for (size_t i = 2; i < transferred; i += 2)
-  {
-    new_string[index++] = buffer[i];
-  }
-
-  new_string[index] = 0;
-
-  handle->cached_firmware_version_string = new_string;
-
-  return new_string;
 }
 
 // TODO handle_open disabled
@@ -182,21 +142,86 @@ const char * tic_get_firmware_version_string(tic_handle * handle)
 // }
 
 // TODO handle_close disabled
-// void tic_handle_close(tic_handle * handle)
-// {
-//   if (handle != NULL)
-//   {
-//     libusbp_generic_handle_close(handle->usb_handle);
-//     tic_device_free(handle->device);
-//     free(handle->cached_firmware_version_string);
-//     free(handle);
-//   }
-// }
+void tic_handle_close(tic_handle * handle)
+{
+  if (handle != NULL)
+  {
+    // libusbp_generic_handle_close(handle->usb_handle);
+    tic_device_free(handle->device);
+    free(handle->cached_firmware_version_string);
+    free(handle);
+  }
+}
 
 const tic_device * tic_handle_get_device(const tic_handle * handle)
 {
   if (handle == NULL) { return NULL; }
   return handle->device;
+}
+
+const char * tic_get_firmware_version_string(tic_handle * handle)
+{
+  if (handle == NULL) { return ""; }
+
+  if (handle->cached_firmware_version_string != NULL)
+  {
+    return handle->cached_firmware_version_string;
+  }
+
+  // Allocate memory for the string.
+  // - Initial part, e.g. "99.99": up to 5 bytes
+  // - Modification string: up to 127 bytes
+  // - Null terminator: 1 byte
+  char * new_string = malloc(32);
+  if (new_string == NULL)
+  {
+    return "";
+  }
+
+  size_t index = 0;
+
+  // Format the firmware version number and put it in the string.
+  uint16_t version_bcd = tic_device_get_firmware_version(handle->device);
+
+  if (version_bcd & 0xF000)
+  {
+    new_string[index++] = '0' + (version_bcd >> 12 & 0xF);
+  }
+  new_string[index++] = '0' + (version_bcd >> 8 & 0xF);
+  new_string[index++] = '.';
+  new_string[index++] = '0' + (version_bcd >> 4 & 0xF);
+  new_string[index++] = '0' + (version_bcd >> 0 & 0xF);
+
+  // Get the firmware modification string from the device.
+  tic_error * error = NULL;
+  size_t transferred = 0;
+  uint8_t buffer[32];
+
+  transferred = USPiTicStringRead(TIC_FIRMWARE_MODIFICATION_STRING_INDEX, buffer);
+                      
+  if (transferred < 1)
+  {
+    // Let's make this be a non-fatal error because it's not so important.
+    // Just add a question mark so we can tell if something is wrong.
+    new_string[index++] = '0';
+    error = tic_error_create("Firmware is null.");
+  }
+
+  // Ignore the modification string if it is just a dash.
+  if (buffer[0] == 4 && buffer[2] == '-') transferred = 0;
+  else transferred = buffer[0];
+
+  // Add the modification string to the firmware version string.
+  for (size_t i = 2; i < transferred; i += 2)
+  {
+    new_string[index++] = buffer[i];
+  }
+
+  new_string[index] = 0;
+
+  if(error == NULL) handle->cached_firmware_version_string = new_string;
+
+  return new_string;
 }
 
 // const char * tic_get_firmware_version_string(tic_handle * handle)
@@ -701,7 +726,7 @@ tic_error * tic_get_setting_segment(tic_handle * handle,
 
   tic_error * error = NULL;
 
-  size_t transferred;
+  uint8_t transferred = 0;
   error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
     0xC0, TIC_CMD_GET_SETTING, 0, index, output, length, &transferred));
   if (error != NULL)
@@ -734,7 +759,8 @@ tic_error * tic_get_variable_segment(tic_handle * handle,
   {
     cmd = TIC_CMD_GET_VARIABLE_AND_CLEAR_ERRORS_OCCURRED;
   }
-  size_t transferred;
+  
+  uint8_t transferred = 0;
   error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
     0xC0, cmd, 0, index, output, length, &transferred));
   if (error != NULL)

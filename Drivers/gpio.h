@@ -1,7 +1,7 @@
 #ifndef _GPIO_H_
 #define _GPIO_H_
 
-#include "bcm2835_base.h"
+#include <rpi_header.h>
 
 // Base Physical Address of the GPIO registers
 #define BCM2835_GPIO_BASE               (BCM2835_PERI_BASE + 0x200000)
@@ -56,7 +56,7 @@ void SetGpio			(unsigned int pinNum, unsigned int pinVal);
 int ReadGpio			(unsigned int pinNum);
 
 /* GPIO pull up/down resistor control function (NOT YET IMPLEMENTED) */
-int PudGpio				(unsigned int pinNum, enum PULL_STATE state);
+void PudGpio				(unsigned int pinNum, enum PULL_STATE state);
 
 /* Interrupt related functions */
 void EnableGpioDetect	(unsigned int pinNum, enum DETECT_TYPE type);

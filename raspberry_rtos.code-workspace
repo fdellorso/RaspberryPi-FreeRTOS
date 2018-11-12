@@ -50,7 +50,27 @@
 			"stdint.h": "c",
 			"mpu_wrappers.h": "c",
 			"stdio.h": "c",
-			"prv_mem.h": "c"
+			"prv_mem.h": "c",
+			"tic_internal.h": "c",
+			"_ansi.h": "c",
+			"newlib.h": "c",
+			"config.h": "c",
+			"features.h": "c",
+			"errno.h": "c",
+			"ieeefp.h": "c",
+			"tic.h": "c",
+			"platform.h": "c",
+			"muart.h": "c",
+			"clock.h": "c",
+			"util.h": "c",
+			"dwhciframeschednsplit.h": "c",
+			"ctype.h": "c",
+			"usbstandardhub.h": "c",
+			"arm_timer.h": "c",
+			"rpi_header.h": "c",
+			"rpi_library.h": "c",
+			"aux.h": "c",
+			"spi.h": "c"
 		}
 	}
 }

@@ -251,6 +251,8 @@ static void USBGamePadDeviceDecodeReport(TUSBGamePadDevice *pThis)
                         if (state == GamePad)
                             state = GamePadButton;
                         break;
+                    default:
+                        break;
                 }
                 break;
             case HID_USAGE:
@@ -272,6 +274,8 @@ static void USBGamePadDeviceDecodeReport(TUSBGamePadDevice *pThis)
                     case HID_USAGE_HATSWITCH:
                         if (state == GamePad)
                             state = GamePadHat;
+                        break;
+                    default:
                         break;
                 }
                 break;
@@ -325,6 +329,8 @@ static void USBGamePadDeviceDecodeReport(TUSBGamePadDevice *pThis)
                 offset += count * size;
                 break;
             case HID_OUTPUT:
+                break;
+            default:
                 break;
         }
     }
@@ -521,6 +527,8 @@ void USBGamePadDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *p
 	pThis->m_pURB = 0;
 
 	USBGamePadDeviceStartRequest (pThis);
+
+    (void)pParam;   // FIXME Wunused
 }
 
 void USBGamePadDeviceGetReport (TUSBGamePadDevice *pThis)

@@ -20,9 +20,9 @@
 #include <uspi/usbdevice.h>
 #include <uspi/dwhcidevice.h>
 #include <uspi/usbendpoint.h>
-#include <uspios.h>
 #include <uspi/util.h>
 #include <uspi/assert.h>
+#include <uspios.h>
 
 #define MAX_CONFIG_DESC_SIZE		512		// best guess
 
@@ -385,7 +385,8 @@ TString *USBDeviceGetName (TUSBDevice *pThis, TDeviceNameSelector Selector)
 				 (unsigned) pConfig->Interface.bInterfaceSubClass,
 				 (unsigned) pConfig->Interface.bInterfaceProtocol);
 		} break;
-
+	
+	case DeviceNameUnknown:
 	default:
 		assert (0);
 	unknown:

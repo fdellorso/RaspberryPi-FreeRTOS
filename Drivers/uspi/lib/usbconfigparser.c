@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include <uspi/usbconfigparser.h>
-#include <uspios.h>
 #include <uspi/assert.h>
+#include <uspios.h>
 
 #define SKIP_BYTES(pDesc, nBytes)	((TUSBDescriptor *) ((u8 *) (pDesc) + (nBytes)))
 

@@ -12,14 +12,25 @@
                 </target>
                 <target_options_enabled>0</target_options_enabled>
             </cross_compilation>
+            <exclude_filters>
+                <exclude_filter>Drivers/FreeRTOS-Plus-TCP</exclude_filter>
+                <exclude_filter>Demo/main_bak.c</exclude_filter>
+                <exclude_filter>Drivers/old</exclude_filter>
+                <exclude_filter>Drivers/tic/lib/libyaml</exclude_filter>
+                <exclude_filter>client.c</exclude_filter>
+                <exclude_filter>Drivers/spi.c</exclude_filter>
+                <exclude_filter>Drivers/tic/lib/tic_settings_read_from_string.c</exclude_filter>
+                <exclude_filter>Drivers/tic/lib/tic_settings_to_string.c</exclude_filter>
+            </exclude_filters>
             <header_search_paths>
                 <header_search_path>Drivers</header_search_path>
-                <header_search_path>Drivers/FreeRTOS-Plus-TCP/include</header_search_path>
-                <header_search_path>Drivers/FreeRTOS-Plus-TCP/protocols/include</header_search_path>
-                <header_search_path>Drivers/pololu-tic/lib/libyaml</header_search_path>
                 <header_search_path>Drivers/uspi/include</header_search_path>
                 <header_search_path>FreeRTOS/Source/include</header_search_path>
                 <header_search_path>FreeRTOS/Source/portable/GCC/RaspberryPi</header_search_path>
+                <header_search_path>Drivers/tic/include</header_search_path>
+                <header_search_path>Drivers/tic/lib</header_search_path>
+                <header_search_path>Drivers/prvlib</header_search_path>
+                <header_search_path>Drivers/uspi</header_search_path>
             </header_search_paths>
             <name>C Source Group</name>
             <source_extensions>

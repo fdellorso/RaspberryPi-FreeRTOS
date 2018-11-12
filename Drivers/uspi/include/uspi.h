@@ -41,9 +41,9 @@ int USPiTicQuick (unsigned char nCommand);
 int USPiTic7BitWrite (unsigned char nCommand, unsigned short nValue);
 int USPiTic32BitWrite (unsigned char nCommand, unsigned short nValue, unsigned int nIndex);
 int USPiTicBlockRead (unsigned char nCommand, unsigned int nIndex, unsigned short nLength, unsigned int *nData);
-int uspitic_control_transfer(void * handle, unsigned char bmRequestType, unsigned char bRequest, unsigned short wValue, unsigned short wIndex, void * data, unsigned short wLength, size_t * transferred);
+int uspitic_control_transfer(void * handle, unsigned char bmRequestType, unsigned char bRequest, unsigned short wValue, unsigned short wIndex, unsigned char * data, unsigned short wLength, unsigned char * transferred);
 int USPiTicStringRead (unsigned char nString, unsigned char *nData);
-char * USPiTicGetSerialNumber();
+char * USPiTicGetSerialNumber(void);
 
 //
 // Keyboard device

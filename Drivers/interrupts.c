@@ -4,8 +4,6 @@
  **/
 
 #include "interrupts.h"
-// #include "bcm2835_intc.h"
-// #include "video.h"
 
 static INTERRUPT_VECTOR g_VectorTable[BCM2835_INTC_TOTAL_IRQ];
 
@@ -28,27 +26,28 @@ static volatile BCM2835_INTC_REGS * const pRegs = (BCM2835_INTC_REGS *) (BCM2835
  *	Enables all IRQ's in the CPU's CPSR register.
  **/
 __attribute__((no_instrument_function))
-static void irqEnable() {
+static void irqEnable(void) {
 	__asm volatile("cpsie i" : : : "memory");
 }
 
 __attribute__((no_instrument_function))
-static void irqDisable() {
+static void irqDisable(void) {
 	__asm volatile("cpsid i" : : : "memory");
 }
 
 #define clz(a) \
- ({ unsigned long __value, __arg = (a); \
+ __extension__({ unsigned long __value, __arg = (a); \
      asm ("clz\t%0, %1": "=r" (__value): "r" (__arg)); \
      __value; })
 
+__attribute__((no_instrument_function)) void irqHandler(void);
 /**
  *	This is the global IRQ handler on this platform!
  *	It is based on the assembler code found in the Broadcom datasheet.
  *
  **/
 __attribute__((no_instrument_function))
-void irqHandler() {
+void irqHandler(void) {
 	register unsigned long ulMaskedStatus;
 	register unsigned long irqNumber;
 
@@ -97,10 +96,12 @@ static void stubHandler(int nIRQ, void *pParam) {
 	 *	otherwise we could lock up this system, as there is nothing to
 	 *	ackknowledge the interrupt.
 	 **/
+	(void)nIRQ;		// FIXME Wunused
+	(void)pParam;	// FIXME Wunused
 }
 
 __attribute__((no_instrument_function))
-int InitInterruptController() {
+int InitInterruptController(void) {
 	int i;
 	for(i = 0; i < BCM2835_INTC_TOTAL_IRQ; i++) {
 		g_VectorTable[i].pfnHandler = stubHandler;
@@ -160,13 +161,13 @@ int DisableInterrupt(int nIRQ) {
 }
 
 __attribute__((no_instrument_function))
-int EnableInterrupts() {
+int EnableInterrupts(void) {
 	irqEnable();
 	return 0;
 }
 
 __attribute__((no_instrument_function))
-int DisableInterrupts() {
+int DisableInterrupts(void) {
 	irqDisable();
 	return 0;
 }

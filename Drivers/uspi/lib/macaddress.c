@@ -20,6 +20,7 @@
 #include <uspi/macaddress.h>
 #include <uspi/util.h>
 #include <uspi/assert.h>
+// #include <uspios.h>
 
 void MACAddress (TMACAddress *pThis)
 {
@@ -103,6 +104,7 @@ boolean MACAddressIsBroadcast (TMACAddress *pThis)
 unsigned MACAddressGetSize (TMACAddress *pThis)
 {
 	return MAC_ADDRESS_SIZE;
+	(void)pThis;	// FIXME Wunused
 }
 
 void MACAddressFormat (TMACAddress *pThis, TString *pString)

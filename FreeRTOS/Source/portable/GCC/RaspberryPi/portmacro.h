@@ -50,47 +50,47 @@ extern "C" {
  * THUMB mode code will result in a compile time error.
  */
 
-#define portRESTORE_CONTEXT()															\
-{																						\
-	extern volatile void * volatile pxCurrentTCB;										\
-	extern volatile unsigned portLONG ulCriticalNesting;								\
-																						\
-	/* Set the LR to the task stack.												*/	\
-	__asm volatile (																	\
-	/* Put the address of the current TCB into R1.									*/	\
-	"LDR		R0, =pxCurrentTCB											\n\t"		\
-	/* Load the 32-bit value stored at the address in R1.							*/	\
-	/* First item in the TCB is the top of the stack for the current TCB.			*/	\
-	"LDR		R0, [R0]													\n\t"		\
-																		\
-	/* Move the value into the Link Register!										*/	\
-	"LDR		LR, [R0]														\n\t"	\
+#define portRESTORE_CONTEXT()												\
+{																			\
+	extern volatile void * volatile pxCurrentTCB;							\
+	extern volatile unsigned portLONG ulCriticalNesting;					\
+																			\
+	/* Set the LR to the task stack. */										\
+	__asm volatile (														\
+	/* Put the address of the current TCB into R1. */						\
+	"LDR	R0, =pxCurrentTCB										\n\t"	\
+	/* Load the 32-bit value stored at the address in R1. */				\
+	/* First item in the TCB is the top of the stack for the current TCB. */\
+	"LDR	R0, [R0]												\n\t"	\
+																			\
+	/* Move the value into the Link Register! */							\
+	"LDR	LR, [R0]												\n\t"	\
 																							\
-	/* The critical nesting depth is the first item on the stack. */	\
+	/* The critical nesting depth is the first item on the stack. */		\
 	/* Load it into the ulCriticalNesting variable. */						\
-	"LDR		R0, =ulCriticalNesting										\n\t"	\
-	"LDMFD		LR!, {R1}													\n\t"	\
-	"STR		R1, [R0]													\n\t"	\
-																							\
-	/* Get the SPSR from the stack. */											\
-	"LDMFD		LR!, {R0}														\n\t"	\
-	"MSR		SPSR_cxsf, R0															\n\t"	\
-																							\
+	"LDR	R0, =ulCriticalNesting									\n\t"	\
+	"LDMFD	LR!, {R1}												\n\t"	\
+	"STR	R1, [R0]												\n\t"	\
+																			\
+	/* Get the SPSR from the stack. */										\
+	"LDMFD	LR!, {R0}												\n\t"	\
+	"MSR	SPSR_cxsf, R0											\n\t"	\
+																			\
 	/* Restore all system mode registers for the task. */					\
-	"LDMFD	LR, {R0-R14}^													\n\t"	\
-	"NOP																			\n\t"	\
-																							\
-	/* Restore the return address. */											\
-	"LDR		LR, [LR, #+60]													\n\t" \
-																							\
-	/* And return - correcting the offset in the LR to obtain the */	\
-	/* correct address. */															\
-	"SUBS		PC, LR, #4														\n\t"  \
-	"NOP														\n\t"	\
-	"NOP														\n\t"	\
-	);																						\
-	( void ) ulCriticalNesting;													\
-	( void ) pxCurrentTCB;															\
+	"LDMFD	LR, {R0-R14}^											\n\t"	\
+	"NOP															\n\t"	\
+																			\
+	/* Restore the return address. */										\
+	"LDR	LR, [LR, #+60]											\n\t"	\
+																			\
+	/* And return - correcting the offset in the LR to obtain the */		\
+	/* correct address. */													\
+	"SUBS	PC, LR, #4												\n\t"	\
+	"NOP															\n\t"	\
+	"NOP															\n\t"	\
+	);																		\
+	( void ) ulCriticalNesting;												\
+	( void ) pxCurrentTCB;													\
 }
 /*-----------------------------------------------------------*/
 
@@ -105,7 +105,7 @@ extern "C" {
 																			\
 	/* Set R0 to point to the task stack pointer. */						\
 	"STMDB	SP,{SP}^	\n\t"	/* ^ means get the user mode SP value. */	\
-	/*"NOP															\n\t" */ \
+	/*"NOP															\n\t" */\
 	"SUB	SP, SP, #4												\n\t"	\
 	"LDMIA	SP!,{R0}												\n\t"	\
 																			\
@@ -161,38 +161,38 @@ extern void vTaskSwitchContext( void );
 	extern void vPortEnableInterruptsFromThumb( void ) __attribute__ ((naked));
 
 	#define portDISABLE_INTERRUPTS()	vPortDisableInterruptsFromThumb()
-	#define portENABLE_INTERRUPTS()	vPortEnableInterruptsFromThumb()
+	#define portENABLE_INTERRUPTS()		vPortEnableInterruptsFromThumb()
 	
 #else
 
-	#define portDISABLE_INTERRUPTS()														\
-		__asm volatile (																		\
-			"STMDB	SP!, {R0}		\n\t"		/* Push R0.							*/	\
-			"MRS		R0, CPSR			\n\t"		/* Get CPSR.						*/	\
-			"ORR		R0, R0, #0xC0	\n\t"		/* Disable IRQ, FIQ.				*/	\
-			"MSR		CPSR, R0			\n\t"		/* Write back modified value.	*/	\
-			"LDMIA	SP!, {R0}			 " )	/* Pop R0.							*/
+	#define portDISABLE_INTERRUPTS()												\
+		__asm volatile (															\
+			"STMDB	SP!, {R0}		\n\t"		/* Push R0.						*/	\
+			"MRS	R0, CPSR		\n\t"		/* Get CPSR.					*/	\
+			"ORR	R0, R0, #0xC0	\n\t"		/* Disable IRQ, FIQ.			*/	\
+			"MSR	CPSR, R0		\n\t"		/* Write back modified value.	*/	\
+			"LDMIA	SP!, {R0}			" )		/* Pop R0.						*/
 			
-	#define portENABLE_INTERRUPTS()														\
-		__asm volatile (																		\
-			"STMDB	SP!, {R0}		\n\t"		/* Push R0.							*/	\
-			"MRS		R0, CPSR			\n\t"		/* Get CPSR.						*/	\
-			"BIC		R0, R0, #0xC0	\n\t"		/* Enable IRQ, FIQ.				*/	\
-			"MSR		CPSR, R0			\n\t"		/* Write back modified value.	*/	\
-			"LDMIA	SP!, {R0}			 " )	/* Pop R0.							*/
+	#define portENABLE_INTERRUPTS()													\
+		__asm volatile (															\
+			"STMDB	SP!, {R0}		\n\t"		/* Push R0.						*/	\
+			"MRS	R0, CPSR		\n\t"		/* Get CPSR.					*/	\
+			"BIC	R0, R0, #0xC0	\n\t"		/* Enable IRQ, FIQ.				*/	\
+			"MSR	CPSR, R0		\n\t"		/* Write back modified value.	*/	\
+			"LDMIA	SP!, {R0}			" )		/* Pop R0.						*/
 
 #endif /* THUMB_INTERWORK */
 
 extern void vPortEnterCritical( void );
 extern void vPortExitCritical( void );
 
-#define portENTER_CRITICAL()		vPortEnterCritical();
+#define portENTER_CRITICAL()	vPortEnterCritical();
 #define portEXIT_CRITICAL()		vPortExitCritical();
 /*-----------------------------------------------------------*/
 
 /* Task function macros as described on the FreeRTOS.org WEB site. */
-#define portTASK_FUNCTION_PROTO( vFunction, pvParameters ) void vFunction( void *pvParameters )
-#define portTASK_FUNCTION( vFunction, pvParameters ) void vFunction( void *pvParameters )
+#define portTASK_FUNCTION_PROTO( vFunction, pvParameters )	void vFunction( void *pvParameters )
+#define portTASK_FUNCTION( vFunction, pvParameters )		void vFunction( void *pvParameters )
 
 #ifdef __cplusplus
 }

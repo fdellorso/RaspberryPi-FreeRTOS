@@ -209,4 +209,6 @@ void USBMouseDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pCo
 	pThis->m_pURB = 0;
 	
 	USBMouseDeviceStartRequest (pThis);
+
+	(void)pParam;	// FIXME Wunused
 }

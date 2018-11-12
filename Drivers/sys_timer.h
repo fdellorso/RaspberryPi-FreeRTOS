@@ -1,7 +1,8 @@
 #ifndef _SYS_TIMER_H_
 #define _SYS_TIMER_H_
 
-#include "bcm2835_base.h"
+#include <rpi_header.h>
+#include <prvlib/stdint.h>
 
 // Base Physical Address of the System Timer registers
 #define BCM2835_SYS_TIMER_BASE			(BCM2835_PERI_BASE + 0x3000)

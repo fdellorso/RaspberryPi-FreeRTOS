@@ -1,7 +1,7 @@
 #ifndef _AUX_H_
 #define _AUX_H_
 
-#include "bcm2835_base.h"
+#include <rpi_header.h>
 
 // Base Physical Address of the AUX registers
 #define BCM2835_AUX_BASE			(BCM2835_PERI_BASE + 0x215000)

@@ -3,24 +3,17 @@
  *
  **/
 
-// #include "bcm2835.h" //OPT bcm2835.h
-#ifndef PRVLIB
-	#include <string.h>
-#else
-	#include "prvlib/string.h"
-#endif
-
 #include "clock.h"
 #include "ili9340.h"
-#include "gpio.h"
-#include "sys_timer.h"
 #include "font_clock.h"
 
 #define KEY_IRQ 1
 
-uint16_t width, height;
+uint32_t width, height;
 uint8_t hour, minute, second, current_clk;
 uint8_t exit_clk;
+
+void ili9340_clock2(void);
 
 void ili9340_clock_char(unsigned char c, uint16_t x, uint16_t y, uint16_t color) {
 	uint16_t i, j;
@@ -56,7 +49,7 @@ void ili9340_clock_string(char *str, uint16_t x, uint16_t y, uint16_t color) {
 	}
 }
 
-void ili9340_clock_setup() {
+void ili9340_clock_setup(void) {
     char time1[9], time2[9];
 
     hour = 0;
@@ -209,7 +202,7 @@ void ili9340_clock_setup() {
     second = current_clk;
 }
 
-void ili9340_clock() {
+void ili9340_clock(void) {
     char times[9];
 
     if(second == 59) {
@@ -239,7 +232,7 @@ void ili9340_clock() {
     ili9340_update_display();
 }
 
-void ili9340_clock2() {
+void ili9340_clock2(void) {
     // volatile uint32_t* paddr;
     char times[9];
     uint32_t st;
@@ -251,7 +244,7 @@ void ili9340_clock2() {
 	// paddr = bcm2835_st + BCM2835_ST_CLO/4;
 	// st = bcm2835_peri_read(paddr);
 
-    st = (uint32_t)bcm2835_st_read();
+    st = (uint32_t)ReadSysTimer();
     ili9340_printHex("System Timer: ", st, ILI9340_GREEN);
     ili9340_printHex("Gate Counter: ", onesec_bit, ILI9340_GREEN);
 
@@ -291,33 +284,33 @@ void ili9340_clock2() {
     }  
 }
 
-char *int2time(char timep[], uint8_t hour, uint8_t minute, uint16_t second) {
+char *int2time(char timep[], uint8_t hourf, uint8_t minutef, uint16_t secondf) {
 	// TODO disabilitata perche usa memcpy della stdlib
-    // char *conv[60] = {"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59"};
+    const char *conv[60] = {"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59"};
 
-    char **conv;
-    char cdigits[2];
-    int i;
-    for(i = 0; i < 60; i++)
-    {
-        cdigits[0] = '0' + (i / 10);
-        cdigits[1] = '0' + (i % 10);
-        // TODO da provare array conv
-        memcpy(conv[i], cdigits, sizeof(cdigits));
-    }
+    // char **conv;
+    // char cdigits[2];
+    // int i;
+    // for(i = 0; i < 60; i++)
+    // {
+    //     cdigits[0] = '0' + (i / 10);
+    //     cdigits[1] = '0' + (i % 10);
+    //     // TODO da provare array conv
+    //     memcpy(conv[i], cdigits, sizeof(cdigits));
+    // }
 
-    char *space = "  ";
+    const char *space = "  ";
     char separator[2] = ":";
     char hourp[3], minutep[3], secondp[3];
 
-    if(hour == 99)   strcpy(space, hourp);
-    else             strcpy(conv[hour], hourp);
+    if(hourf == 99)   strcpy(hourp, space);
+    else             strcpy(hourp, conv[hourf]);
 
-    if(minute == 99) strcpy(space, minutep);
-    else             strcpy(conv[minute], minutep);
+    if(minutef == 99) strcpy(minutep, space);
+    else             strcpy(minutep, conv[minutef]);
 
-    if(second == 99) strcpy(space, secondp);
-    else             strcpy(conv[second], secondp);
+    if(secondf == 99) strcpy(secondp, space);
+    else             strcpy(secondp, conv[secondf]);
 
     strcpy(hourp, timep);
     strcat(timep, separator);
