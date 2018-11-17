@@ -18,29 +18,16 @@ extern xTaskHandle xHandleTicCnsl;
 
 int main(void) {
 
-	#ifdef VIDEO
-		// Inizializzazione Video per Debug
-		initFB(1680, 1050);
-	#endif
-	#ifdef ILI9340
-		bcm2835_init();
-		ili9340_init();
-		ili9340_set_rotation(1);
-	#endif
-	#ifdef MUART
-		muart_init();
-	#endif
-
 	DisableInterrupts();
 	InitInterruptController();
 
-	if(xTaskCreate(prvTask_WatchDog, (signed char *) "WatchDog", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &xHandleWDog) == pdPASS) {
+	if(xTaskCreate(prvTask_WatchDog, (signed char *) "WatchDog", 8 * configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, &xHandleWDog) == pdPASS) {
 		if(uxTaskPriorityGet(xHandleWDog) < configMAX_CO_ROUTINE_PRIORITIES) {
 			vTaskSuspend(xHandleWDog);
 		}
 	}
 
-	if(xTaskCreate(prvTask_UspiInit, (signed char *) "UspiInit", 8 * configMINIMAL_STACK_SIZE, NULL, configMAX_CO_ROUTINE_PRIORITIES, &xHandleUSPi) == pdPASS) {
+	if(xTaskCreate(prvTask_UspiInit, (signed char *) "UspiInit", 8 * configMINIMAL_STACK_SIZE, NULL, 0, &xHandleUSPi) == pdPASS) {
 		if(uxTaskPriorityGet(xHandleUSPi) < configMAX_CO_ROUTINE_PRIORITIES) {
 			vTaskSuspend(xHandleUSPi);
 		}

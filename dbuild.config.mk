@@ -75,7 +75,7 @@ CFLAGS +=	-Wbad-function-cast		\
 CFLAGS += -g
 
 # Optimization Options
-# CFLAGS += -Og -fno-delete-null-pointer-checks
+CFLAGS += -Og # -fdelete-null-pointer-checks
 # CFLAGS += -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing
 
 # Linker Options
@@ -83,7 +83,7 @@ CFLAGS += -nostdlib
 
 # ARM Options
 ifeq ($(strip $(RASPPI)),1)
-ARCH ?= -march=armv6j -mtune=arm1176jzf-s #-mfloat-abi=hard 
+ARCH ?= -march=armv6zk -mtune=arm1176jzf-s #-mfloat-abi=hard 
 else
 ARCH ?= -march=armv7-a -mtune=cortex-a7 #-mfloat-abi=hard
 endif

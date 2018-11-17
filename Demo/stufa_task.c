@@ -10,6 +10,9 @@
 
 #include <FreeRTOS.h>
 #include <task.h>
+#include <queue.h>
+#include <semphr.h>
+
 #include <uspi.h>
 #include <tic.h>
 
@@ -19,17 +22,16 @@ xTaskHandle xHandleUSPi;
 xTaskHandle xHandleTicCtrl;
 xTaskHandle xHandleTicCnsl;
 
-tic_variables * ticVariables;
-tic_settings * ticSettings;
-
-bool uspiInited = false;
-
-bool ticInited = false;
-bool ticEnergized = false;
+xSemaphoreHandle xSemUSPiInit = NULL;
+xSemaphoreHandle xSemTicInit = NULL;
+xSemaphoreHandle xSemTicEner = NULL;
+// xQueueHandle xQueTicHndl = NULL;
+// xQueueHandle xQueTicComm = NULL;
 
 
 void prvTask_WatchDog(void *pParam) {
 	int i = 0;
+	uint32_t ticEnergized = 0;
 
 	/* Stop warnings. */
 	( void ) pParam;
@@ -37,10 +39,28 @@ void prvTask_WatchDog(void *pParam) {
 	static const portTickType xPeriod = 500 / portTICK_RATE_MS;
 	portTickType xLastWakeTime = xTaskGetTickCount();
 
+	static const portTickType xBlockTime = 100 / portTICK_RATE_MS;
+
 	muart_printf("WatchDog...\t\t\t     Started");
+
+	#ifdef VIDEO
+		// Inizializzazione Video per Debug
+		initFB(1680, 1050);
+	#endif
+	#ifdef ILI9340
+		bcm2835_init();
+		ili9340_init();
+		ili9340_set_rotation(1);
+	#endif
+	#ifdef MUART
+		muart_init();
+	#endif
+
+	vTaskResume(xHandleUSPi);
 
 	while(1) {
 		i++;
+
 		vTaskDelayUntil(&xLastWakeTime, xPeriod);
 
 		// WhatcDog Activity Led
@@ -53,27 +73,62 @@ void prvTask_WatchDog(void *pParam) {
 			// USPiTicQuick(TIC_CMD_RESET_COMMAND_TIMEOUT);
 			// tic_reset_command_timeout(ticHandle);
 		}
-		
+
 		// IF USPi is initialized start TicControl
-		// if(xTaskIsTaskSuspended(xHandleUSPi) == pdTRUE &&
-		//    xTaskIsTaskSuspended(xHandleTicCtrl) == pdTRUE) {
-		if(uspiInited) {
-			vTaskResume(xHandleTicCtrl);
+		if(xTaskIsTaskSuspended(xHandleUSPi) == pdFALSE) {
+			if(xSemaphoreTake(xSemUSPiInit, xBlockTime) == pdPASS) {
+				vTaskSuspend(xHandleUSPi);
+				vTaskResume(xHandleTicCtrl);
+			}
 		}
 
-		if(ticInited) {
-			vTaskResume(xHandleTicCnsl);
-		}		
+		// IF TicControl is initialized start TicConsole	// FIXME
+		// if(xTaskIsTaskSuspended(xHandleTicCnsl) == pdTRUE) {
+		// 	if(xSemaphoreTake(xSemTicInit, xBlockTime) == pdPASS) {
+		// 		vTaskResume(xHandleTicCnsl);
+		// 	}
+		// }
+
+		// if(uspiInited == 0) {
+		// 	if(xSemaphoreTake(xSemUSPiInit, xBlockTime) == pdPASS) {
+		// 		uspiInited = 1;
+		// 		vTaskSuspend(xHandleUSPi);
+		// 		vSemaphoreDelete(xSemUSPiInit);
+		// 	}
+		// }
+		
+		// if(uspiInited == 1) {
+		// 	uspiInited = 2;
+		// 	vTaskResume(xHandleTicCtrl);
+		// }
+
+		
+
+		// if(xTaskIsTaskSuspended(xHandleUSPi) == pdFALSE) {
+		// if(xQueueUSPiInit != NULL) {
+		// 	if(xQueueReceive(xQueueUSPiInit, &uspiInited, xBlockTime) == pdPASS) {
+		// 		vTaskSuspend(xHandleUSPi);
+		// 		vQueueDelete(xQueueUSPiInit);
+		// 	}
+		// }
+
+		// if(xQueueTicInit != NULL) {
+		// 	if(xQueueReceive(xQueueTicInit, &ticInited, xBlockTime) == pdPASS) {
+		// 		vQueueDelete(xQueueTicInit);
+		// 	}
+		// }
 	}
 }
 
 void prvTask_UspiInit(void *pParam) {
 	int i = 0;
+	uint32_t uspiInited = 0;
 
 	/* Stop warnings. */
 	( void ) pParam;
 
-	int uspiInit = 0;
+	vSemaphoreCreateBinary(xSemUSPiInit);
+	if(xSemUSPiInit != NULL) xSemaphoreTake(xSemUSPiInit, 0);
 	
 	muart_printf("USPi Initialize...\t\t     Started");
 	muart_println("--------------------------------------------");
@@ -81,14 +136,18 @@ void prvTask_UspiInit(void *pParam) {
 	while(1) {
 		i++;
 
-		while(uspiInit == 0) uspiInit = USPiInitialize();
+		while(uspiInited == 0) {
+			uspiInited = (uint32_t) USPiInitialize();
+		}
 
-		uspiInited = true;
-
-		muart_println("--------------------------------------------");
-		muart_printf("USPi Initialize...\t\t    Finished");
-
-		vTaskSuspend(xHandleUSPi);
+		// TODO Send message Queue
+		if(uspiInited == 1) {
+			if(xSemaphoreGive(xSemUSPiInit) == pdPASS) {
+				uspiInited = 2;
+				muart_println("--------------------------------------------");
+				muart_printf("USPi Initialize...\t\t    Finished");
+			}
+		}
 
 		// TODO Close USPi
 	}
@@ -96,16 +155,20 @@ void prvTask_UspiInit(void *pParam) {
 
 void prvTask_TicControl(void *pParam) {
 	int i = 0;
+	// uint32_t ticEnergized = 0;
 
 	/* Stop warnings. */
 	( void ) pParam;
-
-	uspiInited = false;
 
 	tic_error * error = NULL;
 
 	tic_device * ticDevice;
 	tic_handle * ticHandle;
+	tic_variables * ticVariables;
+	tic_settings * ticSettings;
+
+	vSemaphoreCreateBinary(xSemTicInit);
+	if(xSemTicInit != NULL) xSemaphoreTake(xSemTicInit, 0);
 
 	muart_printf("Tic Control...\t\t\t     Started");
 
@@ -114,11 +177,11 @@ void prvTask_TicControl(void *pParam) {
 	if (error == NULL) error = tic_get_variables(ticHandle, &ticVariables, false);
 	if (error == NULL) error = tic_get_settings(ticHandle, &ticSettings);
 
-	muart_printf("%s", tic_device_get_name(ticDevice));
-	// muart_printf("0x%x", tic_variables_get_error_status(ticVariables));
 	// muart_printf("%s", tic_get_firmware_version_string(ticHandle));	// FIXME
 
-	ticInited = true;
+	if(xSemaphoreGive(xSemTicInit) == pdPASS) {
+		;
+	}
 
 	while(1) {
 		i++;
@@ -135,10 +198,12 @@ void prvTask_TicConsole(void *pParam) {
 	/* Stop warnings. */
 	( void ) pParam;
 
-	ticInited = false;
+	static const portTickType xBlockTime = 100 / portTICK_RATE_MS;
+
+	tic_variables * ticVariables;
+	tic_settings * ticSettings;
 
 	muart_printf("Tic Console...\t\t\t     Started");
-	// muart_printf("%s", tic_device_get_firmware_version(ticDevice));
 
 	while(1) {
 		i++;

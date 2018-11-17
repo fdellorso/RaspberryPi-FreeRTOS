@@ -115,7 +115,7 @@ tic_error * tic_variables_copy(const tic_variables * source, tic_variables ** de
 
 void tic_variables_free(tic_variables * variables)
 {
-  free(variables);
+  if(variables != NULL) free(variables);
 }
 
 static void write_buffer_to_variables(const uint8_t * buf, tic_variables * vars)
