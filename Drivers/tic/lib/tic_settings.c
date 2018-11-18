@@ -152,7 +152,7 @@ tic_error * tic_settings_create(tic_settings ** settings)
 
 void tic_settings_free(tic_settings * settings)
 {
-  if(settings != NULL) free(settings);
+  free(settings);
 }
 
 tic_error * tic_settings_copy(const tic_settings * source, tic_settings ** dest)

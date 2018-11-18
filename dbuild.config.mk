@@ -9,7 +9,7 @@
 # TOOLCHAIN=arm-none-eabi-
 
 # GCC 7.3.1 (ARM Toolchain)
-TOOLCHAIN=/home/fra/gcc-arm-none-eabi/bin/arm-none-eabi-
+TOOLCHAIN=$(BASE)../gcc-arm-none-eabi/bin/arm-none-eabi-
 
 # GCC 8.2.0 (Crosstool-NG)
 # TOOLCHAIN=/home/fra/x-tools/arm-unknown-eabi/bin/arm-unknown-eabi-
