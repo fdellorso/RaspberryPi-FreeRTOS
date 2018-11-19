@@ -51,10 +51,15 @@ int USPiInitialize (void)
 		return 0;
 	}
 
+	#ifdef USBKBD
 	s_pLibrary->pUKBD1 = (TUSBKeyboardDevice *) DeviceNameServiceGetDevice (DeviceNameServiceGet (), "ukbd1", FALSE);
+	#endif
 
+	#ifdef USBMOU
 	s_pLibrary->pUMouse1 = (TUSBMouseDevice *) DeviceNameServiceGetDevice (DeviceNameServiceGet (), "umouse1", FALSE);
+	#endif
 
+	#ifdef USBMEM
 	for (unsigned i = 0; i < MAX_DEVICES; i++)
 	{
 		TString DeviceName;
@@ -66,9 +71,11 @@ int USPiInitialize (void)
 
 		_String  (&DeviceName);
 	}
+	#endif
 
 	s_pLibrary->pEth0 = (TSMSC951xDevice *) DeviceNameServiceGetDevice (DeviceNameServiceGet (), "eth0", FALSE);
 
+	#ifdef USBPAD
 	for (unsigned i = 0; i < MAX_DEVICES; i++)
 	{
 		TString DeviceName;
@@ -80,14 +87,19 @@ int USPiInitialize (void)
 
 		_String  (&DeviceName);
 	}
+	#endif
 
+	#ifdef USBTIC
 	s_pLibrary->pTic0 = (TUSBTicT834Device *) DeviceNameServiceGetDevice (DeviceNameServiceGet (), "tic0", FALSE);
+	#endif
 
 	LogWrite (FromUSPi, LOG_DEBUG, "USPi library successfully initialized");
 
 	return 1;
 }
 
+
+#ifdef USBTIC
 int USPiTicAvailable (void)
 {
 	assert (s_pLibrary != 0);
@@ -153,7 +165,9 @@ char * USPiTicGetSerialNumber(void)
 	assert (s_pLibrary->pTic0 != 0);
 	return USBTicT834DeviceGetSerialNumber(s_pLibrary->pTic0);
 }
+#endif
 
+#ifdef USBKBD
 int USPiKeyboardAvailable (void)
 {
 	assert (s_pLibrary != 0);
@@ -180,7 +194,9 @@ void USPiKeyboardRegisterKeyStatusHandlerRaw (TKeyStatusHandlerRaw *pKeyStatusHa
 	assert (s_pLibrary->pUKBD1 != 0);
 	USBKeyboardDeviceRegisterKeyStatusHandlerRaw (s_pLibrary->pUKBD1, pKeyStatusHandlerRaw);
 }
+#endif
 
+#ifdef USBMOU
 int USPiMouseAvailable (void)
 {
 	assert (s_pLibrary != 0);
@@ -193,7 +209,9 @@ void USPiMouseRegisterStatusHandler (TUSPiMouseStatusHandler *pStatusHandler)
 	assert (s_pLibrary->pUMouse1 != 0);
 	USBMouseDeviceRegisterStatusHandler (s_pLibrary->pUMouse1, pStatusHandler);
 }
+#endif
 
+#ifdef USBMEM
 int USPiMassStorageDeviceAvailable (void)
 {
 	assert (s_pLibrary != 0);
@@ -258,6 +276,7 @@ unsigned USPiMassStorageDeviceGetCapacity (unsigned nDeviceIndex)
 
 	return USBBulkOnlyMassStorageDeviceGetCapacity (s_pLibrary->pUMSD[nDeviceIndex]);
 }
+#endif
 
 int USPiEthernetAvailable (void)
 {
@@ -289,6 +308,7 @@ int USPiReceiveFrame (void *pBuffer, unsigned *pResultLength)
 	return SMSC951xDeviceReceiveFrame (s_pLibrary->pEth0, pBuffer, pResultLength) ? 1 : 0;
 }
 
+#ifdef USBPAD
 int USPiGamePadAvailable (void)
 {
 	assert (s_pLibrary != 0);
@@ -333,6 +353,7 @@ const USPiGamePadState *USPiGamePadGetStatus (unsigned nDeviceIndex)
 
 	return &s_pLibrary->pUPAD[nDeviceIndex]->m_State;
 }
+#endif
 
 int USPiDeviceGetInformation (unsigned nClass, unsigned nDeviceIndex, TUSPiDeviceInformation *pInfo)
 {
@@ -342,26 +363,32 @@ int USPiDeviceGetInformation (unsigned nClass, unsigned nDeviceIndex, TUSPiDevic
 
 	switch (nClass)
 	{
+	#ifdef USBKBD
 	case KEYBOARD_CLASS:
 		if (nDeviceIndex == 0)
 		{
 			pUSBDevice = (TUSBDevice *) s_pLibrary->pUKBD1;
 		}
 		break;
+	#endif
 
+	#ifdef USBMOU
 	case MOUSE_CLASS:
 		if (nDeviceIndex == 0)
 		{
 			pUSBDevice = (TUSBDevice *) s_pLibrary->pUMouse1;
 		}
 		break;
+	#endif
 
+	#ifdef USBMEM
 	case STORAGE_CLASS:
 		if (nDeviceIndex < MAX_DEVICES)
 		{
 			pUSBDevice = (TUSBDevice *) s_pLibrary->pUMSD[nDeviceIndex];
 		}
 		break;
+	#endif
 
 	case ETHERNET_CLASS:
 		if (nDeviceIndex == 0)
@@ -370,19 +397,23 @@ int USPiDeviceGetInformation (unsigned nClass, unsigned nDeviceIndex, TUSPiDevic
 		}
 		break;
 
+	#ifdef USBPAD
 	case GAMEPAD_CLASS:
 		if (nDeviceIndex < MAX_DEVICES)
 		{
 			pUSBDevice = (TUSBDevice *) s_pLibrary->pUPAD[nDeviceIndex];
 		}
 		break;
+	#endif
 
+	#ifdef USBTIC
 	case TICT834_CLASS:
 		if (nDeviceIndex == 0)
 		{
 			pUSBDevice = (TUSBDevice *) s_pLibrary->pTic0;
 		}
 		break;
+	#endif
 
 	default:
 		break;

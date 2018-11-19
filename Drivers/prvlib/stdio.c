@@ -21,15 +21,7 @@ int vsnprintf(char *s, size_t n, const char *format, va_list ap) {
     truncated[n] = 0;
     s = truncated;
 
-    #ifdef VIDEO
-		println(truncated, 0xFFFFFFFF);
-	#endif
-	#ifdef ILI9340
-		ili9340_println(truncated, ILI9340_WHITE);
-	#endif
-	#ifdef MUART
-		muart_println(truncated);
-	#endif
+	println(truncated);
 
     return (int)strlen(truncated);
 

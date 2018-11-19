@@ -5,7 +5,7 @@
 #
 OBJECTS += $(BUILD_DIR)Demo/main.o
 OBJECTS += $(BUILD_DIR)Demo/stufa_task.o
-OBJECTS += $(BUILD_DIR)Demo/trace.o
+# OBJECTS += $(BUILD_DIR)Demo/trace.o
 
 #
 #	Startup and platform initialisation code.
@@ -13,33 +13,44 @@ OBJECTS += $(BUILD_DIR)Demo/trace.o
 OBJECTS += $(BUILD_DIR)Demo/startup.o
 
 #
+#	Private Library
+#
+ifeq ($(strip $(LIBUSE)),-DPRVLIB)
+OBJECTS += $(BUILD_DIR)Drivers/prvlib/stdio.o
+OBJECTS += $(BUILD_DIR)Drivers/prvlib/stdlib.o
+# OBJECTS += $(BUILD_DIR)Drivers/prvlib/string.o
+else
+OBJECTS += $(BUILD_DIR)Drivers/prvlib/syscalls.o
+endif
+
+#
 #	BCM2835 Hardware Drivers
 #
 OBJECTS += $(BUILD_DIR)Drivers/bcm2835_base.o
 OBJECTS += $(BUILD_DIR)Drivers/arm_timer.o
-OBJECTS += $(BUILD_DIR)Drivers/sys_timer.o
 OBJECTS += $(BUILD_DIR)Drivers/gpio.o
-# OBJECTS += $(BUILD_DIR)Drivers/spi.o
-OBJECTS += $(BUILD_DIR)Drivers/muart.o
 OBJECTS += $(BUILD_DIR)Drivers/interrupts.o
 OBJECTS += $(BUILD_DIR)Drivers/mailbox.o
-OBJECTS += $(BUILD_DIR)Drivers/video.o
-
-#
-#	Private Library
-#
-OBJECTS += $(BUILD_DIR)Drivers/prvlib/stdio.o
-OBJECTS += $(BUILD_DIR)Drivers/prvlib/stdlib.o
-# OBJECTS += $(BUILD_DIR)Drivers/prvlib/string.o
-ifdef $(LIBUSE)
-OBJECTS += $(BUILD_DIR)Drivers/prvlib/syscalls.o
-endif
+# OBJECTS += $(BUILD_DIR)Drivers/spi.o
+OBJECTS += $(BUILD_DIR)Drivers/sys_timer.o
 
 # McCauley Library
 # OBJECTS += $(BUILD_DIR)Drivers/bcm2835.o
 
-# LCD ili9340 Library
-# OBJECTS += $(BUILD_DIR)Drivers/ili9340.o
+#
+#	Logger Library
+#
+ifeq ($(strip $(LOGGER)),-DVIDEO)
+OBJECTS += $(BUILD_DIR)Drivers/video.o
+endif
+ifeq ($(strip $(LOGGER)),-DILI9340)
+OBJECTS += $(BUILD_DIR)Drivers/ili9340.o
+endif
+ifeq ($(strip $(LOGGER)),-DMUART)
+OBJECTS += $(BUILD_DIR)Drivers/muart.o
+endif
+
+# LCD ili9340 Clock Library
 # OBJECTS += $(BUILD_DIR)Drivers/clock.o
 
 # smsc9514 (LAN and USB)
@@ -55,26 +66,41 @@ OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbendpoint.o
 OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbrequest.o
 OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbstandardhub.o
 OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/devicenameservice.o
-OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/macaddress.o
-OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/smsc951x.o
 OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/string.o
 OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/util.o
-OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbmassdevice.o
 OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/dwhciframeschednper.o
 OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/dwhciframeschedper.o
-OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/keymap.o
-OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbkeyboard.o
 OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/dwhcirootport.o
-OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbmouse.o
 OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/dwhciframeschednsplit.o
-OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbgamepad.o
 OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/synchronize.o
 OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbstring.o
+
+OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/macaddress.o
+OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/smsc951x.o
+
+ifeq ($(strip $(USBDEV)),-DUSBKBD)
+OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbkeyboard.o
+OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/keymap.o
+endif
+
+ifeq ($(strip $(USBDEV)),-DUSBMEM)
+OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbmassdevice.o
+endif
+
+ifeq ($(strip $(USBDEV)),-DUSBMOU)
+OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbmouse.o
+endif
+
+ifeq ($(strip $(USBDEV)),-DUSBPAD)
+OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbgamepad.o
+endif
 
 #
 #	StuFA Peripherals Drivers
 #
+ifeq ($(strip $(USBDEV)),-DUSBTIC)
 OBJECTS += $(BUILD_DIR)Drivers/uspi/lib/usbtict834.o
+endif
 
 #
 #	Pololu-Tic Library

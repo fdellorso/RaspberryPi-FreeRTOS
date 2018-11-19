@@ -13,7 +13,8 @@
                 "RASPPI=1",
                 "MUART",
                 "PRVLIB",
-                "configBLUETHUNDER=0"
+                "configBLUETHUNDER=0",
+                "USBTIC"
             ],
             "compilerPath": "${workspaceFolder}/../gcc-arm-none-eabi/bin/arm-none-eabi-gcc",
             "cStandard": "c99",

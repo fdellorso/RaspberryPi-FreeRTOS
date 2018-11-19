@@ -1,8 +1,10 @@
 #include "ili9340.h"
 #include "font_5x5.h"
+#include <uspi/string.h>
 
-#define CHAR_WIDTH 6
+#define CHAR_WIDTH 	6
 #define CHAR_HEIGHT 8
+
 
 uint32_t width, height;
 
@@ -12,12 +14,24 @@ uint16_t dirty_y0;
 uint16_t dirty_x1;
 uint16_t dirty_y1;
 
-extern char loaded;
+char loaded;
 uint16_t lcd_position_x = 0;
 uint16_t lcd_position_y = 0;
 
+
+void ili9340_write_command(uint8_t command, int param_len, ...);
+void ili9340_update_display(void);
+void ili9340_draw_pixel(uint16_t x, uint16_t y, uint16_t colour);
+void ili9340_fill_rect(uint16_t x, uint16_t y, uint16_t  w, uint16_t h, uint16_t colour);
+void ili9340_set_addr_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
+void ili9340_mkdirty(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 void ili9340_draw_line(void);
-void ili9340_color_test(void);
+void ili9340_draw_line_v(uint16_t x, uint16_t y, uint16_t  h, uint16_t colour);  
+void ili9340_draw_line_h(uint16_t x, uint16_t y, uint16_t  w, uint16_t colour);  
+uint16_t ili9340_get_width(void);              
+uint16_t ili9340_get_height(void);             
+void ili9340_colour_test(void);
+
 
 void ili9340_write_command(uint8_t command, int param_len, ...) {
 	uint32_t i;
@@ -56,18 +70,18 @@ void ili9340_set_addr_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 	ili9340_write_command(ILI9340_RAMWR, 0);
 }
 
-void ili9340_draw_pixel(uint16_t x, uint16_t y, uint16_t color) {
+void ili9340_draw_pixel(uint16_t x, uint16_t y, uint16_t colour) {
 	if (x >= width) x = width - 1;
 	if (y >= height) y = height - 1;
 
 	ili9340_mkdirty(x, y, x, y);
 
 	uint32_t offset = (y * width + x) << 1;
-	lcdbuffer[offset++] = (color >> 8) & 0xff;
-	lcdbuffer[offset] = color & 0xff;
+	lcdbuffer[offset++] = (colour >> 8) & 0xff;
+	lcdbuffer[offset] = colour & 0xff;
 }
 
-void ili9340_draw_char(unsigned char c, uint16_t x, uint16_t y, uint16_t color) {
+void ili9340_putc(unsigned char c, uint16_t x, uint16_t y, uint16_t colour) {
 	uint16_t i, j;
 
 	//convert the character to an index
@@ -84,20 +98,20 @@ void ili9340_draw_char(unsigned char c, uint16_t x, uint16_t y, uint16_t color) 
 			//unsigned char temp = font[c][j];
 			if (font_5x5[c][j] & (1<<i)) {
 				// framebuffer[(y + i) * SCREEN_WIDTH + (x + j)] = colour;
-				ili9340_draw_pixel(x + j, y + i, color);
+				ili9340_draw_pixel(x + j, y + i, colour);
 			}
 		}
 	}
 }
 
-void ili9340_draw_string(const char* str, uint16_t x, uint16_t y, uint16_t color) {
+void ili9340_puts(const char* str, uint16_t x, uint16_t y, unsigned short colour) {
 	while (*str) {
-		ili9340_draw_char(*str++, x, y, color);
+		ili9340_putc(*str++, x, y, colour);
 		x += CHAR_WIDTH; 
 	}
 }
 
-void ili9340_println(const char* message, uint16_t color) {
+void ili9340_println(const char* message, unsigned short colour) {
 	// int x;
 
 	if(loaded == 0) return; //if video isn't loaded don't bother
@@ -112,7 +126,7 @@ void ili9340_println(const char* message, uint16_t color) {
 		ili9340_fill_rect(0,0,width,height,ILI9340_BLACK);
 	}
 
-	ili9340_draw_string(message, lcd_position_x, lcd_position_y, color);
+	ili9340_puts(message, lcd_position_x, lcd_position_y, colour);
 	lcd_position_y = lcd_position_y + CHAR_HEIGHT + 1;
 
 	ili9340_update_display();
@@ -140,7 +154,7 @@ void ili9340_println(const char* message, uint16_t color) {
 	// if(s_bWereEnabled) __asm volatile ("cpsie i" : : : "memory");
 }
 
-void ili9340_printHex(const char* message, uint32_t hexi, uint16_t color) {
+void ili9340_printHex(const char* message, unsigned int hexi, unsigned short colour) {
 	if(loaded == 0) return; //if video isn't loaded don't bother
 
 	// TODO disabilitata perche usa memcpy della stdlib
@@ -166,10 +180,25 @@ void ili9340_printHex(const char* message, uint32_t hexi, uint16_t color) {
 	m[i + 6] = hex[(hexi >> 4)&0xF];
 	m[i + 7] = hex[(hexi >> 0)&0xF];
 	m[i + 8] = 0; //null termination
-	ili9340_println(m, color);
+
+	ili9340_println(m, colour);
 }
 
-void ili9340_fill_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color) {
+void ili3940_printf(const char *pMessage, unsigned short colour, ...) {
+	va_list var;
+	va_start (var, pMessage);
+
+	TString Message;
+	String(&Message);
+	StringFormatV(&Message, pMessage, var);
+
+	ili9340_println(StringGet(&Message), colour);
+
+	_String(&Message);
+	va_end (var);
+}
+
+void ili9340_fill_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t colour) {
 	uint16_t i;
 
 	if (x >= width) x = width - 1;
@@ -179,7 +208,7 @@ void ili9340_fill_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t 
 
 	ili9340_mkdirty(x, y, x + w - 1, y + h - 1);
 
-	uint8_t hi = (color >> 8) & 0xff, lo = color & 0xff;
+	uint8_t hi = (colour >> 8) & 0xff, lo = colour & 0xff;
 	uint32_t offset = (y * width + x) << 1;
 
 	while (h--) {
@@ -191,13 +220,13 @@ void ili9340_fill_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t 
 	}
 }
 
-void ili9340_draw_line_v(uint16_t x, uint16_t y, uint16_t h, uint16_t color) {
-	ili9340_fill_rect(x, y, 1, h, color);
+void ili9340_draw_line_v(uint16_t x, uint16_t y, uint16_t h, uint16_t colour) {
+	ili9340_fill_rect(x, y, 1, h, colour);
 }
 
 
-void ili9340_draw_line_h(uint16_t x, uint16_t y, uint16_t w, uint16_t color) {
-	ili9340_fill_rect(x, y, w, 1, color);
+void ili9340_draw_line_h(uint16_t x, uint16_t y, uint16_t w, uint16_t colour) {
+	ili9340_fill_rect(x, y, w, 1, colour);
 }
 
 void ili9340_mkdirty(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
@@ -385,7 +414,7 @@ void ili9340_close(void) {
 	bcm2835_spi_end();	//TODO Manca libreria SPI
 }
 
-void ili9340_color_test(void) {
+void ili9340_colour_test(void) {
 	uint16_t wid, hei;
 
 	for(wid = 0; wid < 240; wid++) {

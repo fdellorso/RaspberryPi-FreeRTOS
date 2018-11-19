@@ -1,8 +1,3 @@
-# RASPPI	?=	1
-# # LOGGING	?= 1
-# OUTPUT	=	-DMUART
-# LIBUSE	=	-DPRVLIB
-
 -include dbuild.option.mk
 
 # GCC 4.9.3 (Ubuntu Repo)
@@ -94,10 +89,10 @@ CFLAGS += $(ARCH)
 # CFLAGS += -finstrument-functions
 
 # Define Flags
-CFLAGS +=	-DRASPPI=$(RASPPI) \
-			-DconfigBLUETHUNDER=$(configBLUETHUNDER) \
-			$(LIBUSE) \
-			$(OUTPUT)  
-			# -DLOGGING=$(LOGGING)
+CFLAGS +=	-DRASPPI=$(RASPPI)							\
+			-DconfigBLUETHUNDER=$(configBLUETHUNDER)	\
+			$(LIBUSE)									\
+			$(LOGGER)									\
+			$(USBDEV)
 
 # AFLAGS ?= $(ARCH) -DRASPPI=$(RASPPI)

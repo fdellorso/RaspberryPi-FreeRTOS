@@ -1428,15 +1428,7 @@ void DWHCIDeviceDumpRegister (TDWHCIDevice *pThis, const char *pName, u32 nAddre
 	DataMemBarrier ();
 
 	//LogWrite (FromDWHCI, LOG_DEBUG, "0x%08X %s", DWHCIRegisterRead (&Register), pName);
-	#ifdef VIDEO
-		printHex(pName, DWHCIRegisterRead (&Register), 0xFFFFFFFF);
-	#endif
-	#ifdef ILI9340
-		ili9340_printHex(pName, DWHCIRegisterRead (&Register), ILI9340_WHITE);
-	#endif
-	#ifdef MUART
-		muart_printHex(pName, DWHCIRegisterRead (&Register));
-	#endif
+	printHex(pName, DWHCIRegisterRead (&Register));
 
 	_DWHCIRegister (&Register);
 }

@@ -15,7 +15,7 @@ uint8_t exit_clk;
 
 void ili9340_clock2(void);
 
-void ili9340_clock_char(unsigned char c, uint16_t x, uint16_t y, uint16_t color) {
+void ili9340_clock_char(unsigned char c, uint16_t x, uint16_t y, uint16_t colour) {
 	uint16_t i, j;
 	uint16_t height_counter;
 	#define byte_size 8
@@ -36,15 +36,15 @@ void ili9340_clock_char(unsigned char c, uint16_t x, uint16_t y, uint16_t color)
 				//unsigned char temp = font[c][j];
 				if (font_clock[c][i/byte_size + j*height_counter] & ((1<<7)>>i%byte_size)) {
 					// framebuffer[(y + i) * SCREEN_WIDTH + (x + j)] = colour;
-					ili9340_draw_pixel(x + j, y + i, color);
+					ili9340_draw_pixel(x + j, y + i, colour);
 				}
 		}
 	}
 }
 
-void ili9340_clock_string(char *str, uint16_t x, uint16_t y, uint16_t color) {
+void ili9340_clock_string(char *str, uint16_t x, uint16_t y, uint16_t colour) {
 	while (*str) {
-		ili9340_clock_char(*str++, x, y, color);
+		ili9340_clock_char(*str++, x, y, colour);
 		x += CLOCK_WIDTH; 
 	}
 }

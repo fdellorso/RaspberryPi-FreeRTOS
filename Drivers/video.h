@@ -3,23 +3,27 @@
 
 #include <rpi_header.h>
 
-#define WHITE_TEXT     0xFFFFFFFF
-#define RED_TEXT       0xFFFF0000
-#define GREEN_TEXT     0xFF00FF00
-#define ORANGE_TEXT    0xFFFF9900
-#define BLUE_TEXT      0xFF0088FF
-#define MAG_TEXT       0xFFFF00FF
-#define AQUA_TEXT      0xFF00FFFF
-#define VIOLET_TEXT    0xFFCC88CC
+#define VIDEO_AQUA      0xFF00FFFF
+#define VIDEO_BLUE      0xFF0088FF
+#define VIDEO_GREEN     0xFF00FF00
+#define VIDEO_MAGENTA   0xFFFF00FF
+#define VIDEO_ORANGE    0xFFFF9900
+#define VIDEO_RED       0xFFFF0000
+#define VIDEO_VIOLET    0xFFCC88CC
+#define VIDEO_WHITE     0xFFFFFFFF
 
 char loaded;
 
 void enablelogging(void);
-void initFB(int width, int height);
-void drawChar(unsigned char c, int x, int y, int colour);
-void drawString(const char* str, int x, int y, int colour);
-void println(const char* message, int colour);
-void printHex(const char* message, int hexi, int colour);
+
+void video_init(void);
+
+void video_putc(unsigned char c, int x, int y, unsigned int colour);
+void video_puts(const char* str, int x, int y, unsigned int colour);
+void video_println(const char* message, unsigned int colour);
+void video_printHex(const char* message, unsigned int hexi, unsigned int colour);
+void video_printf(const char *pMessage, unsigned int colour, ...);
+
 void videotest(void);
 void dumpDebug(void);
 

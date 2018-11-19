@@ -3,7 +3,6 @@
 
 #include <rpi_header.h>
 #include <prvlib/stdint.h>
-#include <uspi/stdarg.h>
 
 #define  ILI9340_TFTWIDTH    240
 #define  ILI9340_TFTHEIGHT   320
@@ -72,16 +71,16 @@
 
 // #define ILI9340_PWCTR6       0xFC
 
-// Color definitions
+// Colour definitions
 #define	ILI9340_BLACK        0x0000
 #define	ILI9340_BLUE         0x001F
-#define	ILI9340_RED          0xF800
-#define	ILI9340_GREEN        0x07E0
 #define ILI9340_CYAN         0x07FF
-#define ILI9340_MAGENTA      0xF81F
-#define ILI9340_YELLOW       0xFFE0  
-#define ILI9340_WHITE        0xFFFF
+#define	ILI9340_GREEN        0x07E0
 #define ILI9340_GREY         0xAD33
+#define ILI9340_MAGENTA      0xF81F
+#define	ILI9340_RED          0xF800
+#define ILI9340_WHITE        0xFFFF
+#define ILI9340_YELLOW       0xFFE0  
 
 // Waveshare 3.2" COMMAND GPIO Pins
 #define TOUCH_IRQ            17
@@ -93,30 +92,17 @@
 #define KEY2                 23
 #define KEY3                 24
 
-extern char loaded;
+char loaded;
 uint32_t width, height;
 
-extern  void        ili9340_write_command   (uint8_t command, int param_len, ...);
-extern  void        ili9340_init            (void);
-extern  void        ili9340_close           (void);
-extern  void        ili9340_set_addr_window (uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
-extern  void        ili9340_draw_pixel      (uint16_t x, uint16_t y, uint16_t color);
-        void        ili9340_draw_char       (unsigned char c, uint16_t x, uint16_t y, uint16_t color);
-        void        ili9340_draw_string     (const char* str, uint16_t x, uint16_t y, uint16_t color);
-        void        ili9340_println         (const char* message, uint16_t color);
-        void        ili9340_printHex        (const char* message, uint32_t hexi, uint16_t color);
-extern  void        ili9340_fill_rect       (uint16_t x, uint16_t y, uint16_t  w, uint16_t h, uint16_t color);  
-extern  void        ili9340_draw_line_v     (uint16_t x, uint16_t y, uint16_t  h, uint16_t color);  
-extern  void        ili9340_draw_line_h     (uint16_t x, uint16_t y, uint16_t  w, uint16_t color);  
-extern  void        ili9340_set_rotation    (uint8_t m);       
-extern  uint16_t    ili9340_get_width       (void);              
-extern  uint16_t    ili9340_get_height      (void);             
-extern  void        ili9340_update_display  (void);
-        void        ili9340_mkdirty         (uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
+void ili9340_init(void);
+void ili9340_close(void);
+void ili9340_set_rotation(unsigned char m);       
+
+void ili9340_putc(unsigned char c, uint16_t x, uint16_t y, unsigned short colour);
+void ili9340_puts(const char* str, uint16_t x, uint16_t y, unsigned short colour);
+void ili9340_println(const char* message, unsigned short colour);
+void ili9340_printHex(const char* message, unsigned int hexi, unsigned short colour);
+void ili3940_printf(const char *pMessage, unsigned short colour, ...);
 
 #endif
-
-// #ifndef _VIDEO_H_
-// #define println(message, color)         ili9340_println(message, color)
-// #define printHex(message, hexi, color)  ili9340_printHex(message, hexi, color)
-// #endif

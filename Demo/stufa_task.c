@@ -4,8 +4,10 @@
 //tasks for StuFA Project
 
 #include "stufa_task.h"
+#include <uspi/stdarg.h>
 
 #include <rpi_header.h>
+#include <rpi_logger.h>
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -29,6 +31,11 @@ xQueueHandle		xQueTicSet		= NULL;
 // xSemaphoreHandle	xSemTicEner		= NULL;
 // xQueueHandle		xQueTicHndl		= NULL;
 
+xSemaphoreHandle	xMutexMuart		= NULL;
+
+
+static void prvFunc_Print(const char *pMessage, ...);
+
 
 void prvTask_WatchDog(void *pParam) {
 	int i = 0;
@@ -42,19 +49,14 @@ void prvTask_WatchDog(void *pParam) {
 
 	static const portTickType xBlockTime = 100 / portTICK_RATE_MS;
 
-	muart_printf("WatchDog...\t\t\t     Started");
+	xMutexMuart = xSemaphoreCreateMutex();
 
-	#ifdef VIDEO
-		// Inizializzazione Video per Debug
-		initFB(1680, 1050);
-	#endif
+	prvFunc_Print("WatchDog...\t\t\t     Started");		// FIXME
+
+	logger_init();
 	#ifdef ILI9340
 		bcm2835_init();
-		ili9340_init();
 		ili9340_set_rotation(1);
-	#endif
-	#ifdef MUART
-		muart_init();
 	#endif
 
 	vTaskResume(xHandleUSPi);
@@ -102,8 +104,8 @@ void prvTask_UspiInit(void *pParam) {
 	vSemaphoreCreateBinary(xSemUSPiInit);
 	if(xSemUSPiInit != NULL) xSemaphoreTake(xSemUSPiInit, 0);
 	
-	muart_printf("USPi Initialize...\t\t     Started");
-	muart_println("--------------------------------------------");
+	prvFunc_Print("USPi Initialize...\t\t     Started");
+	prvFunc_Print("--------------------------------------------");
 
 	while(1) {
 		i++;
@@ -116,8 +118,8 @@ void prvTask_UspiInit(void *pParam) {
 		if(uspiInited == 1) {
 			if(xSemaphoreGive(xSemUSPiInit) == pdPASS) {
 				uspiInited = 2;
-				muart_println("--------------------------------------------");
-				muart_printf("USPi Initialize...\t\t    Finished");
+				prvFunc_Print("--------------------------------------------");
+				prvFunc_Print("USPi Initialize...\t\t    Finished");
 			}
 		}
 
@@ -144,7 +146,7 @@ void prvTask_TicControl(void *pParam) {
 	vSemaphoreCreateBinary(xSemTicInit);
 	if(xSemTicInit != NULL) xSemaphoreTake(xSemTicInit, 0);
 
-	muart_printf("Tic Control...\t\t\t     Started");
+	prvFunc_Print("Tic Control...\t\t\t     Started");
 
 	if (error == NULL) error = tic_device_create(&ticDevice);
 	if (error == NULL) error = tic_handle_create(ticDevice, &ticHandle);
@@ -189,7 +191,7 @@ void prvTask_TicConsole(void *pParam) {
 	tic_variables * ticVariables;
 	tic_settings * ticSettings;
 
-	muart_printf("Tic Console...\t\t\t     Started");
+	prvFunc_Print("Tic Console...\t\t\t     Started");
 
 	xQueTicVar = xQueueCreate(1, sizeof(tic_variables *));
 	xQueTicSet = xQueueCreate(1, sizeof(tic_settings *));
@@ -209,4 +211,18 @@ void prvTask_TicConsole(void *pParam) {
 			}
 		}
 	}
+}
+
+static void prvFunc_Print(const char *pMessage, ...) {
+	va_list args;
+
+	va_start(args, pMessage);
+
+	if(xSemaphoreTake(xMutexMuart,portMAX_DELAY) == pdPASS) {
+		printf(pMessage, args);
+	}
+
+	xSemaphoreGive(xMutexMuart);
+
+	va_end (args);
 }

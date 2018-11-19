@@ -51,15 +51,7 @@ void usDelay(unsigned nMicroSeconds) {
 unsigned StartKernelTimer(unsigned nDelay, TKernelTimerHandler *pHandler, void *pParam, void *pContext) {
 	//TimerStartKernelTimer (TimerGet (), nDelay, pHandler, pParam, pContext);
 
-	#ifdef VIDEO
-		println("StartKernelTimer", 0xFFFFFFFF);
-	#endif
-	#ifdef ILI9340
-		ili9340_println("StartKernelTimer", ILI9340_WHITE);
-	#endif
-	#ifdef MUART
-		muart_println("StartKernelTimer");
-	#endif
+	println("StartKernelTimer");
 
 	return 1;
 
@@ -72,15 +64,7 @@ unsigned StartKernelTimer(unsigned nDelay, TKernelTimerHandler *pHandler, void *
 void CancelKernelTimer(unsigned hTimer) {
 	//TimerCancelKernelTimer (TimerGet (), hTimer);
 
-	#ifdef VIDEO
-		println("CancelKernelTimer", 0xFFFFFFFF);
-	#endif
-	#ifdef ILI9340
-		ili9340_println("CancelKernelTimer", ILI9340_WHITE);
-	#endif
-	#ifdef MUART
-		muart_println("CancelKernelTimer");
-	#endif
+	println("CancelKernelTimer");
 
 	(void)hTimer;	// FIXME Wunused
 }
@@ -156,20 +140,9 @@ void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...)
 	StringFormatV (&Message, pMessage, var);
 
 	// LoggerWriteV (LoggerGet (), pSource, (TLogSeverity) Severity, pMessage, var);
-
-	#ifdef VIDEO
-		println(StringGet (&Message), 0xFFFFFFFF);
-	#endif
-	#ifdef ILI9340
-		ili9340_println(StringGet (&Message), ILI9340_WHITE);
-	#endif
-	#ifdef MUART
-		muart_println(StringGet (&Message));
-	#endif
+	println(StringGet (&Message));
 
 	va_end (var);
-	// println(pMessage, 0xFFFFFFFF);
-	// ili9340_println(pMessage, ILI9340_WHITE);
 
 	(void)pSource;	// FIXME Wunused
 	(void)Severity;	// FIXME Wunused
@@ -179,21 +152,9 @@ void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...)
 
 void uspi_assertion_failed(const char *pExpr, const char *pFile, unsigned nLine) {
 	
-	#ifdef VIDEO
-		println(pExpr, 0xFFFFFFFF);
-		println(pFile, 0xFFFFFFFF);
-		printHex("Line ", nLine, 0xFFFFFFFF);
-	#endif
-	#ifdef ILI9340
-		ili9340_println(pExpr, ILI9340_WHITE);
-		ili9340_println(pFile, ILI9340_WHITE);
-		ili9340_printHex("Line ", nLine, ILI9340_WHITE);
-	#endif
-	#ifdef MUART
-		muart_println(pExpr);
-		muart_println(pFile);
-		muart_printHex("Line ", nLine);
-	#endif
+	println(pExpr);
+	println(pFile);
+	printHex("Line ", nLine);
 
 	while(1){;} //system failure
 }
@@ -201,15 +162,7 @@ void uspi_assertion_failed(const char *pExpr, const char *pFile, unsigned nLine)
 void DebugHexdump (const void *pBuffer, unsigned nBufLen, const char *pSource) {
 	//debug_hexdump (pBuffer, nBufLen, pSource);
 
-	#ifdef VIDEO
-		println("DebugHexdump", 0xFFFFFFFF);
-	#endif
-	#ifdef ILI9340
-		ili9340_println("DebugHexdump", ILI9340_WHITE);
-	#endif
-	#ifdef MUART
-		muart_println("DebugHexdump");
-	#endif
+	println("DebugHexdump");
 
 	(void)pBuffer;	// FIXME Wunused
 	(void)nBufLen;	// FIXME Wunused

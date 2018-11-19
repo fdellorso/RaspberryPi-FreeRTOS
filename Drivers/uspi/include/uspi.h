@@ -36,6 +36,8 @@ int USPiInitialize (void);
 //
 // Pololu TicT834 Device
 //
+#ifdef USBTIC
+
 int USPiTicAvailable (void);
 int USPiTicQuick (unsigned char nCommand);
 int USPiTic7BitWrite (unsigned char nCommand, unsigned short nValue);
@@ -45,9 +47,12 @@ int uspitic_control_transfer(void * handle, unsigned char bmRequestType, unsigne
 int USPiTicStringRead (unsigned char nString, unsigned char *nData);
 char * USPiTicGetSerialNumber(void);
 
+#endif
+
 //
 // Keyboard device
 //
+#ifdef USBKBD
 
 // returns != 0 if available
 int USPiKeyboardAvailable (void);
@@ -76,9 +81,12 @@ void USPiKeyboardRegisterKeyStatusHandlerRaw (TUSPiKeyStatusHandlerRaw *pKeyStat
 #define ALTGR		(1 << 6)
 #define RWIN		(1 << 7)
 
+#endif
+
 //
 // Mouse device
 //
+#ifdef USBMOU
 
 // returns != 0 if available
 int USPiMouseAvailable (void);
@@ -104,9 +112,12 @@ void USPiMouseRegisterStatusHandler (TUSPiMouseStatusHandler *pStatusHandler);
 #define ALTGR		(1 << 6)
 #define RWIN		(1 << 7)
 
+#endif
+
 //
 // Mass storage device
 //
+#ifdef USBMEM
 
 // returns number of available devices
 int USPiMassStorageDeviceAvailable (void);
@@ -125,6 +136,8 @@ int USPiMassStorageDeviceWrite (unsigned long long ullOffset, const void *pBuffe
 
 // returns the number of available blocks of USPI_BLOCK_SIZE or 0 on failure
 unsigned USPiMassStorageDeviceGetCapacity (unsigned nDeviceIndex);
+
+#endif
 
 //
 // Ethernet services
@@ -149,10 +162,6 @@ int USPiReceiveFrame (void *pBuffer, unsigned *pResultLength);
 //
 // GamePad device
 //
-
-// returns number of available devices
-int USPiGamePadAvailable (void);
-
 #define MAX_AXIS    6
 #define MAX_HATS    6
 
@@ -171,14 +180,19 @@ typedef struct USPiGamePadState
 
     int nbuttons;
     unsigned int buttons;
-}
-USPiGamePadState;
+} USPiGamePadState;
+
+typedef void TGamePadStatusHandler (unsigned nDeviceIndex, const USPiGamePadState *pGamePadState);
+
+#ifdef USBPAD
+// returns number of available devices
+int USPiGamePadAvailable (void);
 
 // returns 0 on failure
 const USPiGamePadState *USPiGamePadGetStatus (unsigned nDeviceIndex);		// nDeviceIndex is 0-based
 
-typedef void TGamePadStatusHandler (unsigned nDeviceIndex, const USPiGamePadState *pGamePadState);
 void USPiGamePadRegisterStatusHandler (TGamePadStatusHandler *pStatusHandler);
+#endif
 
 //
 // USB device information

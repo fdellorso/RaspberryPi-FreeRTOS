@@ -5,12 +5,13 @@
 
 #include "video.h"
 #include "font_5x5.h"
+#include <uspi/string.h>
 
-#define CHAR_WIDTH 6
-#define CHAR_HEIGHT 8
+#define CHAR_WIDTH		6
+#define CHAR_HEIGHT 	8
 
-int SCREEN_WIDTH;
-int SCREEN_HEIGHT;
+#define SCREEN_WIDTH	1680
+#define SCREEN_HEIGHT	1050
 
 char loaded = 0;
 int position_x = 0;
@@ -23,12 +24,12 @@ unsigned int mailbuffer[22] __attribute__((aligned (16)));
 unsigned int* framebuffer;
 
 __attribute__((no_instrument_function))
-void drawPixel(unsigned int x, unsigned int y, int colour);
+void drawPixel(unsigned int x, unsigned int y, unsigned int colour);
 
 __attribute__((no_instrument_function))
-void drawRect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, int colour);
+void drawRect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, unsigned int colour);
 
-void initFB(int width, int height) {
+void video_init(void) {
 	//get the display size
 	/*mailbuffer[0] = 8 * 4;		//mailbuffer size
 	mailbuffer[1] = 0;		//response code
@@ -56,8 +57,8 @@ void initFB(int width, int height) {
 		attempts++;
 	}*/
 
-	SCREEN_WIDTH 	= width;				//mailbuffer[5];
-	SCREEN_HEIGHT 	= height;				//mailbuffer[6];
+	// SCREEN_WIDTH 	= width;				//mailbuffer[5];
+	// SCREEN_HEIGHT 	= height;				//mailbuffer[6];
 
 	mailbuffer[0] 	= 22 * 4;			//mail buffer size
 	mailbuffer[1] 	= 0;				//response code
@@ -99,21 +100,6 @@ void initFB(int width, int height) {
 	loaded = 1;
 }
 
-__attribute__((no_instrument_function))
-void drawPixel(unsigned int x, unsigned int y, int colour) {
-    framebuffer[y * SCREEN_WIDTH + x] = colour;
-}
-
-__attribute__((no_instrument_function))
-void drawRect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, int colour) {
-    unsigned int i, j = 0;
-    for(i = x1; i < x2; i++) {
-        for(j = y1; j < y2; j++) {
-            drawPixel(i, j, colour);
-        }
-    }
-}
-
 //characters are stored in 5x5_font.h as binary (6x8 font)
 //there are 6 bytes which describe 8 pixels in a column
 //	{0x7c,	0x24,	0x24,	0x24,	0x7c,	0x00}, // A
@@ -126,7 +112,7 @@ void drawRect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2
 //	1				1	0
 //	1				1	0
 __attribute__((no_instrument_function))
-void drawChar(unsigned char c, int x, int y, int colour) {
+void video_putc(unsigned char c, int x, int y, unsigned int colour) {
 	int i, j;
 
 	//convert the character to an index
@@ -150,15 +136,15 @@ void drawChar(unsigned char c, int x, int y, int colour) {
 }
 
 __attribute__((no_instrument_function))
-void drawString(const char* str, int x, int y, int colour) {
+void video_puts(const char* str, int x, int y, unsigned int colour) {
 	while (*str) {
-		drawChar(*str++, x, y, colour);
+		video_putc(*str++, x, y, colour);
 		x += CHAR_WIDTH; 
 	}
 }
 
 __attribute__((no_instrument_function))
-void println(const char* message, int colour) {
+void video_println(const char* message, unsigned int colour) {
 	if(loaded == 0) return; //if video isn't loaded don't bother
 
 	int nFlags;
@@ -166,7 +152,7 @@ void println(const char* message, int colour) {
 	char s_bWereEnabled = nFlags & 0x80 ? 0 : 1; 
 	if(s_bWereEnabled) __asm volatile ("cpsid i" : : : "memory");
 
-	drawString(message, position_x, position_y, colour);
+	video_puts(message, position_x, position_y, colour);
 	position_y = position_y + CHAR_HEIGHT + 1;
 	if(position_y >= SCREEN_HEIGHT) {
 		if(position_x + 2 * (SCREEN_WIDTH / 8) > SCREEN_WIDTH) {
@@ -191,7 +177,7 @@ void println(const char* message, int colour) {
 }
 
 __attribute__((no_instrument_function))
-void printHex(const char* message, int hexi, int colour) {
+void video_printHex(const char* message, unsigned int hexi, unsigned int colour) {
 if(loaded == 0) return; //if video isn't loaded don't bother
 
 	// TODO disabilitata perche usa memcpy della stdlib
@@ -217,7 +203,22 @@ if(loaded == 0) return; //if video isn't loaded don't bother
 	m[i + 6] = hex[(hexi >> 4)&0xF];
 	m[i + 7] = hex[(hexi >> 0)&0xF];
 	m[i + 8] = 0; //null termination
-	println(m, colour);
+
+	video_println(m, colour);
+}
+
+void video_printf(const char *pMessage, unsigned int colour, ...) {
+	va_list var;
+	va_start (var, pMessage);
+
+	TString Message;
+	String(&Message);
+	StringFormatV(&Message, pMessage, var);
+
+	video_println(StringGet(&Message), colour);
+
+	_String(&Message);
+	va_end (var);
 }
 
 void videotest(void) {
@@ -229,5 +230,20 @@ void videotest(void) {
 	}
 
 	//division crashes the system here but not in other places it seems?
-	drawString("Forty-Two", SCREEN_WIDTH / 2 - 4.5 * CHAR_WIDTH, SCREEN_HEIGHT / 2 + CHAR_HEIGHT / 2, 0xFF00FF00);
+	video_puts("Forty-Two", SCREEN_WIDTH / 2 - 4.5 * CHAR_WIDTH, SCREEN_HEIGHT / 2 + CHAR_HEIGHT / 2, 0xFF00FF00);
+}
+
+__attribute__((no_instrument_function))
+void drawPixel(unsigned int x, unsigned int y, unsigned int colour) {
+    framebuffer[y * SCREEN_WIDTH + x] = colour;
+}
+
+__attribute__((no_instrument_function))
+void drawRect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, unsigned int colour) {
+    unsigned int i, j = 0;
+    for(i = x1; i < x2; i++) {
+        for(j = y1; j < y2; j++) {
+            drawPixel(i, j, colour);
+        }
+    }
 }

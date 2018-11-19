@@ -23,12 +23,28 @@
 
 // for factory
 #include <uspi/usbstandardhub.h>
-#include <uspi/usbmassdevice.h>
-#include <uspi/usbkeyboard.h>
-#include <uspi/usbmouse.h>
-#include <uspi/usbgamepad.h>
 #include <uspi/smsc951x.h>
+
+#ifdef USBMEM
+#include <uspi/usbmassdevice.h>
+#endif
+
+#ifdef USBKBD
+#include <uspi/usbkeyboard.h>
+#endif
+
+#ifdef USBMOU
+#include <uspi/usbmouse.h>
+#endif
+
+#ifdef USBPAD
+#include <uspi/usbgamepad.h>
+#endif
+
+#ifdef USBTIC
 #include <uspi/usbtict834.h>
+#endif
+
 
 TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName);
 
@@ -63,6 +79,7 @@ TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName)
 		USBStandardHub (pDevice, pParent);
 		pResult = (TUSBDevice *) pDevice;
 	}
+	#ifdef USBMEM
 	else if (StringCompare (pName, "int8-6-50") == 0)
 	{
 		TUSBBulkOnlyMassStorageDevice *pDevice = (TUSBBulkOnlyMassStorageDevice *) malloc (sizeof (TUSBBulkOnlyMassStorageDevice));
@@ -70,6 +87,8 @@ TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName)
 		USBBulkOnlyMassStorageDevice (pDevice, pParent);
 		pResult = (TUSBDevice *) pDevice;
 	}
+	#endif
+	#ifdef USBKBD
 	else if (StringCompare (pName, "int3-1-1") == 0)
 	{
 		TUSBKeyboardDevice *pDevice = (TUSBKeyboardDevice *) malloc (sizeof (TUSBKeyboardDevice));
@@ -77,6 +96,8 @@ TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName)
 		USBKeyboardDevice (pDevice, pParent);
 		pResult = (TUSBDevice *) pDevice;
 	}
+	#endif
+	#ifdef USBMOU
 	else if (StringCompare (pName, "int3-1-2") == 0)
 	{
 		TUSBMouseDevice *pDevice = (TUSBMouseDevice *) malloc (sizeof (TUSBMouseDevice));
@@ -84,6 +105,7 @@ TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName)
 		USBMouseDevice (pDevice, pParent);
 		pResult = (TUSBDevice *) pDevice;
 	}
+	#endif
 	else if (StringCompare (pName, "ven424-ec00") == 0)
 	{
 		TSMSC951xDevice *pDevice = (TSMSC951xDevice *) malloc (sizeof (TSMSC951xDevice));
@@ -91,6 +113,7 @@ TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName)
 		SMSC951xDevice (pDevice, pParent);
 		pResult = (TUSBDevice *) pDevice;
 	}
+	#ifdef USBPAD
     else if (StringCompare (pName, "int3-0-0") == 0)
     {
         TUSBGamePadDevice *pDevice = (TUSBGamePadDevice *) malloc (sizeof (TUSBGamePadDevice));
@@ -98,7 +121,9 @@ TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName)
         USBGamePadDevice (pDevice, pParent);
         pResult = (TUSBDevice *) pDevice;
     }
+	#endif
 	// TODO Qua inizia il driver per TIC834
+	#ifdef USBTIC
 	else if (StringCompare (pName, "ven1ffb-b5") == 0)
     {
         TUSBTicT834Device *pDevice = (TUSBTicT834Device *) malloc (sizeof (TUSBTicT834Device));
@@ -106,6 +131,7 @@ TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName)
         USBTicT834Device (pDevice, pParent);
         pResult = (TUSBDevice *) pDevice;
     }
+	#endif
 	// new devices follow
 
 	if (pResult != 0)

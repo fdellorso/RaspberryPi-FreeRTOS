@@ -39,12 +39,22 @@ typedef struct TUSPiLibrary
 {
 	TDeviceNameService		 		NameService;
 	TDWHCIDevice			 		DWHCI;
+	#ifdef USBKBD
 	TUSBKeyboardDevice				*pUKBD1;
+	#endif
+	#ifdef USBMOU
 	TUSBMouseDevice					*pUMouse1;
+	#endif
+	#ifdef USBMEM
 	TUSBBulkOnlyMassStorageDevice	*pUMSD[MAX_DEVICES];
+	#endif
 	TSMSC951xDevice					*pEth0;
+	#ifdef USBPAD
 	TUSBGamePadDevice       		*pUPAD[MAX_DEVICES];
+	#endif
+	#ifdef USBTIC
 	TUSBTicT834Device				*pTic0;
+	#endif
 }
 TUSPiLibrary;
 

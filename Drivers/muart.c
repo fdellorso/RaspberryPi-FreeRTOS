@@ -29,7 +29,9 @@ typedef struct {
 
 static volatile BCM2835_MUART_REGS * const pRegs = (BCM2835_MUART_REGS *) (BCM2835_MUART_BASE);
 
-extern char loaded;
+char loaded;
+
+void muart_flush(void);
 
 void muart_init(void) {
 	pAux->AUXENB			= Mini_UART_ENB;	// Enable Mini UART
@@ -69,6 +71,7 @@ void muart_puts(const char *str) {
 void muart_println(const char *message) {
 	muart_puts(message);
 	muart_puts("\r\n");
+	muart_flush();
 
 }
 
@@ -119,4 +122,9 @@ void muart_printf(const char *pMessage, ...) {
 unsigned char muart_getc(void) {
 	while(1) if(pRegs->AUX_MU_LSR_REG & FIFO_DATA_READY) break;
 	return (unsigned char) pRegs->AUX_MU_IO_REG;
+}
+
+void muart_flush(void) {
+	// while(1) if((pRegs->AUX_MU_STAT_REG & (STATUS_RX_IDLE | STATUS_TX_IDLE)) == (STATUS_RX_IDLE | STATUS_TX_IDLE)) break;
+	while(1) if((pRegs->AUX_MU_STAT_REG & 0x100) == 0) break;
 }

@@ -10,7 +10,8 @@
 //to any function you do not want traced
 //especially ones which are printing out the trace
 
-#include <video.h>
+// #include <video.h>
+#include <rpi_logger.h>
 int depth = 0;
 
 __attribute__((no_instrument_function))
@@ -29,13 +30,15 @@ void __cyg_profile_func_enter (void *this_fn, void *call_site){
 
 		if((intflag & 0x80)){
 			m[0] = '#';
-			printHex(m, (int)this_fn, 0xFF007F00); //green for call
+			// printHex(m, (int)this_fn, 0xFF007F00); //green for call
+			printHex(m, (int)this_fn);
 			//uspi_LeaveCritical();
 			return;
 		}
 
 		m[0] = '.';
-		printHex(m, (int)this_fn, 0xFF00FF00); //green for call
+		// printHex(m, (int)this_fn, 0xFF00FF00); //green for call
+		printHex(m, (int)this_fn);
 		//uspi_LeaveCritical();
 
 		(void)call_site;	// FIXME Wunused
@@ -57,14 +60,16 @@ void __cyg_profile_func_exit  (void *this_fn, void *call_site){
 
 		if((intflag & 0x80)){
 			m[0] = '#';
-			printHex(m, (int)this_fn, 0xFF7F0000); //red for return
+			// printHex(m, (int)this_fn, 0xFF7F0000); //red for return
+			printHex(m, (int)this_fn);
 			depth--;
 			//uspi_LeaveCritical();
 			return;
 		}
 
 		m[0] = '.';
-		printHex(m, (int)this_fn, 0xFFFF0000); //red for return
+		// printHex(m, (int)this_fn, 0xFFFF0000); //red for return
+		printHex(m, (int)this_fn);
 		depth--;
 		//uspi_LeaveCritical();
 
