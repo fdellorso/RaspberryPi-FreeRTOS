@@ -4,7 +4,6 @@
  **/
 
 #include "muart.h"
-#include <uspi/string.h>
 
 typedef struct {
 	unsigned long	AUXIRQ;	  
@@ -72,7 +71,6 @@ void muart_println(const char *message) {
 	muart_puts(message);
 	muart_puts("\r\n");
 	muart_flush();
-
 }
 
 void muart_printHex(const char *message, unsigned int hexi) {
@@ -119,10 +117,36 @@ void muart_printf(const char *pMessage, ...) {
 	va_end (var);
 }
 
+void muart_vprintf(const char *pMessage, va_list var) {
+	TString Message;
+	String(&Message);
+	StringFormatV(&Message, pMessage, var);
+
+	muart_println(StringGet(&Message));
+
+	_String(&Message);
+}
+
 unsigned char muart_getc(void) {
 	while(1) if(pRegs->AUX_MU_LSR_REG & FIFO_DATA_READY) break;
 	return (unsigned char) pRegs->AUX_MU_IO_REG;
 }
+
+// unsigned char * muart_gets(void) {
+// 	unsigned char * iString = 0;
+
+// 	while(1) {
+// 		*iString = muart_getc();
+// 		if(*iString == 0x0a) if(muart_getc() == 0x0d) break;
+// 		muart_putc(*iString);
+// 		iString++;
+// 	}
+
+// 	iString++;
+// 	*iString = 0;
+
+// 	return iString;
+// }
 
 void muart_flush(void) {
 	// while(1) if((pRegs->AUX_MU_STAT_REG & (STATUS_RX_IDLE | STATUS_TX_IDLE)) == (STATUS_RX_IDLE | STATUS_TX_IDLE)) break;

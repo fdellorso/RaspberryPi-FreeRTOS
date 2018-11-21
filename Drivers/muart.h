@@ -2,6 +2,7 @@
 #define _MUART_H_
 
 #include <rpi_header.h>
+#include <uspi/string.h>
 
 // Base Physical Address of the Mini UART registers
 #define BCM2835_MUART_BASE			(BCM2835_PERI_BASE + 0x215040)
@@ -31,7 +32,9 @@ void muart_puts(const char *str);
 void muart_println(const char *message);
 void muart_printHex(const char *message, unsigned int hexi);
 void muart_printf(const char *pMessage, ...);
+void muart_vprintf(const char *pMessage, va_list var);
 
 unsigned char muart_getc(void);
+// unsigned char * muart_gets(void);
 
 #endif

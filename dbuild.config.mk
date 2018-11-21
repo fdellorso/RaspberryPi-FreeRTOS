@@ -93,6 +93,8 @@ CFLAGS +=	-DRASPPI=$(RASPPI)							\
 			-DconfigBLUETHUNDER=$(configBLUETHUNDER)	\
 			$(LIBUSE)									\
 			$(LOGGER)									\
-			$(USBDEV)
+			$(USBDEV)									\
+			-DVIDEO_WIDTH=$(VIDEO_WIDTH)				\
+			-DVIDEO_HEIGHT=$(VIDEO_HEIGHT)
 
 # AFLAGS ?= $(ARCH) -DRASPPI=$(RASPPI)

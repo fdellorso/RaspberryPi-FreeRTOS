@@ -3,6 +3,7 @@
 
 #include <rpi_header.h>
 #include <prvlib/stdint.h>
+#include <uspi/string.h>
 
 #define  ILI9340_TFTWIDTH    240
 #define  ILI9340_TFTHEIGHT   320
@@ -104,5 +105,6 @@ void ili9340_puts(const char* str, uint16_t x, uint16_t y, unsigned short colour
 void ili9340_println(const char* message, unsigned short colour);
 void ili9340_printHex(const char* message, unsigned int hexi, unsigned short colour);
 void ili3940_printf(const char *pMessage, unsigned short colour, ...);
+void ili3940_vprintf(const char *pMessage, unsigned short colour, va_list var);
 
 #endif

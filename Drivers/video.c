@@ -5,13 +5,16 @@
 
 #include "video.h"
 #include "font_5x5.h"
-#include <uspi/string.h>
 
 #define CHAR_WIDTH		6
 #define CHAR_HEIGHT 	8
 
-#define SCREEN_WIDTH	1680
-#define SCREEN_HEIGHT	1050
+#ifndef VIDEO_WIDTH
+#define VIDEO_WIDTH	1680
+#endif
+#ifndef VIDEO_HEIGHT
+#define VIDEO_HEIGHT	1050
+#endif
 
 char loaded = 0;
 int position_x = 0;
@@ -57,23 +60,20 @@ void video_init(void) {
 		attempts++;
 	}*/
 
-	// SCREEN_WIDTH 	= width;				//mailbuffer[5];
-	// SCREEN_HEIGHT 	= height;				//mailbuffer[6];
-
 	mailbuffer[0] 	= 22 * 4;			//mail buffer size
 	mailbuffer[1] 	= 0;				//response code
 
 	mailbuffer[2] 	= 0x00048003;		//set phys display
 	mailbuffer[3] 	= 8;				//value buffer size
 	mailbuffer[4] 	= 8;				//Req. + value length (bytes)
-	mailbuffer[5] 	= SCREEN_WIDTH;		//screen x
-	mailbuffer[6] 	= SCREEN_HEIGHT;	//screen y
+	mailbuffer[5] 	= VIDEO_WIDTH;		//screen x
+	mailbuffer[6] 	= VIDEO_HEIGHT;	//screen y
 
 	mailbuffer[7] 	= 0x00048004;		//set virtual display
 	mailbuffer[8] 	= 8;				//value buffer size
 	mailbuffer[9] 	= 8;				//Req. + value length (bytes)
-	mailbuffer[10] 	= SCREEN_WIDTH;		//screen x
-	mailbuffer[11] 	= SCREEN_HEIGHT; 	//screen y
+	mailbuffer[10] 	= VIDEO_WIDTH;		//screen x
+	mailbuffer[11] 	= VIDEO_HEIGHT; 	//screen y
 
 	mailbuffer[12] 	= 0x0048005;		//set depth
 	mailbuffer[13] 	= 4;				//value buffer size
@@ -129,7 +129,7 @@ void video_putc(unsigned char c, int x, int y, unsigned int colour) {
 		for (i = 0; i < CHAR_HEIGHT; i++) {
 			//unsigned char temp = font[c][j];
 			if (font_5x5[c][j] & (1<<i)) {
-				framebuffer[(y + i) * SCREEN_WIDTH + (x + j)] = colour;
+				framebuffer[(y + i) * VIDEO_WIDTH + (x + j)] = colour;
 			}
 		}
 	}
@@ -154,14 +154,14 @@ void video_println(const char* message, unsigned int colour) {
 
 	video_puts(message, position_x, position_y, colour);
 	position_y = position_y + CHAR_HEIGHT + 1;
-	if(position_y >= SCREEN_HEIGHT) {
-		if(position_x + 2 * (SCREEN_WIDTH / 8) > SCREEN_WIDTH) {
+	if(position_y >= VIDEO_HEIGHT) {
+		if(position_x + 2 * (VIDEO_WIDTH / 8) > VIDEO_WIDTH) {
 
 			volatile int* timeStamp = (int*)0x20003004;
 			int stop = *timeStamp + 5000 * 1000;
 			while (*timeStamp < stop) __asm__("nop");
 
-			for(int x = 0; x < SCREEN_WIDTH * SCREEN_HEIGHT; x++) {
+			for(int x = 0; x < VIDEO_WIDTH * VIDEO_HEIGHT; x++) {
 				framebuffer[x] = 0xFF000000;
 			}
 			position_y = 0;
@@ -169,7 +169,7 @@ void video_println(const char* message, unsigned int colour) {
 		}
 		else {
 			position_y = 0;
-			position_x += SCREEN_WIDTH / 8;
+			position_x += VIDEO_WIDTH / 8;
 		}
 	}
 
@@ -221,21 +221,31 @@ void video_printf(const char *pMessage, unsigned int colour, ...) {
 	va_end (var);
 }
 
+void video_vprintf(const char *pMessage, unsigned int colour, va_list var) {
+	TString Message;
+	String(&Message);
+	StringFormatV(&Message, pMessage, var);
+
+	video_println(StringGet(&Message), colour);
+
+	_String(&Message);
+}
+
 void videotest(void) {
 	//This loop turns on every pixel the screen size allows for.
 	//If the shaded area is larger or smaller than your screen, 
 	//you have under/over scan issues. Add disable_overscan=1 to your config.txt
-	for(int x = 0; x < SCREEN_WIDTH * SCREEN_HEIGHT; x++) {
+	for(int x = 0; x < VIDEO_WIDTH * VIDEO_HEIGHT; x++) {
 		framebuffer[x] = 0xFF111111;
 	}
 
 	//division crashes the system here but not in other places it seems?
-	video_puts("Forty-Two", SCREEN_WIDTH / 2 - 4.5 * CHAR_WIDTH, SCREEN_HEIGHT / 2 + CHAR_HEIGHT / 2, 0xFF00FF00);
+	video_puts("Forty-Two", VIDEO_WIDTH / 2 - 4.5 * CHAR_WIDTH, VIDEO_HEIGHT / 2 + CHAR_HEIGHT / 2, 0xFF00FF00);
 }
 
 __attribute__((no_instrument_function))
 void drawPixel(unsigned int x, unsigned int y, unsigned int colour) {
-    framebuffer[y * SCREEN_WIDTH + x] = colour;
+    framebuffer[y * VIDEO_WIDTH + x] = colour;
 }
 
 __attribute__((no_instrument_function))

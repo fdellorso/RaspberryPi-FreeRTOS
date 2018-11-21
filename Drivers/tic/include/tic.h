@@ -420,8 +420,9 @@ tic_error * tic_settings_fix(tic_settings *, char ** warnings);
 /// Gets the settings as a YAML string, also known as a settings file.  If this
 /// function is successful, the string must be freed by the caller using
 /// tic_string_free().
-TIC_API TIC_WARN_UNUSED
-tic_error * tic_settings_to_string(const tic_settings *, char ** string);
+// TODO Disable to_string (yaml)
+// TIC_API TIC_WARN_UNUSED
+// tic_error * tic_settings_to_string(const tic_settings *, char ** string);
 
 /// Parses an YAML settings string, also known as a settings file, and returns
 /// the corresponding settings object.  The settings returned might be invalid,
@@ -432,9 +433,10 @@ tic_error * tic_settings_to_string(const tic_settings *, char ** string);
 /// pointer, which will receive a pointer to a new settings object if and only
 /// if this function is successful.  The caller must free the settings later by
 /// calling tic_settings_free().
-TIC_API TIC_WARN_UNUSED
-tic_error * tic_settings_read_from_string(const char * string,
-  tic_settings ** settings);
+// TODO Disable read_from_string (yaml)
+// TIC_API TIC_WARN_UNUSED
+// tic_error * tic_settings_read_from_string(const char * string,
+//   tic_settings ** settings);
 
 /// Sets the product, which specifies what Tic product these settings are for.
 /// The value should be one of the TIC_PRODUCT_* macros.

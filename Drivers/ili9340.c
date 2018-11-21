@@ -1,6 +1,5 @@
 #include "ili9340.h"
 #include "font_5x5.h"
-#include <uspi/string.h>
 
 #define CHAR_WIDTH 	6
 #define CHAR_HEIGHT 8
@@ -196,6 +195,16 @@ void ili3940_printf(const char *pMessage, unsigned short colour, ...) {
 
 	_String(&Message);
 	va_end (var);
+}
+
+void ili3940_vprintf(const char *pMessage, unsigned short colour, va_list var) {
+	TString Message;
+	String(&Message);
+	StringFormatV(&Message, pMessage, var);
+
+	ili9340_println(StringGet(&Message), colour);
+
+	_String(&Message);
 }
 
 void ili9340_fill_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t colour) {

@@ -2,6 +2,7 @@
 #define _VIDEO_H_
 
 #include <rpi_header.h>
+#include <uspi/string.h>
 
 #define VIDEO_AQUA      0xFF00FFFF
 #define VIDEO_BLUE      0xFF0088FF
@@ -23,6 +24,7 @@ void video_puts(const char* str, int x, int y, unsigned int colour);
 void video_println(const char* message, unsigned int colour);
 void video_printHex(const char* message, unsigned int hexi, unsigned int colour);
 void video_printf(const char *pMessage, unsigned int colour, ...);
+void video_vprintf(const char *pMessage, unsigned int colour, va_list var);
 
 void videotest(void);
 void dumpDebug(void);

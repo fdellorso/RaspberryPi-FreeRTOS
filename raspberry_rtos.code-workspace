@@ -70,7 +70,8 @@
 			"rpi_header.h": "c",
 			"rpi_library.h": "c",
 			"aux.h": "c",
-			"spi.h": "c"
+			"spi.h": "c",
+			"uspi.h": "c"
 		}
 	}
 }
