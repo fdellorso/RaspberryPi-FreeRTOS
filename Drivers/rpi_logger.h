@@ -18,6 +18,7 @@
 	#define	printf(a, ...)	video_printf(a, LOGGER_WHITE, __VA_ARGS__)
 	#define	vprintf(a, ...)	video_vprintf(a, LOGGER_WHITE, __VA_ARGS__)
 	#define getc			dummy
+	#define gets			dummy
 #endif
 #ifdef ILI9340
 	#include <ili9340.h>
@@ -36,6 +37,7 @@
 	#define printf(a, ...)	ili3940_printf(a, LOGGER_WHITE, __VA_ARGS__)
 	#define vprintf(a, ...)	ili3940_vprintf(a, LOGGER_WHITE, __VA_ARGS__)
 	#define getc			dummy
+	#define gets			dummy
 #endif
 #ifdef MUART
 	#include <muart.h>
@@ -48,6 +50,7 @@
 	#define	printf			muart_printf
 	#define	vprintf			muart_vprintf
 	#define getc			muart_getc
+	#define gets			muart_gets
 #endif
 
 #endif

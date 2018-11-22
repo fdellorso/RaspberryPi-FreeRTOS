@@ -132,21 +132,19 @@ unsigned char muart_getc(void) {
 	return (unsigned char) pRegs->AUX_MU_IO_REG;
 }
 
-// unsigned char * muart_gets(void) {
-// 	unsigned char * iString = 0;
+unsigned char * muart_gets(unsigned char * pDest) {
+	unsigned char * inputString = pDest;
 
-// 	while(1) {
-// 		*iString = muart_getc();
-// 		if(*iString == 0x0a) if(muart_getc() == 0x0d) break;
-// 		muart_putc(*iString);
-// 		iString++;
-// 	}
+	while(1) {
+		*inputString = muart_getc();
+		if(*inputString == 0x0a) break;
+		muart_putc(*inputString);
+		inputString++;
+	}
+	*inputString = 0;
 
-// 	iString++;
-// 	*iString = 0;
-
-// 	return iString;
-// }
+	return inputString;
+}
 
 void muart_flush(void) {
 	// while(1) if((pRegs->AUX_MU_STAT_REG & (STATUS_RX_IDLE | STATUS_TX_IDLE)) == (STATUS_RX_IDLE | STATUS_TX_IDLE)) break;

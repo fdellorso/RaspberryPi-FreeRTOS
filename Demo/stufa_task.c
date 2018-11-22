@@ -3,7 +3,6 @@
 //
 //tasks for StuFA Project
 
-// TODO Implement GetString for Value
 // TODO Finish Tic Menu (Ideate way to pass command tot Tic_Control)
 // TODO Protect Access to ticSettings & ticVariables
 // TODO Implement SPI Library
@@ -21,6 +20,7 @@
 
 #include <rpi_header.h>
 #include <rpi_logger.h>
+#include <prvlib/stdlib.h>
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -29,6 +29,22 @@
 
 #include <uspi.h>
 #include <tic.h>
+
+
+typedef struct tic_command {
+	bool change;
+	unsigned int max_position;
+	int target_position;
+	int target_velocity;
+	int max_speed;
+	int max_acceleration;
+	unsigned char step_mode;
+	unsigned char current_limit;
+	bool exit_safe_start;
+	bool enter_safe_start;
+	bool de_energize;
+	bool energize;
+} tic_command;
 
 
 xTaskHandle			xHandleWDog		= NULL;
@@ -50,8 +66,13 @@ xSemaphoreHandle	xMutexFcall		= NULL;
 
 static void prvFunc_Print(const char *pMessage, ...);
 char * prvFunc_Scan(char * pDest);
+
 void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings);
 char * tic_code_shifter(char * pDest, uint16_t code);
+
+int prvFunc_TicCommandInit(tic_command **pDest, tic_variables *ticVariables, tic_settings * ticSettings);
+tic_command * prvFunc_TicCommandScan(tic_command * pDest);
+void prvFunc_TicCommandExec(tic_command * pDest);
 
 
 void prvTask_WatchDog(void *pParam) {
@@ -168,10 +189,11 @@ void prvTask_TicControl(void *pParam) {
 
 	if (error == NULL) error = tic_device_create(&ticDevice);
 	if (error == NULL) error = tic_handle_create(ticDevice, &ticHandle);
+	prvFunc_Print("%cFirmware Version...\t\t\t%s", 0x3e, tic_get_firmware_version_string(ticHandle));
+
+	// TODO put also in loop with if
 	if (error == NULL) error = tic_get_variables(ticHandle, &ticVariables, false);
 	if (error == NULL) error = tic_get_settings(ticHandle, &ticSettings);
-
-	prvFunc_Print("%cFirmware Version...\t\t\t%s", 0x3e, tic_get_firmware_version_string(ticHandle));
 
 	if(xSemaphoreGive(xSemTicInit) == pdPASS) {
 		prvFunc_Print("%cTic Control...\t\t\t      Inited", 0x3e);
@@ -188,6 +210,9 @@ void prvTask_TicControl(void *pParam) {
 		prvFunc_Print("%cTicSettings...\t\t\t\tSent", 0x3e);
 	}
 
+	// TODO put also in loop with if
+
+
 	while(1) {
 		i++;
 
@@ -197,7 +222,6 @@ void prvTask_TicControl(void *pParam) {
 
 void prvTask_TicConsole(void *pParam) {
 	int i = 0;
-	char * c = 0;
 
 	/* Stop warnings. */
 	( void ) pParam;
@@ -207,6 +231,7 @@ void prvTask_TicConsole(void *pParam) {
 
 	prvFunc_Print("\nTic Console...\t\t\t     Started");
 
+	// TODO put in loop with if
 	if(xQueueReceive(xQueTicVar, &ticVariables, portMAX_DELAY) == pdPASS) {
 		vQueueDelete(xQueTicVar);
 		prvFunc_Print("%cTicVariables...\t\t    Received", 0x3e);
@@ -216,13 +241,13 @@ void prvTask_TicConsole(void *pParam) {
 		vQueueDelete(xQueTicSet);
 		prvFunc_Print("%cTicSettings...\t\t\t    Received", 0x3e);
 	}
+	// TODO put in loop with if
 
 	while(1) {
 		i++;
 
 		prvFunc_TicMenu(ticVariables, ticSettings);
 
-		prvFunc_Scan(c);
 
 		vTaskDelay(200);
 	}
@@ -246,13 +271,14 @@ char * prvFunc_Scan(char * pDest) {
 	char * c = pDest;
 	
 	if(xSemaphoreTake(xMutexMuart,portMAX_DELAY) == pdPASS) {
-		*c = getc();
+		// *c = getc();
+		gets((unsigned char *)c);
 	}
 
 	xSemaphoreGive(xMutexMuart);
 
-	c++;
-	*c = '\0';
+	// c++;
+	// *c = '\0';
 
 	return c;
 }
@@ -299,18 +325,163 @@ void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 	prvFunc_Print("\nChoose an available command [A,D,E,L,M,N,P,S,V,X]\n");
 }
 
+int prvFunc_TicCommandInit(tic_command **pDest, tic_variables *ticVariables, tic_settings * ticSettings) {
+	tic_command * ticCommand = NULL;
+
+	ticCommand = (tic_command *)calloc(1, sizeof(tic_command));
+    if(ticCommand == NULL) return -1;
+
+	ticCommand->change				= FALSE;
+	ticCommand->current_limit		= ticVariables->current_limit_code;
+	ticCommand->de_energize			= FALSE;
+	ticCommand->energize			= FALSE;
+	ticCommand->enter_safe_start	= FALSE;
+	ticCommand->exit_safe_start		= FALSE;
+	ticCommand->max_acceleration	= ticVariables->max_accel;
+	ticCommand->max_position		= ticSettings->output_max;
+	ticCommand->max_speed			= ticVariables->max_speed;
+	ticCommand->step_mode			= ticVariables->step_mode;
+	ticCommand->target_position		= ticVariables->target_position;
+	ticCommand->target_velocity		= ticVariables->target_velocity;
+
+	*pDest = ticCommand;
+
+	// ticCommand = NULL;
+
+	// free(ticCommand);
+
+	return 0;
+}
+
+tic_command * prvFunc_TicCommandScan(tic_command * pDest) {
+	tic_command * ticCommand = pDest;
+	char * charCommand = 0;
+	int intCommand = 0;
+
+	prvFunc_Scan(charCommand);
+
+	switch(charCommand[0]) {
+		case 'a':
+		case 'A':
+			prvFunc_Print("\nMax acceleration range [100 to 2,147,483,647]:");
+			prvFunc_Scan(charCommand);
+			intCommand = atoi(charCommand);
+			if((intCommand >= 0x64) && (intCommand <= 0x7fffffff)) {
+				if(intCommand != ticCommand->max_acceleration) {
+					ticCommand->change = TRUE;
+					ticCommand->max_acceleration = intCommand;
+				}
+			}
+			else prvFunc_Print("\nInvalid range [100 to 2,147,483,647]:");
+			break;
+		case 'd':
+		case 'D':
+			if(ticCommand->de_energize != TRUE) {
+				ticCommand->change = TRUE;
+				ticCommand->de_energize = TRUE;
+			}
+			break;
+		case 'e':
+		case 'E':
+			if(ticCommand->energize != TRUE) {
+				ticCommand->change = TRUE;
+				ticCommand->energize = TRUE;
+			}
+			break;
+		case 'l':
+		case 'L':
+			// TODO Use current code
+			prvFunc_Print("\nCurrent limit range [100 to 2,147,483,647]:");
+			prvFunc_Scan(charCommand);
+			intCommand = atoi(charCommand);
+			if((intCommand >= 0) && (intCommand <= 124)) {
+				if(intCommand != ticCommand->current_limit) {
+					ticCommand->change = TRUE;
+					ticCommand->current_limit = intCommand;
+				}
+			}
+			else prvFunc_Print("\nInvalid range [100 to 2,147,483,647]:");
+			break;
+		case 'm':
+		case 'M':
+			prvFunc_Print("\nStep mode range [0 to 5]:");
+			prvFunc_Scan(charCommand);
+			intCommand = atoi(charCommand);
+			if((intCommand >= 0) && (intCommand <= 5)) {
+				if(intCommand != ticCommand->step_mode) {
+					ticCommand->change = TRUE;
+					ticCommand->step_mode = intCommand;
+				}
+			}
+			else prvFunc_Print("\nInvalid range [0 to 5]:");
+			break;
+		case 'n':
+		case 'N':
+			if(ticCommand->enter_safe_start != TRUE) {
+				ticCommand->change = TRUE;
+				ticCommand->enter_safe_start = TRUE;
+			}
+			break;
+		case 'p':
+		case 'P':
+			prvFunc_Print("\nTarget position range [-2,147,483,647 to 2,147,483,647]:");
+			prvFunc_Scan(charCommand);
+			intCommand = atoi(charCommand);
+			if((intCommand >= -(signed)0x7fffffff) && (intCommand <= (signed)0x7fffffff)) {
+				if(intCommand != ticCommand->target_position) {
+					ticCommand->change = TRUE;
+					ticCommand->target_position = intCommand;
+				}
+			}
+			else prvFunc_Print("\nInvalid range [-2,147,483,647 to 2,147,483,647]:");
+			break;
+		case 's':
+		case 'S':
+			prvFunc_Print("\nMax speed range [0 to 500,000,000]:");
+			prvFunc_Scan(charCommand);
+			intCommand = atoi(charCommand);
+			if((intCommand >= 0) && (intCommand <= 500000000)) {
+				if(intCommand != ticCommand->max_speed) {
+					ticCommand->change = TRUE;
+					ticCommand->max_speed = intCommand;
+				}
+			}
+			else prvFunc_Print("\nInvalid range [0 to 500,000,000]:");
+			break;
+		case 'v':
+		case 'V':
+			prvFunc_Print("\nTarget velocity range [-500,000,000 to 500,000,000]:");
+			prvFunc_Scan(charCommand);
+			intCommand = atoi(charCommand);
+			if((intCommand >= -500000000) && (intCommand <= 500000000)) {
+				if(intCommand != ticCommand->target_velocity) {
+					ticCommand->change = TRUE;
+					ticCommand->target_velocity = intCommand;
+				}
+			}
+			else prvFunc_Print("\nInvalid range [-500,000,000 to 500,000,000]:");
+			break;
+		case 'x':
+		case 'X':
+			if(ticCommand->exit_safe_start != TRUE) {
+				ticCommand->change = TRUE;
+				ticCommand->exit_safe_start = TRUE;
+			}
+			break;
+		default:
+			prvFunc_Print("\nInvalid command");
+	}
+
+	return ticCommand;
+}
+
 char * tic_code_shifter(char * pDest, uint16_t code) {
 	int i = 0;
 	char * pCode = pDest;
 
 	for(;i < 8; i++) {
 		if(code & (1<<i)) {
-			// if(pCode == NULL) {
-			// 	strcpy(pCode, tic_look_up_error_name_ui(code & (1<<i)));
-			// }
-			// else {
-				strcat(pCode, tic_look_up_error_name_ui(code & (1<<i)));
-			// }
+			strcat(pCode, tic_look_up_error_name_ui(code & (1<<i)));
 			strcat(pCode, "\n\t\t  ");
 		}
 	}

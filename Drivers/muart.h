@@ -35,6 +35,6 @@ void muart_printf(const char *pMessage, ...);
 void muart_vprintf(const char *pMessage, va_list var);
 
 unsigned char muart_getc(void);
-// unsigned char * muart_gets(void);
+unsigned char * muart_gets(unsigned char * pDest);
 
 #endif

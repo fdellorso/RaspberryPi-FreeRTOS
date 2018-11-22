@@ -33,6 +33,21 @@ int abs(int n) {
     else return -n;
 }
 
+int atoi(char * str) {
+    int i = 0;
+    int res = 0;
+   
+    if(str[i] == '-') {
+        for (i = 1; str[i] != '\0'; ++i) res = res*10 + str[i] - '0';
+        res = -res;
+    }
+    else {
+        for (i = 0; str[i] != '\0'; ++i) res = res*10 + str[i] - '0';
+    }
+
+    return res; 
+} 
+
 //this is not random at all
 int next = 1;
 int rand(void){return (int)((next = next * 1103515245 + 12345) % ((unsigned long)32767 + 1));}

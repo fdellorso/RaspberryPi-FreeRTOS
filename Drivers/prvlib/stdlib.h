@@ -9,6 +9,7 @@ void *realloc(void *ptr, size_t new_size);
 void free(void* pBlock);
 
 int abs(int n);
+int atoi(char * str);
 int rand(void);
 
 #endif
