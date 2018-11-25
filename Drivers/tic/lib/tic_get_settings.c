@@ -300,7 +300,7 @@ tic_error * tic_get_settings(tic_handle * handle, tic_settings ** settings)
     return tic_error_create("Settings output pointer is null.");
   }
 
-  *settings = NULL;
+  // *settings = NULL;
 
   if (handle == NULL)
   {
@@ -313,9 +313,14 @@ tic_error * tic_get_settings(tic_handle * handle, tic_settings ** settings)
 
   // Allocate the new settings object.
   tic_settings * new_settings = NULL;
-  if (error == NULL)
-  {
-    error = tic_settings_create(&new_settings);
+  if(*settings == NULL) {
+    if (error == NULL)
+    {
+      error = tic_settings_create(&new_settings);
+    }
+  }
+  else {
+    new_settings = *settings;
   }
 
   // Specify what product these settings are for.
@@ -350,7 +355,7 @@ tic_error * tic_get_settings(tic_handle * handle, tic_settings ** settings)
   // Pass the new settings to the caller.
   if (error == NULL)
   {
-    *settings = new_settings;
+    if(*settings == NULL) *settings = new_settings;
     new_settings = NULL;
   }
 

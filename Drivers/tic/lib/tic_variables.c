@@ -193,7 +193,7 @@ tic_error * tic_get_variables(tic_handle * handle, tic_variables ** variables,
     return tic_error_create("Variables output pointer is null.");
   }
 
-  *variables = NULL;
+  // *variables = NULL;
 
   if (handle == NULL)
   {
@@ -204,9 +204,14 @@ tic_error * tic_get_variables(tic_handle * handle, tic_variables ** variables,
 
   // Create a variables object.
   tic_variables * new_variables = NULL;
-  if (error == NULL)
-  {
-    error = tic_variables_create(&new_variables);
+  if(*variables == NULL) {
+    if (error == NULL)
+    {
+      error = tic_variables_create(&new_variables);
+    }
+  }
+  else {
+    new_variables = *variables;
   }
 
   // Read all the variables from the device.
@@ -240,7 +245,7 @@ tic_error * tic_get_variables(tic_handle * handle, tic_variables ** variables,
   // Pass the new variables to the caller.
   if (error == NULL)
   {
-    *variables = new_variables;
+    if(*variables == NULL) *variables = new_variables;
     new_variables = NULL;
   }
 

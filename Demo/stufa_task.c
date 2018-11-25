@@ -4,7 +4,6 @@
 //tasks for StuFA Project
 
 // TODO Finish Tic Menu (Ideate way to pass command tot Tic_Control)
-// TODO Protect Access to ticSettings & ticVariables
 // TODO Implement SPI Library
 // TODO Use SysTimer as FreeRTOS Tick
 // TODO Update FreeRTOS
@@ -30,58 +29,49 @@
 #include <uspi.h>
 #include <tic.h>
 
-// TODO transform in 2 element struct command & value
-// typedef struct tic_command {
-// 	bool change;
-// 	int max_position;
-// 	int target_position;
-// 	int target_velocity;
-// 	unsigned int max_speed;
-// 	unsigned int max_acceleration;
-// 	unsigned char step_mode;
-// 	unsigned char current_limit;
-// 	bool exit_safe_start;
-// 	bool enter_safe_start;
-// 	bool de_energize;
-// 	bool energize;
-// } tic_command;
-
+// Struct to pass command from Console to Control
 typedef struct tic_command {
 	char command;
 	int value;
 } tic_command;
 
-
+// Tasks
 xTaskHandle			xHandleWDog		= NULL;
 xTaskHandle			xHandleUSPi		= NULL;
 xTaskHandle			xHandleTicCtrl	= NULL;
 xTaskHandle			xHandleTicCnsl	= NULL;
 
+// Semaphores
 xSemaphoreHandle	xSemUSPiInit	= NULL;
 xSemaphoreHandle	xSemTicInit		= NULL;
 
+// Queues
 xQueueHandle		xQueTicHdl		= NULL;
 xQueueHandle		xQueTicVar		= NULL;
 xQueueHandle		xQueTicSet		= NULL;
 xQueueHandle		xQueTicCmd		= NULL;
 
+// Mutexs
 xSemaphoreHandle	xMutexMuart		= NULL;
-xSemaphoreHandle	xMutexFcall		= NULL;
+xSemaphoreHandle	xMutexTicVar	= NULL;
 xSemaphoreHandle	xMutexEnergize	= NULL;
 
-
-static void prvFunc_Print(const char *pMessage, ...);
-char * prvFunc_Scan(char * pDest);
+// Internal function Declaration
+// UI function
+static void prvFunc_Print(const char *pMessage, ...);	// Print everywhere
+char * prvFunc_Scan(char * pDest);						// Scan only from UART
 
 void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings);
-char * tic_code_shifter(char * pDest, uint16_t code);
+char * tic_code_shifter(char * pDest, uint16_t code);	// Explode error code
 
+// Command function
 int prvFunc_TicCommandInit(tic_command **ticCommand);
 void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariables,
 	tic_settings * ticSettings);
 void prvFunc_TicCommandExec(tic_command * ticCommand, tic_settings * ticSettings,
 	tic_handle * ticHandle);
 
+// WatchDog boot other tasks and 
 void prvTask_WatchDog(void *pParam) {
 	int i = 0;
 	tic_handle * ticHandle = NULL;
@@ -95,7 +85,7 @@ void prvTask_WatchDog(void *pParam) {
 	static const portTickType xBlockTime = 100 / portTICK_RATE_MS;
 
 	xMutexMuart = xSemaphoreCreateMutex();
-	xMutexFcall = xSemaphoreCreateMutex();
+	xMutexTicVar = xSemaphoreCreateMutex();
 
 	logger_init();
 	#ifdef ILI9340
@@ -103,7 +93,7 @@ void prvTask_WatchDog(void *pParam) {
 		ili9340_set_rotation(1);
 	#endif
 
-	prvFunc_Print("\nWatchDog...\t\t\t     Started");
+	prvFunc_Print("\nWatchDog...\t\t     Started");
 
 	vTaskResume(xHandleUSPi);
 
@@ -115,13 +105,15 @@ void prvTask_WatchDog(void *pParam) {
 		// WhatcDog Activity Led
 		SetGpio(47, i%2);
 
+		// prvFunc_Print("%cHeap Free Meamory...\t\t      %u", 0x3e, xPortGetFreeHeapSize());
+
 		// IF Tic is energized send Reset Timeout
-		if(ticHandle != NULL && xMutexEnergize != NULL) {
-			if(xSemaphoreTake(xMutexEnergize,xBlockTime) == pdPASS) {
-				tic_reset_command_timeout(ticHandle);
-			}
-			xSemaphoreGive(xMutexEnergize);
-		}
+		// if(ticHandle != NULL && xMutexEnergize != NULL) {
+		// 	if(xSemaphoreTake(xMutexEnergize,xBlockTime) == pdPASS) {
+		// 		tic_reset_command_timeout(ticHandle);
+		// 	}
+		// 	xSemaphoreGive(xMutexEnergize);
+		// }
 
 		// IF USPi is initialized start TicControl
 		if(xTaskIsTaskSuspended(xHandleUSPi) == pdFALSE && xSemUSPiInit != NULL) {
@@ -140,14 +132,16 @@ void prvTask_WatchDog(void *pParam) {
 			}
 		}
 
+		// Receiving TicHandle to manage Tic Command Timeout
 		if(xQueTicHdl != NULL) {
 			if(xQueueReceive(xQueTicHdl, &ticHandle, xBlockTime) == pdPASS) {
 				vQueueDelete(xQueTicHdl);
-				prvFunc_Print("%cTicHandle...\t\t    Received", 0x3e);
+				prvFunc_Print("\nWD %cTicHandle...\t\t\t    Received", 0x3e);
 			}
 		}
 	}
 }
+
 
 void prvTask_UspiInit(void *pParam) {
 	int i = 0;
@@ -184,6 +178,7 @@ void prvTask_UspiInit(void *pParam) {
 	}
 }
 
+
 void prvTask_TicControl(void *pParam) {
 	int i = 0;
 	// uint32_t ticEnergized = 0;
@@ -200,10 +195,12 @@ void prvTask_TicControl(void *pParam) {
 
 	tic_command * ticCommand = NULL;
 
+	static const portTickType xBlockTime = 100 / portTICK_RATE_MS;
+
 	vSemaphoreCreateBinary(xSemTicInit);
 	if(xSemTicInit != NULL) xSemaphoreTake(xSemTicInit, 0);
 	xMutexEnergize = xSemaphoreCreateMutex();
-	if(xMutexEnergize != NULL) xSemaphoreTake(xMutexEnergize,portMAX_DELAY);
+	if(xMutexEnergize != NULL) xSemaphoreTake(xMutexEnergize,0);
 
 	xQueTicHdl = xQueueCreate(1, sizeof(tic_handle *));
 	xQueTicVar = xQueueCreate(1, sizeof(tic_variables *));
@@ -212,7 +209,7 @@ void prvTask_TicControl(void *pParam) {
 
 	prvFunc_Print("\nTic Control...\t\t\t     Started");
 
-	if(xSemaphoreTake(xMutexFcall,portMAX_DELAY) == pdPASS) {
+	if(xSemaphoreTake(xMutexTicVar,portMAX_DELAY) == pdPASS) {
 		if (error == NULL) error = tic_device_create(&ticDevice);
 		if (error == NULL) error = tic_handle_create(ticDevice, &ticHandle);
 		prvFunc_Print("%cFirmware Version...\t\t\t%s", 0x3e,
@@ -223,14 +220,10 @@ void prvTask_TicControl(void *pParam) {
 
 		prvFunc_TicCommandInit(&ticCommand);
 	}
-	xSemaphoreGive(xMutexFcall);
-
-	// if(xSemaphoreGive(xSemTicInit) == pdPASS) {
-	// 	prvFunc_Print("%cTic Control...\t\t\t      Inited", 0x3e);
-	// }
+	xSemaphoreGive(xMutexTicVar);
 
 	if(xQueueSend(xQueTicHdl, &ticHandle, 0) == pdPASS) {
-		prvFunc_Print("%cTicHandle...\t\t\tSent", 0x3e);
+		prvFunc_Print("%cTicHandle...\t\t\t\tSent", 0x3e);
 	}
 
 	if(xQueueSend(xQueTicVar, &ticVariables, 0) == pdPASS) {
@@ -252,10 +245,10 @@ void prvTask_TicControl(void *pParam) {
 	while(1) {
 		i++;
 
-		if(xSemaphoreTake(xMutexFcall,portMAX_DELAY) == pdPASS) {
-			prvFunc_TicCommandExec(ticCommand, ticSettings, ticHandle);
+		if(xSemaphoreTake(xMutexTicVar, xBlockTime) == pdPASS) {
+			if(ticCommand->command != '0') prvFunc_TicCommandExec(ticCommand, ticSettings, ticHandle);
 
-			if(ticCommand->command != 'e') {
+			if(ticCommand->command == 'e') {
 				xSemaphoreGive(xMutexEnergize);
 				if(ticVariables->current_position == ticVariables->target_position) {
 					ticCommand->command = 'd';
@@ -266,19 +259,12 @@ void prvTask_TicControl(void *pParam) {
 			if (error == NULL) error = tic_get_variables(ticHandle, &ticVariables, false);
 			if (error == NULL) error = tic_get_settings(ticHandle, &ticSettings);
 		}
-		xSemaphoreGive(xMutexFcall);
-
-		if(xQueueSend(xQueTicVar, &ticVariables, 0) == pdPASS) {
-			prvFunc_Print("%cTicVariables...\t\t\tSent", 0x3e);
-		}
-
-		if(xQueueSend(xQueTicSet, &ticSettings, 0) == pdPASS) {
-			prvFunc_Print("%cTicSettings...\t\t\t\tSent", 0x3e);
-		}
+		xSemaphoreGive(xMutexTicVar);
 
 		vTaskDelay(100);
 	}
 }
+
 
 void prvTask_TicConsole(void *pParam) {
 	int i = 0;
@@ -290,49 +276,44 @@ void prvTask_TicConsole(void *pParam) {
 	tic_settings * ticSettings = NULL;
 	tic_command * ticCommand = NULL;
 
+	static const portTickType xBlockTime = 100 / portTICK_RATE_MS;
+
 	prvFunc_Print("\nTic Console...\t\t\t     Started");
 
-	// TODO put in loop with if
 	if(xQueueReceive(xQueTicVar, &ticVariables, portMAX_DELAY) == pdPASS) {
+		vQueueDelete(xQueTicVar);
 		prvFunc_Print("%cTicVariables...\t\t    Received", 0x3e);
 	}
 
 	if(xQueueReceive(xQueTicSet, &ticSettings, portMAX_DELAY) == pdPASS) {
+		vQueueDelete(xQueTicSet);
 		prvFunc_Print("%cTicSettings...\t\t\t    Received", 0x3e);
 	}
-	// TODO put in loop with if
 
 	if(xQueueReceive(xQueTicCmd, &ticCommand, portMAX_DELAY) == pdPASS) {
 		vQueueDelete(xQueTicCmd);
 		prvFunc_Print("%cTicCommand...\t\t\t    Received", 0x3e);
 	}
 
+	prvFunc_Print("%cTic Console...\t\t\t      Inited", 0x3e);
+
 	while(1) {
 		i++;
 
-		if(xQueueReceive(xQueTicVar, &ticVariables, portMAX_DELAY) == pdPASS) {
-			prvFunc_Print("%cTicVariables...\t\t    Received", 0x3e);
-		}
-
-		if(xQueueReceive(xQueTicSet, &ticSettings, portMAX_DELAY) == pdPASS) {
-			prvFunc_Print("%cTicSettings...\t\t\t    Received", 0x3e);
-		}
-
-		prvFunc_Print("%cHeap Free Meamory...\t\t\t    %u", 0x3e, xPortGetFreeHeapSize());
-
-		if(xSemaphoreTake(xMutexFcall,portMAX_DELAY) == pdPASS) {
+		if(xSemaphoreTake(xMutexTicVar, xBlockTime) == pdPASS) {
 			prvFunc_TicMenu(ticVariables, ticSettings);
 
 			if(ticCommand->command != 'e') {
 				prvFunc_TicCommandScan(ticCommand, ticVariables, ticSettings);
 			}
 		}
-		xSemaphoreGive(xMutexFcall);
+		xSemaphoreGive(xMutexTicVar);
 
 		vTaskDelay(100);
 	}
 }
 
+// UI Function
 static void prvFunc_Print(const char *pMessage, ...) {
 	va_list args;
 
@@ -351,14 +332,10 @@ char * prvFunc_Scan(char * pDest) {
 	char * c = pDest;
 	
 	if(xSemaphoreTake(xMutexMuart,portMAX_DELAY) == pdPASS) {
-		// *c = getc();
 		gets((unsigned char *)c);
 	}
 
 	xSemaphoreGive(xMutexMuart);
-
-	// c++;
-	// *c = '\0';
 
 	return c;
 }
@@ -372,7 +349,7 @@ void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 	prvFunc_Print("----------------");
 
 	prvFunc_Print("\n[Status]");
-	prvFunc_Print("Operation state:  %s\t\tDevice reset:\t  %s",
+	prvFunc_Print("Operation state:  %s\t\t\tDevice reset:\t  %s",
 		tic_look_up_operation_state_name_ui(
 			tic_variables_get_operation_state(ticVariables)),
 		tic_look_up_device_reset_name_ui(
@@ -397,7 +374,7 @@ void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 	prvFunc_Print("Current position: %d\t\t\tCurrent velocity: %d",
 		tic_variables_get_current_position(ticVariables),
 		tic_variables_get_current_velocity(ticVariables));
-	prvFunc_Print("Error status:\t  %s", ticErrorName);
+	prvFunc_Print("Error status:\t   %s", ticErrorName);
 	
 	prvFunc_Print("\n[Command]");
 	prvFunc_Print("Set target [P]osition\t\t\tSet target [V]elocity");
@@ -409,6 +386,23 @@ void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 	prvFunc_Print("\nChoose an available command [A,D,E,L,M,N,P,S,V,X]\n");
 }
 
+char * tic_code_shifter(char * pDest, uint16_t code) {
+	int i = 0;
+	char * pCode = pDest;
+
+	for(;i < 8; i++) {
+		if(code & (1<<i)) {
+			strcat(pCode, tic_look_up_error_name_ui(code & (1<<i)));
+			strcat(pCode, "\n\t\t  ");
+		}
+	}
+
+	pCode[strlen(pCode)-5] = '\0';
+
+	return pCode;
+}
+
+// Command function
 int prvFunc_TicCommandInit(tic_command **ticCommand) {
 	tic_command * new_ticCommand = NULL;
 
@@ -598,22 +592,6 @@ void prvFunc_TicCommandExec(tic_command * ticCommand, tic_settings * ticSettings
 	}
 }
 
-char * tic_code_shifter(char * pDest, uint16_t code) {
-	int i = 0;
-	char * pCode = pDest;
-
-	for(;i < 8; i++) {
-		if(code & (1<<i)) {
-			strcat(pCode, tic_look_up_error_name_ui(code & (1<<i)));
-			strcat(pCode, "\n\t\t  ");
-		}
-	}
-
-	pCode[strlen(pCode)-5] = '\0';
-
-	return pCode;
-}
-
 // typedef tic_error * (FUNC_HANDLER)(void **pParam);
 
 // tic_error * prvFunc_Caller(FUNC_HANDLER pfnHandler, void *pParam);
@@ -621,11 +599,11 @@ char * tic_code_shifter(char * pDest, uint16_t code) {
 // tic_error * prvFunc_Caller(FUNC_HANDLER pfnHandler, void *pParam) {
 // 	tic_error * error = NULL;
 	
-// 	if(xSemaphoreTake(xMutexFcall,portMAX_DELAY) == pdPASS) {
+// 	if(xSemaphoreTake(xMutexTicVar,portMAX_DELAY) == pdPASS) {
 // 		error = pfnHandler(pParam);
 // 	}
 
-// 	xSemaphoreGive(xMutexFcall);
+// 	xSemaphoreGive(xMutexTicVar);
 
 // 	return error;
 // }
