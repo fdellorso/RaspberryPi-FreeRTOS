@@ -29,9 +29,11 @@
 #include <uspi.h>
 #include <tic.h>
 
+
 // Struct to pass command from Console to Control
 typedef struct tic_command {
 	char command;
+	char command_old;
 	int value;
 } tic_command;
 
@@ -70,6 +72,7 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 	tic_settings * ticSettings);
 tic_error * prvFunc_TicCommandExec(tic_command * ticCommand, tic_settings * ticSettings,
 	tic_handle * ticHandle);
+
 
 // WatchDog boot other tasks and 
 void prvTask_WatchDog(void *pParam) {
@@ -181,7 +184,6 @@ void prvTask_UspiInit(void *pParam) {
 
 void prvTask_TicControl(void *pParam) {
 	int i = 0;
-	// uint32_t ticEnergized = 0;
 
 	/* Stop warnings. */
 	( void ) pParam;
@@ -212,6 +214,9 @@ void prvTask_TicControl(void *pParam) {
 		if (error == NULL) error = tic_handle_create(ticDevice, &ticHandle);
 		prvFunc_Print("%cFirmware Version...\t\t\t%s", 0x3e,
 			tic_get_firmware_version_string(ticHandle));
+		
+		if (error == NULL) error = tic_exit_safe_start(ticHandle);	// FIXME
+		if (error == NULL) error = tic_energize(ticHandle);			// FIXME
 
 		if (error == NULL) error = tic_get_variables(ticHandle, &ticVariables, false);
 		if (error == NULL) error = tic_get_settings(ticHandle, &ticSettings);
@@ -246,22 +251,35 @@ void prvTask_TicControl(void *pParam) {
 
 		// FIXME Receive TicCommand and execute
 		if(xSemaphoreTake(xMutexTicVar, portMAX_DELAY) == pdPASS) {
-			if(ticCommand->command != '0') {
+			if(ticCommand->command != ticCommand->command_old) {
 				if (error == NULL) 
 					error = prvFunc_TicCommandExec(ticCommand, ticSettings, ticHandle);
+				if (error == NULL)
+					error = tic_get_variables(ticHandle, &ticVariables, false);
+				if (error == NULL)
+					error = tic_get_settings(ticHandle, &ticSettings);
 			}
 
-			if(ticCommand->command == 'e') {
+			if(tic_variables_get_energized(ticVariables)) {
 				xSemaphoreGive(xMutexEnergize);
 				if(ticVariables->current_position == ticVariables->target_position) {
-					ticCommand->command = 'd';
-					xSemaphoreTake(xMutexEnergize,portMAX_DELAY);
+					// ticCommand->command = 'd';
+					// xSemaphoreTake(xMutexEnergize,portMAX_DELAY);
+
+					if(i%2){
+						if (error == NULL) error = tic_set_target_position(ticHandle, 200);
+					}
+					else {
+						if (error == NULL) error = tic_set_target_position(ticHandle, -200);
+					}
 				}
+
+				if (error == NULL)
+					error = tic_get_variables(ticHandle, &ticVariables, false);
+				if (error == NULL)
+					error = tic_get_settings(ticHandle, &ticSettings);
 			}
-			
-			if (error == NULL) error = tic_get_variables(ticHandle, &ticVariables, false);
-			if (error == NULL) error = tic_get_settings(ticHandle, &ticSettings);
-			
+						
 			xSemaphoreGive(xMutexTicVar);
 		}
 
@@ -305,9 +323,15 @@ void prvTask_TicConsole(void *pParam) {
 		if(xSemaphoreTake(xMutexTicVar, portMAX_DELAY) == pdPASS) {
 			prvFunc_TicMenu(ticVariables, ticSettings);
 
-			if(ticCommand->command != 'e') {
+			if(!tic_variables_get_energized(ticVariables)) {
 				prvFunc_TicCommandScan(ticCommand, ticVariables, ticSettings);
 			}
+
+			// Simulate Command
+			// if(i%2) ticCommand->command = 'x';
+			// else 	ticCommand->command = 'n';
+			// ticCommand->command = 'm';
+			// ticCommand->value = 3;
 
 			xSemaphoreGive(xMutexTicVar);
 		}
@@ -342,7 +366,7 @@ char * prvFunc_Scan(char * pDest) {
 }
 
 void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
-	char * ticErrorName = NULL;
+	char ticErrorName[180];
 	ticErrorName[0] = '\0';
 
 	tic_code_shifter(ticErrorName, tic_variables_get_error_status(ticVariables));
@@ -378,14 +402,16 @@ void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 		tic_variables_get_current_velocity(ticVariables));
 	prvFunc_Print("Error status:\t  %s", ticErrorName);
 	
-	prvFunc_Print("\n[Command]");
-	prvFunc_Print("Set target [P]osition\t\t\tSet target [V]elocity");
-	prvFunc_Print("Set max [S]peed\t\t\t\tSet max [A]cceleration");
-	prvFunc_Print("Set step [M]ode\t\t\t\tSet current [L]imit");
-	prvFunc_Print("E[X]it safe start\t\t\tE[N]ter safe start");
-	prvFunc_Print("[E]nergize\t\t\t\t[D]e-energize");
+	if(!tic_variables_get_energized(ticVariables)) {
+		prvFunc_Print("\n[Command]");
+		prvFunc_Print("Set target [P]osition\t\t\tSet target [V]elocity");
+		prvFunc_Print("Set max [S]peed\t\t\t\tSet max [A]cceleration");
+		prvFunc_Print("Set step [M]ode\t\t\t\tSet current [L]imit");
+		prvFunc_Print("E[X]it safe start\t\t\tE[N]ter safe start");
+		prvFunc_Print("[E]nergize\t\t\t\t[D]e-energize");
 
-	prvFunc_Print("\nChoose an available command [A,D,E,L,M,N,P,S,V,X]: ");
+		prvFunc_Print("\nChoose an available command [A,D,E,L,M,N,P,S,V,X]: ");
+	}
 }
 
 char * tic_code_shifter(char * pDest, uint16_t code) {
@@ -412,6 +438,7 @@ int prvFunc_TicCommandInit(tic_command **ticCommand) {
     if(new_ticCommand == NULL) return -1;
 
 	new_ticCommand->command		= '0';
+	new_ticCommand->command_old	= '0';
 	new_ticCommand->value		= 0;
 
 	*ticCommand = new_ticCommand;
@@ -593,6 +620,8 @@ tic_error * prvFunc_TicCommandExec(tic_command * ticCommand, tic_settings * ticS
 		default:
 			prvFunc_Print("\nInvalid command");
 	}
+
+	ticCommand->command_old = ticCommand->command;
 
 	return error;
 }
