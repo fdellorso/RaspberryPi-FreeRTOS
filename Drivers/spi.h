@@ -2,6 +2,7 @@
 #define _SPI_H_
 
 #include <rpi_header.h>
+#include <prvlib/stdint.h>
 
 // Base Physical Address of the SPI0 registers
 #define BCM2835_SPI0_BASE    			(BCM2835_PERI_BASE + 0x204000)

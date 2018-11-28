@@ -3,14 +3,14 @@
 #
 #	Main Program
 #
-OBJECTS += $(BUILD_DIR)Demo/main.o
-OBJECTS += $(BUILD_DIR)Demo/stufa_task.o
-# OBJECTS += $(BUILD_DIR)Demo/trace.o
+OBJECTS += $(BUILD_DIR)Main/main.o
+OBJECTS += $(BUILD_DIR)Main/stufa_task.o
+# OBJECTS += $(BUILD_DIR)trace/trace.o
 
 #
 #	Startup and platform initialisation code.
 #
-OBJECTS += $(BUILD_DIR)Demo/startup.o
+OBJECTS += $(BUILD_DIR)Startup/startup.o
 
 #
 #	Private Library

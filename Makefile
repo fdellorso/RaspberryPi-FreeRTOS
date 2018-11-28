@@ -7,7 +7,7 @@ BUILD_DIR=$(shell pwd)/build/
 MODULE_NAME="RaspberryPi BSP"
 
 TARGETS=kernel.img kernel.list kernel.syms kernel.elf kernel.map
-LINKER_SCRIPT=raspberrypi.ld
+LINKER_SCRIPT=Linker/raspberrypi.ld
 
 -include .dbuild/dbuild.mk
 

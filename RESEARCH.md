@@ -1,4 +1,5 @@
-bare metal USB driver for RPI with ARP example (current port)
+# bare metal USB driver for RPI with ARP example (current port)
+
 https://github.com/rsta2/uspi
 https://www.raspberrypi.org/forums/viewtopic.php?f=72&t=92579
 
