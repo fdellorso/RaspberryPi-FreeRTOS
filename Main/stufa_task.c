@@ -4,7 +4,6 @@
 //tasks for StuFA Project
 
 // TODO Finish Tic Menu (Ideate way to pass command tot Tic_Control)
-// TODO Implement SPI Library
 // TODO Use SysTimer as FreeRTOS Tick
 // TODO Update FreeRTOS
 // TODO Understand if Uart FIFO Flush works
@@ -118,12 +117,14 @@ void prvTask_WatchDog(void *pParam) {
 			}
 		}
 
+		
+
 		// IF USPi is initialized start TicControl
 		if(xTaskIsTaskSuspended(xHandleUSPi) == pdFALSE && xSemUSPiInit != NULL) {
 			if(xSemaphoreTake(xSemUSPiInit, xBlockTime) == pdPASS) {
 				vSemaphoreDelete(xSemUSPiInit);
 				vTaskSuspend(xHandleUSPi);
-				vTaskResume(xHandleTicCtrl);
+				if(USPiTicAvailable()) vTaskResume(xHandleTicCtrl);
 			}
 		}
 

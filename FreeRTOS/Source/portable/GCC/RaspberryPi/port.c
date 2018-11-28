@@ -6,6 +6,7 @@
 #include "task.h"
 #include "interrupts.h"
 #include "arm_timer.h"
+#include "sys_timer.h"
 
 /* Constants required to setup the task context. */
 #define portINITIAL_SPSR						( ( portSTACK_TYPE ) 0x1f ) /* System mode, ARM mode, interrupts enabled. */
@@ -166,7 +167,8 @@ void vTickISR(int nIRQ, void *pParam ) {
 	#endif
 
 	// pRegs->CLI = 0;			// Acknowledge the timer interrupt.
-	TimerIrqClear();
+	// prvArmTimerIrqClear();
+	prvSystemTimerSetup();
 
 	(void)nIRQ;		// FIXME Wunused
 	(void)pParam;	// FIXME Wunused
@@ -201,11 +203,13 @@ static void prvSetupTimerInterrupt( void ) {
 	// pRegs->CLI = 0;
 	// pRegs->CTL = 0x003E00A2;
 
-	prvFreeRtosTimerSetup();
+	// prvArmTimerSetup();
+	// RegisterInterrupt(64, vTickISR, NULL);
+	// EnableInterrupt(64);
 
-	RegisterInterrupt(64, vTickISR, NULL);
-
-	EnableInterrupt(64);
+	prvSystemTimerSetup();
+	RegisterInterrupt(1, vTickISR, NULL);
+	EnableInterrupt(1);
 
 	EnableInterrupts();
 }

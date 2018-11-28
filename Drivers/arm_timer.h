@@ -7,7 +7,7 @@
 #define BCM2835_ARM_TIMER_BASE			(BCM2835_PERI_BASE + 0xB400)
 #define portTIMER_PRESCALE 				(unsigned long) 0xF9 
 
-void TimerIrqClear(void);
-void prvFreeRtosTimerSetup(void);
+void prvArmTimerIrqClear(void);
+void prvArmTimerSetup(void);
 
 #endif
