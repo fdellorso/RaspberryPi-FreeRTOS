@@ -23,7 +23,7 @@
             ],
             "launchCompleteCommand": "exec-run",
             "debugServerPath": "openocd",
-            "debugServerArgs": "-f ${workspaceFolder}/Debug/jlink.cfg -f ${workspaceFolder}/Debug/raspi.cfg",
+            "debugServerArgs": "-f ${workspaceFolder}/debug/jlink.cfg -f ${workspaceFolder}/debug/raspi.cfg",
             "serverStarted": "Info\\ :\\ [\\w\\d\\.]*:\\ hardware",
             "filterStderr": true,
             "logging": {
