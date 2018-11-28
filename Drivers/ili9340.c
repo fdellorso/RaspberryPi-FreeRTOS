@@ -39,7 +39,8 @@ void ili9340_write_command(uint8_t command, int param_len, ...) {
 
 	// bcm2835_gpio_write(22, LOW);
 	SetGpio(DATA_COMMAND, LOW);
-	bcm2835_spi_transfer(command);	//TODO Manca libreria SPI
+	// bcm2835_spi_transfer(command);
+	spi0_transfer(command);
 	// bcm2835_gpio_write(22, HIGH);
 	SetGpio(DATA_COMMAND, HIGH);
 
@@ -49,7 +50,8 @@ void ili9340_write_command(uint8_t command, int param_len, ...) {
 			buffer[i] = (uint8_t) va_arg(args, int);
 		}
 		va_end(args);
-		bcm2835_spi_writenb(buffer, param_len);	//TODO Manca libreria SPI
+		// bcm2835_spi_writenb(buffer, param_len);
+		spi0_writenb(buffer, param_len);
 	}
 }
 
@@ -268,7 +270,8 @@ void ili9340_update_display(void) {
 	uint32_t len = 2 * (dirty_x1 - dirty_x0 + 1);
 
 	while (dirty_y0 <= dirty_y1) {
-		bcm2835_spi_writenb(lcdbuffer + offset, len);	//TODO Manca libreria SPI
+		// bcm2835_spi_writenb(lcdbuffer + offset, len);
+		spi0_writenb(lcdbuffer + offset, len);
 		offset += width << 1;
 		dirty_y0++;
 	}
@@ -324,11 +327,15 @@ void ili9340_set_rotation(uint8_t m) {
 }
 
 void ili9340_init(void) {
-	//TODO Manca libreria SPI
-	bcm2835_spi_begin();
-	bcm2835_spi_setDataMode(BCM2835_SPI_MODE0);                  
-	bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_16); 
-	bcm2835_spi_chipSelect(BCM2835_SPI_CS0);		// CS Enable
+	// bcm2835_spi_begin();
+	// bcm2835_spi_setDataMode(BCM2835_SPI_MODE0);                  
+	// bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_16); 
+	// bcm2835_spi_chipSelect(BCM2835_SPI_CS0);		// CS Enable
+	spi0_init();
+	spi0_set_data_mode(SPI0_MODE0);                  
+	spi0_set_clock_divider(SPI0_CLOCK_DIVIDER_16); 
+	spi0_chip_select(SPI0_CS0);		// CS Enable
+
 
 	// bcm2835_gpio_fsel(22, BCM2835_GPIO_FSEL_OUTP);	// D/C Pin
 	SetGpioFunction(DATA_COMMAND, GPIO_FUNC_OUTPUT);
@@ -420,7 +427,8 @@ void ili9340_init(void) {
 }
 
 void ili9340_close(void) {
-	bcm2835_spi_end();	//TODO Manca libreria SPI
+	// bcm2835_spi_end();
+	spi0_close();
 }
 
 void ili9340_colour_test(void) {
