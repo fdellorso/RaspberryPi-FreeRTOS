@@ -4,7 +4,6 @@
 //tasks for StuFA Project
 
 // TODO Finish Tic Menu (Ideate way to pass command tot Tic_Control)
-// TODO Use SysTimer as FreeRTOS Tick
 // TODO Update FreeRTOS
 // TODO Understand if Uart FIFO Flush works
 // TODO Investigate Data Memory Barrier
@@ -76,10 +75,11 @@ tic_error * prvFunc_TicCommandExec(tic_command * ticCommand, tic_settings * ticS
 // WatchDog boot other tasks and 
 void prvTask_WatchDog(void *pParam) {
 	int i = 0;
-	tic_handle * ticHandle = NULL;
 
 	/* Stop warnings. */
 	( void ) pParam;
+
+	tic_handle * ticHandle = NULL;
 
 	static const portTickType xPeriod = 500 / portTICK_RATE_MS;
 	portTickType xLastWakeTime = xTaskGetTickCount();
@@ -149,7 +149,7 @@ void prvTask_WatchDog(void *pParam) {
 
 void prvTask_UspiInit(void *pParam) {
 	int i = 0;
-	uint32_t uspiInited = 0;
+	int uspiInited = 0;
 
 	/* Stop warnings. */
 	( void ) pParam;
@@ -164,7 +164,7 @@ void prvTask_UspiInit(void *pParam) {
 		i++;
 
 		while(uspiInited == 0) {
-			uspiInited = (uint32_t) USPiInitialize();
+			uspiInited = USPiInitialize();
 		}
 
 		if(uspiInited == 1) {
@@ -178,7 +178,7 @@ void prvTask_UspiInit(void *pParam) {
 
 		// TODO Close USPi
 
-		vTaskDelay(200);
+		vTaskDelay(100);
 	}
 }
 
@@ -216,8 +216,10 @@ void prvTask_TicControl(void *pParam) {
 		prvFunc_Print("%cFirmware Version...\t\t\t%s", 0x3e,
 			tic_get_firmware_version_string(ticHandle));
 		
-		if (error == NULL) error = tic_exit_safe_start(ticHandle);	// FIXME
-		if (error == NULL) error = tic_energize(ticHandle);			// FIXME
+		// FIXME Simulation
+		if (error == NULL) error = tic_exit_safe_start(ticHandle);
+		if (error == NULL) error = tic_energize(ticHandle);
+		// FIXME Simulation
 
 		if (error == NULL) error = tic_get_variables(ticHandle, &ticVariables, false);
 		if (error == NULL) error = tic_get_settings(ticHandle, &ticSettings);
@@ -255,26 +257,31 @@ void prvTask_TicControl(void *pParam) {
 			if(ticCommand->command != ticCommand->command_old) {
 				if (error == NULL) 
 					error = prvFunc_TicCommandExec(ticCommand, ticSettings, ticHandle);
-				if (error == NULL)
-					error = tic_get_variables(ticHandle, &ticVariables, false);
-				if (error == NULL)
-					error = tic_get_settings(ticHandle, &ticSettings);
 			}
 
-			if(tic_variables_get_energized(ticVariables)) {
-				xSemaphoreGive(xMutexEnergize);
-				if(ticVariables->current_position == ticVariables->target_position) {
-					// ticCommand->command = 'd';
-					// xSemaphoreTake(xMutexEnergize,portMAX_DELAY);
-
-					if(i%2){
-						if (error == NULL) error = tic_set_target_position(ticHandle, 200);
-					}
-					else {
-						if (error == NULL) error = tic_set_target_position(ticHandle, -200);
-					}
+			// TODO Check acting variable
+			// if(tic_variables_get_acting_target_position(ticVariables)) {
+				
+			if(tic_variables_get_current_position(ticVariables) == 
+				tic_variables_get_target_position) {
+				// FIXME Simulation
+				if(i%2){
+					if (error == NULL)
+						error = tic_set_target_position(ticHandle, 200);
 				}
+				else {
+					if (error == NULL)
+						error = tic_set_target_position(ticHandle, -200);
+				}
+				// FIXME Simulation
+			}
 
+			xSemaphoreTake(xMutexEnergize,portMAX_DELAY);
+			if(tic_variables_get_energized(ticVariables))
+				xSemaphoreGive(xMutexEnergize);
+
+			// TODO find condition to update TicVar & TicSet
+			{
 				if (error == NULL)
 					error = tic_get_variables(ticHandle, &ticVariables, false);
 				if (error == NULL)
@@ -324,15 +331,10 @@ void prvTask_TicConsole(void *pParam) {
 		if(xSemaphoreTake(xMutexTicVar, portMAX_DELAY) == pdPASS) {
 			prvFunc_TicMenu(ticVariables, ticSettings);
 
-			if(!tic_variables_get_energized(ticVariables)) {
+			if(tic_variables_get_current_position(ticVariables) == 
+				tic_variables_get_target_position) {
 				prvFunc_TicCommandScan(ticCommand, ticVariables, ticSettings);
 			}
-
-			// Simulate Command
-			// if(i%2) ticCommand->command = 'x';
-			// else 	ticCommand->command = 'n';
-			// ticCommand->command = 'm';
-			// ticCommand->value = 3;
 
 			xSemaphoreGive(xMutexTicVar);
 		}
@@ -460,6 +462,7 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 
 	prvFunc_Scan(charCommand);
 
+	// TODO use tic_get instead direct access
 	switch(charCommand[0]) {
 		case 'a':
 		case 'A':
