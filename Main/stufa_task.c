@@ -4,6 +4,7 @@
 //tasks for StuFA Project
 
 // TODO Finish Tic Menu (Ideate way to pass command tot Tic_Control)
+// TODO Resolve De/Energize Issue
 // TODO Update FreeRTOS
 // TODO Understand if Uart FIFO Flush works
 // TODO Investigate Data Memory Barrier
@@ -107,8 +108,6 @@ void prvTask_WatchDog(void *pParam) {
 		// WhatcDog Activity Led
 		SetGpio(47, i%2);
 
-		// prvFunc_Print("%cHeap Free Meamory...\t\t      %u", 0x3e, xPortGetFreeHeapSize());
-
 		// IF Tic is energized send Reset Timeout
 		if(ticHandle != NULL && xMutexEnergize != NULL) {
 			if(xSemaphoreTake(xMutexEnergize, xBlockTime) == pdPASS) {
@@ -116,8 +115,6 @@ void prvTask_WatchDog(void *pParam) {
 				xSemaphoreGive(xMutexEnergize);
 			}
 		}
-
-		
 
 		// IF USPi is initialized start TicControl
 		if(xTaskIsTaskSuspended(xHandleUSPi) == pdFALSE && xSemUSPiInit != NULL) {
@@ -137,7 +134,7 @@ void prvTask_WatchDog(void *pParam) {
 		}
 
 		// Receiving TicHandle to manage Tic Command Timeout
-		if(xQueTicHdl != NULL) {
+		if(xQueTicHdl != NULL && ticHandle == NULL) {
 			if(xQueueReceive(xQueTicHdl, &ticHandle, xBlockTime) == pdPASS) {
 				vQueueDelete(xQueTicHdl);
 				prvFunc_Print("\nWatchDog...\n%cTicHandle...\t\t\t    Received", 0x3e);
@@ -198,6 +195,8 @@ void prvTask_TicControl(void *pParam) {
 
 	tic_command		* ticCommand = NULL;
 
+	static const portTickType xBlockTime = 100 / portTICK_RATE_MS;
+
 	vSemaphoreCreateBinary(xSemTicInit);
 	if(xSemTicInit != NULL) xSemaphoreTake(xSemTicInit, 0);
 	xMutexEnergize = xSemaphoreCreateMutex();
@@ -215,10 +214,14 @@ void prvTask_TicControl(void *pParam) {
 		if (error == NULL) error = tic_handle_create(ticDevice, &ticHandle);
 		prvFunc_Print("%cFirmware Version...\t\t\t%s", 0x3e,
 			tic_get_firmware_version_string(ticHandle));
+
+		if (error == NULL) error = tic_reset(ticHandle);
+		if (error == NULL) error = tic_deenergize(ticHandle);
 		
 		// FIXME Simulation
-		if (error == NULL) error = tic_exit_safe_start(ticHandle);
-		if (error == NULL) error = tic_energize(ticHandle);
+		// if (error == NULL) error = tic_exit_safe_start(ticHandle);
+		// if (error == NULL) error = tic_energize(ticHandle);
+		// xSemaphoreGive(xMutexEnergize);
 		// FIXME Simulation
 
 		if (error == NULL) error = tic_get_variables(ticHandle, &ticVariables, false);
@@ -261,26 +264,34 @@ void prvTask_TicControl(void *pParam) {
 
 			// TODO Check acting variable
 			// if(tic_variables_get_acting_target_position(ticVariables)) {
-				
-			if(tic_variables_get_current_position(ticVariables) == 
-				tic_variables_get_target_position) {
-				// FIXME Simulation
-				if(i%2){
-					if (error == NULL)
-						error = tic_set_target_position(ticHandle, 200);
-				}
-				else {
-					if (error == NULL)
-						error = tic_set_target_position(ticHandle, -200);
-				}
-				// FIXME Simulation
+			// if(tic_variables_get_planning_mode(tic_variables)) {
+			
+			// if(tic_variables_get_current_position(ticVariables) == 
+			// 	tic_variables_get_target_position(ticVariables)) {
+			// 	ticCommand->command = 'd';
+
+			// 	// FIXME Simulation
+			// 	// if(i%2){
+			// 	// 	if (error == NULL)
+			// 	// 		error = tic_set_target_position(ticHandle, 200);
+			// 	// }
+			// 	// else {
+			// 	// 	if (error == NULL)
+			// 	// 		error = tic_set_target_position(ticHandle, -200);
+			// 	// }
+			// 	// FIXME Simulation
+			// }
+
+			if(ticCommand->command == 'd') {
+				xSemaphoreTake(xMutexEnergize, xBlockTime);
 			}
 
-			xSemaphoreTake(xMutexEnergize,portMAX_DELAY);
-			if(tic_variables_get_energized(ticVariables))
+			if(ticCommand->command == 'e') {
 				xSemaphoreGive(xMutexEnergize);
+			}
 
 			// TODO find condition to update TicVar & TicSet
+			// if(ticUpdate)
 			{
 				if (error == NULL)
 					error = tic_get_variables(ticHandle, &ticVariables, false);
@@ -332,7 +343,7 @@ void prvTask_TicConsole(void *pParam) {
 			prvFunc_TicMenu(ticVariables, ticSettings);
 
 			if(tic_variables_get_current_position(ticVariables) == 
-				tic_variables_get_target_position) {
+				tic_variables_get_target_position(ticVariables)) {
 				prvFunc_TicCommandScan(ticCommand, ticVariables, ticSettings);
 			}
 
@@ -388,6 +399,8 @@ void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 			tic_variables_get_planning_mode(ticVariables)),
 		tic_look_up_input_state_name_ui(
 			tic_variables_get_input_state(ticVariables)));
+	prvFunc_Print("Acting target:\t  %d",
+		tic_variables_get_acting_target_position(ticVariables));
 	prvFunc_Print("Current limit:\t  %u mA\t\tStep mode:\t  %s",
 		tic_settings_get_current_limit(ticSettings),
 		tic_look_up_step_mode_name_ui(tic_settings_get_step_mode(ticSettings)));
@@ -405,7 +418,8 @@ void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 		tic_variables_get_current_velocity(ticVariables));
 	prvFunc_Print("Error status:\t  %s", ticErrorName);
 	
-	if(!tic_variables_get_energized(ticVariables)) {
+	if(tic_variables_get_current_position(ticVariables) == 
+		tic_variables_get_target_position(ticVariables)) {
 		prvFunc_Print("\n[Command]");
 		prvFunc_Print("Set target [P]osition\t\t\tSet target [V]elocity");
 		prvFunc_Print("Set max [S]peed\t\t\t\tSet max [A]cceleration");
@@ -462,7 +476,6 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 
 	prvFunc_Scan(charCommand);
 
-	// TODO use tic_get instead direct access
 	switch(charCommand[0]) {
 		case 'a':
 		case 'A':
@@ -470,7 +483,7 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 			prvFunc_Scan(charCommand);
 			intCommand = atoi(charCommand);
 			if((intCommand >= 0x64) && (intCommand <= 0x7fffffff)) {
-				if((unsigned)intCommand != ticVariables->max_accel) {
+				if((unsigned)intCommand != tic_variables_get_max_accel(ticVariables)) {
 					new_ticCommand->command = 'a';
 					new_ticCommand->value = intCommand;
 				}
@@ -479,13 +492,19 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 			break;
 		case 'd':
 		case 'D':
-			new_ticCommand->command = 'd';
-			new_ticCommand->value = 0;
+			if(tic_variables_get_energized(ticVariables)) {
+				new_ticCommand->command = 'd';
+				new_ticCommand->value = 0;
+			}
+			else prvFunc_Print("\nAlready De-energized");
 			break;
 		case 'e':
 		case 'E':
-			new_ticCommand->command = 'e';
-			new_ticCommand->value = 0;
+			if(!(tic_variables_get_energized(ticVariables))) {
+				new_ticCommand->command = 'e';
+				new_ticCommand->value = 0;
+			}
+			else prvFunc_Print("\nAlready Energized");
 			break;
 		case 'l':
 		case 'L':
@@ -494,7 +513,7 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 			prvFunc_Scan(charCommand);
 			intCommand = atoi(charCommand);
 			if((intCommand >= 0) && (intCommand <= 124)) {
-				if(intCommand != (signed)ticSettings->current_limit) {
+				if((unsigned)intCommand != tic_settings_get_current_limit(ticSettings)) {
 					new_ticCommand->command = 'l';
 					new_ticCommand->value = intCommand;
 				}
@@ -508,7 +527,7 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 			prvFunc_Scan(charCommand);
 			intCommand = atoi(charCommand);
 			if((intCommand >= 0) && (intCommand <= 5)) {
-				if(intCommand != ticVariables->step_mode) {
+				if((unsigned)intCommand != tic_variables_get_step_mode(ticVariables)) {
 					new_ticCommand->command = 'm';
 					new_ticCommand->value = intCommand;
 				}
@@ -527,7 +546,7 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 			intCommand = atoi(charCommand);
 			if((intCommand >= -(signed)0x7fffffff) && 
 				(intCommand <= (signed)0x7fffffff)) {
-				if(intCommand != ticVariables->target_position) {
+				if(intCommand != tic_variables_get_current_position(ticVariables)) {
 					new_ticCommand->command = 'p';
 					new_ticCommand->value = intCommand;
 				}
@@ -540,7 +559,7 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 			prvFunc_Scan(charCommand);
 			intCommand = atoi(charCommand);
 			if((intCommand >= 0) && (intCommand <= 500000000)) {
-				if((unsigned)intCommand != ticVariables->max_speed) {
+				if((unsigned)intCommand != tic_variables_get_max_speed(ticVariables)) {
 					new_ticCommand->command = 's';
 					new_ticCommand->value = intCommand;
 				}
@@ -553,7 +572,7 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 			prvFunc_Scan(charCommand);
 			intCommand = atoi(charCommand);
 			if((intCommand >= -500000000) && (intCommand <= 500000000)) {
-				if(intCommand != ticVariables->target_velocity) {
+				if(intCommand != tic_variables_get_target_velocity(ticVariables)) {
 					new_ticCommand->command = 'v';
 					new_ticCommand->value = intCommand;
 				}
