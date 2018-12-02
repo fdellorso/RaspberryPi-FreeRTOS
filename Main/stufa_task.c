@@ -215,14 +215,8 @@ void prvTask_TicControl(void *pParam) {
 		prvFunc_Print("%cFirmware Version...\t\t\t%s", 0x3e,
 			tic_get_firmware_version_string(ticHandle));
 
-		if (error == NULL) error = tic_reset(ticHandle);
-		if (error == NULL) error = tic_deenergize(ticHandle);
-		
-		// FIXME Simulation
-		// if (error == NULL) error = tic_exit_safe_start(ticHandle);
-		// if (error == NULL) error = tic_energize(ticHandle);
-		// xSemaphoreGive(xMutexEnergize);
-		// FIXME Simulation
+		if (error == NULL) error = tic_reinitialize(ticHandle);
+		if (error == NULL) error = tic_energize(ticHandle);
 
 		if (error == NULL) error = tic_get_variables(ticHandle, &ticVariables, false);
 		if (error == NULL) error = tic_get_settings(ticHandle, &ticSettings);
@@ -252,46 +246,45 @@ void prvTask_TicControl(void *pParam) {
 		prvFunc_Print("%cTic Control...\t\t\t      Inited", 0x3e);
 	}
 
+	// FIXME Simulation
+	ticCommand->command = 'x';
+	// FIXME Simulation
+
 	while(1) {
 		i++;
 
-		// FIXME Receive TicCommand and execute
 		if(xSemaphoreTake(xMutexTicVar, portMAX_DELAY) == pdPASS) {
 			if(ticCommand->command != ticCommand->command_old) {
 				if (error == NULL) 
 					error = prvFunc_TicCommandExec(ticCommand, ticSettings, ticHandle);
 			}
-
-			// TODO Check acting variable
-			// if(tic_variables_get_acting_target_position(ticVariables)) {
-			// if(tic_variables_get_planning_mode(tic_variables)) {
 			
-			// if(tic_variables_get_current_position(ticVariables) == 
-			// 	tic_variables_get_target_position(ticVariables)) {
-			// 	ticCommand->command = 'd';
+			// FIXME Simulation
+			if(abs(tic_variables_get_current_position(ticVariables) - 
+				tic_variables_get_target_position(ticVariables)) <= 1) {
+				if(i%2){
+					if (error == NULL)
+						error = tic_set_target_position(ticHandle, 200);
+				}
+				else {
+					if (error == NULL)
+						error = tic_set_target_position(ticHandle, -200);
+				}
+			}
+			// FIXME Simulation
 
-			// 	// FIXME Simulation
-			// 	// if(i%2){
-			// 	// 	if (error == NULL)
-			// 	// 		error = tic_set_target_position(ticHandle, 200);
-			// 	// }
-			// 	// else {
-			// 	// 	if (error == NULL)
-			// 	// 		error = tic_set_target_position(ticHandle, -200);
-			// 	// }
-			// 	// FIXME Simulation
-			// }
-
-			if(ticCommand->command == 'd') {
+			// FIXME when retrieve reset timeout
+			if(ticCommand->command == 'n') {
 				xSemaphoreTake(xMutexEnergize, xBlockTime);
 			}
 
-			if(ticCommand->command == 'e') {
-				xSemaphoreGive(xMutexEnergize);
+			// FIXME when send reset timeout
+			if(ticCommand->command == 'x') {
+				// xSemaphoreGive(xMutexEnergize);
+				tic_reset_command_timeout(ticHandle);
 			}
 
 			// TODO find condition to update TicVar & TicSet
-			// if(ticUpdate)
 			{
 				if (error == NULL)
 					error = tic_get_variables(ticHandle, &ticVariables, false);
@@ -342,10 +335,10 @@ void prvTask_TicConsole(void *pParam) {
 		if(xSemaphoreTake(xMutexTicVar, portMAX_DELAY) == pdPASS) {
 			prvFunc_TicMenu(ticVariables, ticSettings);
 
-			if(tic_variables_get_current_position(ticVariables) == 
-				tic_variables_get_target_position(ticVariables)) {
-				prvFunc_TicCommandScan(ticCommand, ticVariables, ticSettings);
-			}
+			// if(tic_variables_get_current_position(ticVariables) == 
+			// 	tic_variables_get_target_position(ticVariables)) {
+			// 	prvFunc_TicCommandScan(ticCommand, ticVariables, ticSettings);
+			// }
 
 			xSemaphoreGive(xMutexTicVar);
 		}
@@ -399,8 +392,9 @@ void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 			tic_variables_get_planning_mode(ticVariables)),
 		tic_look_up_input_state_name_ui(
 			tic_variables_get_input_state(ticVariables)));
-	prvFunc_Print("Acting target:\t  %d",
-		tic_variables_get_acting_target_position(ticVariables));
+	// prvFunc_Print("Acting target:\t  %d",
+	// 	tic_variables_get_acting_target_position(ticVariables));
+	// FIXME Step Mode
 	prvFunc_Print("Current limit:\t  %u mA\t\tStep mode:\t  %s",
 		tic_settings_get_current_limit(ticSettings),
 		tic_look_up_step_mode_name_ui(tic_settings_get_step_mode(ticSettings)));
