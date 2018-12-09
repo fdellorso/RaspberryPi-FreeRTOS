@@ -11,4 +11,6 @@
 #include <spi.h>
 #include <sys_timer.h>
 
+extern unsigned int GETPC(void);
+
 #endif

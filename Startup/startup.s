@@ -133,6 +133,11 @@ GET32:
     ldr r0,[r0]
     bx lr
 
+.globl GETPC
+GETPC:
+    mov r0,lr
+    bx lr
+
 .globl dummy
 dummy:
     bx lr

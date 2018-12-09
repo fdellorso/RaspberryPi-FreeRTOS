@@ -168,7 +168,7 @@ void vTickISR(int nIRQ, void *pParam ) {
 
 	// pRegs->CLI = 0;			// Acknowledge the timer interrupt.
 	// prvArmTimerIrqClear();
-	prvSystemTimerSetup();
+	prvSystemTimerIrqClear();
 
 	(void)nIRQ;		// FIXME Wunused
 	(void)pParam;	// FIXME Wunused

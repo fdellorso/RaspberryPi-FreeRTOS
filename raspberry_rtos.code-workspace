@@ -7,13 +7,10 @@
 			"path": "/home/fra/Raspberry_Lib"
 		},
 		{
-			"path": "/media/stufa_sw/documentazione/LaTex"
-		},
-		{
 			"path": "/home/fra/raspbootin"
 		},
 		{
-			"path": "/home/francesco/raspbootin"
+			"path": "/media/stufa_sw"
 		}
 	],
 	"settings": {
@@ -74,7 +71,8 @@
 			"rpi_library.h": "c",
 			"aux.h": "c",
 			"spi.h": "c",
-			"uspi.h": "c"
+			"uspi.h": "c",
+			"stufa_task.h": "c"
 		}
 	}
 }

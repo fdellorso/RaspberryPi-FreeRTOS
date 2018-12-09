@@ -30,14 +30,16 @@ int main(void) {
 	}
 
 	if(xTaskCreate(prvTask_UspiInit, (signed char *) "UspiInit",
-		8 * configMINIMAL_STACK_SIZE, NULL, 0, &xHandleUSPi) == pdPASS) {
+		8 * configMINIMAL_STACK_SIZE, NULL, configMAX_CO_ROUTINE_PRIORITIES -1,
+		&xHandleUSPi) == pdPASS) {
 		if(uxTaskPriorityGet(xHandleUSPi) < configMAX_CO_ROUTINE_PRIORITIES) {
 			vTaskSuspend(xHandleUSPi);
 		}
 	}
 
 	if(xTaskCreate(prvTask_TicControl, (signed char *) "TicControl",
-		8 * configMINIMAL_STACK_SIZE, NULL, 0, &xHandleTicCtrl) == pdPASS) {
+		8 * configMINIMAL_STACK_SIZE, NULL, configMAX_CO_ROUTINE_PRIORITIES -1,
+		&xHandleTicCtrl) == pdPASS) {
 		if(uxTaskPriorityGet(xHandleTicCtrl) < configMAX_CO_ROUTINE_PRIORITIES) {
 			vTaskSuspend(xHandleTicCtrl);
 		}

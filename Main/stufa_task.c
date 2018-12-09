@@ -3,8 +3,9 @@
 //
 //tasks for StuFA Project
 
-// TODO Finish Tic Menu (Ideate way to pass command tot Tic_Control)
-// TODO Resolve De/Energize Issue
+// TODO Finish Tic Menu
+//		Better filter when running
+//		Conversion loops -> pulses 
 // TODO Update FreeRTOS
 // TODO Understand if Uart FIFO Flush works
 // TODO Investigate Data Memory Barrier
@@ -27,6 +28,11 @@
 
 #include <uspi.h>
 #include <tic.h>
+
+
+#ifndef TIC_SPEED
+#define TIC_SPEED	700		// Pulses/s
+#endif
 
 
 // Struct to pass command from Console to Control
@@ -62,13 +68,14 @@ xSemaphoreHandle	xMutexEnergize	= NULL;
 static void prvFunc_Print(const char *pMessage, ...);	// Print everywhere
 char * prvFunc_Scan(char * pDest);						// Scan only from UART
 
+tic_error * prvFunc_TicMotorInit(tic_handle * ticHandle);
+
 void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings);
 char * tic_code_shifter(char * pDest, uint16_t code);	// Explode error code
 
 // Command function
 int prvFunc_TicCommandInit(tic_command **ticCommand);
-void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariables,
-	tic_settings * ticSettings);
+void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariables);
 tic_error * prvFunc_TicCommandExec(tic_command * ticCommand, tic_settings * ticSettings,
 	tic_handle * ticHandle);
 
@@ -110,9 +117,13 @@ void prvTask_WatchDog(void *pParam) {
 
 		// IF Tic is energized send Reset Timeout
 		if(ticHandle != NULL && xMutexEnergize != NULL) {
-			if(xSemaphoreTake(xMutexEnergize, xBlockTime) == pdPASS) {
-				tic_reset_command_timeout(ticHandle);
-				xSemaphoreGive(xMutexEnergize);
+			if(xSemaphoreTake(xMutexTicVar, xBlockTime) == pdPASS) {
+				if(xSemaphoreTake(xMutexEnergize, xBlockTime) == pdPASS) {
+					tic_reset_command_timeout(ticHandle);
+					xSemaphoreGive(xMutexEnergize);
+				}
+
+				xSemaphoreGive(xMutexTicVar);
 			}
 		}
 
@@ -209,14 +220,13 @@ void prvTask_TicControl(void *pParam) {
 
 	prvFunc_Print("\nTic Control...\t\t\t     Started");
 
-	if(xSemaphoreTake(xMutexTicVar,portMAX_DELAY) == pdPASS) {
+	if(xSemaphoreTake(xMutexTicVar, portMAX_DELAY) == pdPASS) {
 		if (error == NULL) error = tic_device_create(&ticDevice);
 		if (error == NULL) error = tic_handle_create(ticDevice, &ticHandle);
 		prvFunc_Print("%cFirmware Version...\t\t\t%s", 0x3e,
 			tic_get_firmware_version_string(ticHandle));
 
-		if (error == NULL) error = tic_reinitialize(ticHandle);
-		if (error == NULL) error = tic_energize(ticHandle);
+		if (error == NULL) error = prvFunc_TicMotorInit(ticHandle);
 
 		if (error == NULL) error = tic_get_variables(ticHandle, &ticVariables, false);
 		if (error == NULL) error = tic_get_settings(ticHandle, &ticSettings);
@@ -247,7 +257,7 @@ void prvTask_TicControl(void *pParam) {
 	}
 
 	// FIXME Simulation
-	ticCommand->command = 'x';
+	// ticCommand->command = 'x';
 	// FIXME Simulation
 
 	while(1) {
@@ -258,38 +268,38 @@ void prvTask_TicControl(void *pParam) {
 				if (error == NULL) 
 					error = prvFunc_TicCommandExec(ticCommand, ticSettings, ticHandle);
 			}
-			
-			// FIXME Simulation
-			if(abs(tic_variables_get_current_position(ticVariables) - 
-				tic_variables_get_target_position(ticVariables)) <= 1) {
-				if(i%2){
-					if (error == NULL)
-						error = tic_set_target_position(ticHandle, 200);
-				}
-				else {
-					if (error == NULL)
-						error = tic_set_target_position(ticHandle, -200);
-				}
-			}
-			// FIXME Simulation
 
-			// FIXME when retrieve reset timeout
 			if(ticCommand->command == 'n') {
 				xSemaphoreTake(xMutexEnergize, xBlockTime);
 			}
 
-			// FIXME when send reset timeout
 			if(ticCommand->command == 'x') {
-				// xSemaphoreGive(xMutexEnergize);
-				tic_reset_command_timeout(ticHandle);
+				xSemaphoreGive(xMutexEnergize);
 			}
 
 			// TODO find condition to update TicVar & TicSet
 			{
 				if (error == NULL)
 					error = tic_get_variables(ticHandle, &ticVariables, false);
-				if (error == NULL)
-					error = tic_get_settings(ticHandle, &ticSettings);
+				// TODO Update TicSettings not needed
+				// if (error == NULL)
+				// 	error = tic_get_settings(ticHandle, &ticSettings);
+			}
+
+			if(abs(tic_variables_get_current_position(ticVariables) - 
+				tic_variables_get_target_position(ticVariables)) <= 1) {
+				// FIXME Simulation
+				// if(i%2){
+				// 	if (error == NULL)
+				// 		error = tic_set_target_position(ticHandle, 1200);
+				// }
+				// else {
+				// 	if (error == NULL)
+				// 		error = tic_set_target_position(ticHandle, -1200);
+				// }
+				// FIXME Simulation
+
+				ticCommand->command = 'n';
 			}
 						
 			xSemaphoreGive(xMutexTicVar);
@@ -335,15 +345,15 @@ void prvTask_TicConsole(void *pParam) {
 		if(xSemaphoreTake(xMutexTicVar, portMAX_DELAY) == pdPASS) {
 			prvFunc_TicMenu(ticVariables, ticSettings);
 
-			// if(tic_variables_get_current_position(ticVariables) == 
-			// 	tic_variables_get_target_position(ticVariables)) {
-			// 	prvFunc_TicCommandScan(ticCommand, ticVariables, ticSettings);
-			// }
+			// FIXME find better filter
+			if((tic_variables_get_error_status(ticVariables) & (1 << TIC_ERROR_SAFE_START_VIOLATION))) {
+				prvFunc_TicCommandScan(ticCommand, ticVariables);
+			}
 
 			xSemaphoreGive(xMutexTicVar);
 		}
 
-		vTaskDelay(100);
+		vTaskDelay(500);
 	}
 }
 
@@ -372,6 +382,21 @@ char * prvFunc_Scan(char * pDest) {
 	return c;
 }
 
+tic_error * prvFunc_TicMotorInit(tic_handle * ticHandle) {
+	tic_error * error = NULL;
+
+	// if (error == NULL) error = tic_reinitialize(ticHandle);
+	if (error == NULL) error = tic_reset(ticHandle);
+	if (error == NULL) error = tic_clear_driver_error(ticHandle);
+	if (error == NULL) error = tic_energize(ticHandle);
+	if (error == NULL) error = tic_set_step_mode(ticHandle, TIC_STEP_MODE_FULL);
+	if (error == NULL) error = tic_set_max_speed(ticHandle, TIC_SPEED * 10000);
+	if (error == NULL) error = tic_halt_and_set_position(ticHandle, 0);
+	if (error == NULL) error = tic_enter_safe_start(ticHandle);
+
+	return error;
+}
+
 void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 	char ticErrorName[180];
 	ticErrorName[0] = '\0';
@@ -394,26 +419,25 @@ void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 			tic_variables_get_input_state(ticVariables)));
 	// prvFunc_Print("Acting target:\t  %d",
 	// 	tic_variables_get_acting_target_position(ticVariables));
-	// FIXME Step Mode
 	prvFunc_Print("Current limit:\t  %u mA\t\tStep mode:\t  %s",
-		tic_settings_get_current_limit(ticSettings),
-		tic_look_up_step_mode_name_ui(tic_settings_get_step_mode(ticSettings)));
-	prvFunc_Print("Max speed:\t  %u pulses/s\tMax acceleration: %u pulses/s",
-		tic_settings_get_max_speed(ticSettings)/10000,
-		tic_settings_get_max_accel(ticSettings)/100);
+		tic_variables_get_current_limit(ticVariables),
+		tic_look_up_step_mode_name_ui(tic_variables_get_step_mode(ticVariables)));
+	prvFunc_Print("Max speed:\t  %u pulses/s\t\tMax acceleration: %u pulses/s",
+		tic_variables_get_max_speed(ticVariables)/10000,
+		tic_variables_get_max_accel(ticVariables)/100);
 	prvFunc_Print("Target minimum:\t  %d\t\t\tTarget maximum:\t  %d",
 		tic_settings_get_output_min(ticSettings),
 		tic_settings_get_output_max(ticSettings));
 	prvFunc_Print("Target position:  %d\t\t\tTarget velocity:  %d",
 		tic_variables_get_target_position(ticVariables),
 		tic_variables_get_target_velocity(ticVariables));
-	prvFunc_Print("Current position: %d\t\t\tCurrent velocity: %d",
+	prvFunc_Print("Current position: %d\t\t\tCurrent velocity: %d pulses/s",
 		tic_variables_get_current_position(ticVariables),
-		tic_variables_get_current_velocity(ticVariables));
+		tic_variables_get_current_velocity(ticVariables)/10000);
 	prvFunc_Print("Error status:\t  %s", ticErrorName);
 	
-	if(tic_variables_get_current_position(ticVariables) == 
-		tic_variables_get_target_position(ticVariables)) {
+	// FIXME find better filter
+	if((tic_variables_get_error_status(ticVariables) & (1 << TIC_ERROR_SAFE_START_VIOLATION))) {
 		prvFunc_Print("\n[Command]");
 		prvFunc_Print("Set target [P]osition\t\t\tSet target [V]elocity");
 		prvFunc_Print("Set max [S]peed\t\t\t\tSet max [A]cceleration");
@@ -461,9 +485,7 @@ int prvFunc_TicCommandInit(tic_command **ticCommand) {
 	return 0;
 }
 
-void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariables,
-	tic_settings * ticSettings) {
-
+void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariables) {
 	tic_command * new_ticCommand = ticCommand;
 	char * charCommand = 0;
 	int intCommand = 0;
@@ -507,7 +529,7 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 			prvFunc_Scan(charCommand);
 			intCommand = atoi(charCommand);
 			if((intCommand >= 0) && (intCommand <= 124)) {
-				if((unsigned)intCommand != tic_settings_get_current_limit(ticSettings)) {
+				if((unsigned)intCommand != tic_variables_get_current_limit(ticVariables)) {
 					new_ticCommand->command = 'l';
 					new_ticCommand->value = intCommand;
 				}
@@ -532,6 +554,17 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 		case 'N':
 			new_ticCommand->command = 'n';
 			new_ticCommand->value = 0;
+			break;
+		case 'o':
+		case 'O':
+			prvFunc_Print("\nTarget min/max range [0 to 2,147,483,647]: ");
+			prvFunc_Scan(charCommand);
+			intCommand = atoi(charCommand);
+			if((intCommand >= 0) && (intCommand <= 0x7fffffff)) {
+				new_ticCommand->command = 'o';
+				new_ticCommand->value = intCommand;
+			}
+			else prvFunc_Print("\nInvalid range [0 to 2,147,483,647]");
 			break;
 		case 'p':
 		case 'P':
