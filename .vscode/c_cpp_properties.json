@@ -4,8 +4,8 @@
             "name": "ARM",
             "includePath": [
                 "${workspaceFolder}/Drivers",
-                "${workspaceFolder}/Drivers/tic/include",
-                "${workspaceFolder}/Drivers/uspi/include",
+                "${workspaceFolder}/Tic/include",
+                "${workspaceFolder}/Uspi/include",
                 "${workspaceFolder}/FreeRTOS/Source/include",
                 "${workspaceFolder}/FreeRTOS/Source/portable/GCC/RaspberryPi"
             ],

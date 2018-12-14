@@ -14,12 +14,12 @@ CFLAGS += -I $(BASE)Drivers/
 ifdef $(LIBUSE)
 CFLAGS += -I $(BASE)Drivers/prvlib
 endif
-CFLAGS += -I $(BASE)Drivers/uspi/include/
-CFLAGS += -I $(BASE)Drivers/tic/include/
-# CFLAGS += -I $(BASE)Drivers/tic/lib/libyaml
+CFLAGS += -I $(BASE)Uspi/include/
+CFLAGS += -I $(BASE)Tic/include/
+# CFLAGS += -I $(BASE)Tic/lib/libyaml
 CFLAGS += -I $(BASE)FreeRTOS/Source/include/
 CFLAGS += -I $(BASE)FreeRTOS/Source/portable/GCC/RaspberryPi/
-# CFLAGS += -I $(BASE)Drivers/FreeRTOS-Plus-TCP/include/
+# CFLAGS += -I $(BASE)FreeRTOS-Plus-TCP/include/
 
 # C Language Options
 CFLAGS += -std=gnu99 -fsigned-char
