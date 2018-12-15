@@ -3,10 +3,12 @@
 //
 //tasks for StuFA Project
 
-// TODO Finish Tic Menu
-//		Better filter when running
-//		Conversion loops -> pulses 
-// TODO Update FreeRTOS
+// TODO Tic MNG
+// TODO Conversion loops -> pulses
+// TODO Tic Home Routine
+
+// TODO Update FreeRTOS 10.0
+// TODO Update USPi 2.00
 // TODO Understand if Uart FIFO Flush works
 // TODO Investigate Data Memory Barrier
 // TODO Investigate benefit of Cache
@@ -62,6 +64,8 @@ xQueueHandle		xQueTicCmd		= NULL;
 xSemaphoreHandle	xMutexMuart		= NULL;
 xSemaphoreHandle	xMutexTicVar	= NULL;
 xSemaphoreHandle	xMutexEnergize	= NULL;
+xSemaphoreHandle	xMutexRunning	= NULL;
+
 
 // Internal function Declaration
 // UI function
@@ -211,7 +215,9 @@ void prvTask_TicControl(void *pParam) {
 	vSemaphoreCreateBinary(xSemTicInit);
 	if(xSemTicInit != NULL) xSemaphoreTake(xSemTicInit, 0);
 	xMutexEnergize = xSemaphoreCreateMutex();
-	if(xMutexEnergize != NULL) xSemaphoreTake(xMutexEnergize,0);
+	if(xMutexEnergize != NULL) xSemaphoreTake(xMutexEnergize, 0);
+	xMutexRunning = xSemaphoreCreateMutex();
+	if(xMutexRunning != NULL) xSemaphoreTake(xMutexRunning, 0);
 
 	xQueTicHdl = xQueueCreate(1, sizeof(tic_handle *));
 	xQueTicVar = xQueueCreate(1, sizeof(tic_variables *));
@@ -230,6 +236,9 @@ void prvTask_TicControl(void *pParam) {
 
 		if (error == NULL) error = tic_get_variables(ticHandle, &ticVariables, false);
 		if (error == NULL) error = tic_get_settings(ticHandle, &ticSettings);
+
+		if (error == NULL) error = tic_halt_and_set_position(ticHandle,
+			tic_variables_get_target_position(ticVariables));
 
 		prvFunc_TicCommandInit(&ticCommand);
 
@@ -271,10 +280,12 @@ void prvTask_TicControl(void *pParam) {
 
 			if(ticCommand->command == 'n') {
 				xSemaphoreTake(xMutexEnergize, xBlockTime);
+				xSemaphoreGive(xMutexRunning);
 			}
 
 			if(ticCommand->command == 'x') {
 				xSemaphoreGive(xMutexEnergize);
+				xSemaphoreTake(xMutexRunning, xBlockTime);
 			}
 
 			// TODO find condition to update TicVar & TicSet
@@ -320,6 +331,8 @@ void prvTask_TicConsole(void *pParam) {
 	tic_settings	* ticSettings = NULL;
 	tic_command		* ticCommand = NULL;
 
+	static const portTickType xBlockTime = 100 / portTICK_RATE_MS;
+
 	prvFunc_Print("\nTic Console...\t\t\t     Started");
 
 	if(xQueueReceive(xQueTicVar, &ticVariables, portMAX_DELAY) == pdPASS) {
@@ -346,8 +359,10 @@ void prvTask_TicConsole(void *pParam) {
 			prvFunc_TicMenu(ticVariables, ticSettings);
 
 			// FIXME find better filter
-			if((tic_variables_get_error_status(ticVariables) & (1 << TIC_ERROR_SAFE_START_VIOLATION))) {
+			// if((tic_variables_get_error_status(ticVariables) & (1 << TIC_ERROR_SAFE_START_VIOLATION))) {
+			if(xSemaphoreTake(xMutexRunning, xBlockTime) == pdPASS) {	
 				prvFunc_TicCommandScan(ticCommand, ticVariables);
+				xSemaphoreGive(xMutexRunning);
 			}
 
 			xSemaphoreGive(xMutexTicVar);
@@ -391,7 +406,7 @@ tic_error * prvFunc_TicMotorInit(tic_handle * ticHandle) {
 	if (error == NULL) error = tic_energize(ticHandle);
 	if (error == NULL) error = tic_set_step_mode(ticHandle, TIC_STEP_MODE_FULL);
 	if (error == NULL) error = tic_set_max_speed(ticHandle, TIC_SPEED * 10000);
-	if (error == NULL) error = tic_halt_and_set_position(ticHandle, 0);
+	// if (error == NULL) error = tic_halt_and_set_position(ticHandle, -1200);
 	if (error == NULL) error = tic_enter_safe_start(ticHandle);
 
 	return error;
@@ -400,6 +415,8 @@ tic_error * prvFunc_TicMotorInit(tic_handle * ticHandle) {
 void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 	char ticErrorName[180];
 	ticErrorName[0] = '\0';
+
+	static const portTickType xBlockTime = 100 / portTICK_RATE_MS;
 
 	tic_code_shifter(ticErrorName, tic_variables_get_error_status(ticVariables));
 	
@@ -437,7 +454,8 @@ void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 	prvFunc_Print("Error status:\t  %s", ticErrorName);
 	
 	// FIXME find better filter
-	if((tic_variables_get_error_status(ticVariables) & (1 << TIC_ERROR_SAFE_START_VIOLATION))) {
+	// if((tic_variables_get_error_status(ticVariables) & (1 << TIC_ERROR_SAFE_START_VIOLATION))) {
+	if(xSemaphoreTake(xMutexRunning, xBlockTime) == pdPASS) {	
 		prvFunc_Print("\n[Command]");
 		prvFunc_Print("Set target [P]osition\t\t\tSet target [V]elocity");
 		prvFunc_Print("Set max [S]peed\t\t\t\tSet max [A]cceleration");
@@ -446,6 +464,8 @@ void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 		prvFunc_Print("[E]nergize\t\t\t\t[D]e-energize");
 
 		prvFunc_Print("\nChoose an available command [A,D,E,L,M,N,P,S,V,X]: ");
+		
+		xSemaphoreGive(xMutexRunning);	
 	}
 }
 
@@ -495,16 +515,16 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 	switch(charCommand[0]) {
 		case 'a':
 		case 'A':
-			prvFunc_Print("\nMax acceleration range [100 to 2,147,483,647]: ");
+			prvFunc_Print("\nMax acceleration range [1 to 2,147,483]: ");
 			prvFunc_Scan(charCommand);
-			intCommand = atoi(charCommand);
+			intCommand = atoi(charCommand) * 100;
 			if((intCommand >= 0x64) && (intCommand <= 0x7fffffff)) {
 				if((unsigned)intCommand != tic_variables_get_max_accel(ticVariables)) {
 					new_ticCommand->command = 'a';
 					new_ticCommand->value = intCommand;
 				}
 			}
-			else prvFunc_Print("\nInvalid range [100 to 2,147,483,647]");
+			else prvFunc_Print("\nInvalid range [1 to 2,147,483]");
 			break;
 		case 'd':
 		case 'D':
@@ -582,29 +602,29 @@ void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariabl
 			break;
 		case 's':
 		case 'S':
-			prvFunc_Print("\nMax speed range [0 to 500,000,000]: ");
+			prvFunc_Print("\nMax speed range [0 to 50,000]: ");
 			prvFunc_Scan(charCommand);
-			intCommand = atoi(charCommand);
+			intCommand = atoi(charCommand) * 10000;
 			if((intCommand >= 0) && (intCommand <= 500000000)) {
 				if((unsigned)intCommand != tic_variables_get_max_speed(ticVariables)) {
 					new_ticCommand->command = 's';
 					new_ticCommand->value = intCommand;
 				}
 			}
-			else prvFunc_Print("\nInvalid range [0 to 500,000,000]");
+			else prvFunc_Print("\nInvalid range [0 to 50,000]");
 			break;
 		case 'v':
 		case 'V':
-			prvFunc_Print("\nTarget velocity range [-500,000,000 to 500,000,000]: ");
+			prvFunc_Print("\nTarget velocity range [-50,000 to 50,000]: ");
 			prvFunc_Scan(charCommand);
-			intCommand = atoi(charCommand);
+			intCommand = atoi(charCommand) * 10000;
 			if((intCommand >= -500000000) && (intCommand <= 500000000)) {
 				if(intCommand != tic_variables_get_target_velocity(ticVariables)) {
 					new_ticCommand->command = 'v';
 					new_ticCommand->value = intCommand;
 				}
 			}
-			else prvFunc_Print("\nInvalid range [-500,000,000 to 500,000,000]");
+			else prvFunc_Print("\nInvalid range [-50,000 to 50,000]");
 			break;
 		case 'x':
 		case 'X':

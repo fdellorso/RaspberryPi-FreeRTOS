@@ -7,7 +7,7 @@
 			"path": "/home/fra/Raspberry_Lib"
 		},
 		{
-			"path": "/home/fra/raspbootin"
+			"path": "./../raspbootin"
 		},
 		{
 			"path": "/media/stufa_sw"
