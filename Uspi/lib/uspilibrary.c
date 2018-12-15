@@ -93,6 +93,10 @@ int USPiInitialize (void)
 	s_pLibrary->pTic0 = (TUSBTicT834Device *) DeviceNameServiceGetDevice (DeviceNameServiceGet (), "tic0", FALSE);
 	#endif
 
+	#ifdef USBBLT
+	s_pLibrary->pBlt0 = (TUSBBltDevice *) DeviceNameServiceGetDevice (DeviceNameServiceGet (), "blt0", FALSE);
+	#endif
+
 	LogWrite (FromUSPi, LOG_DEBUG, "USPi library successfully initialized");
 
 	return 1;
@@ -411,6 +415,15 @@ int USPiDeviceGetInformation (unsigned nClass, unsigned nDeviceIndex, TUSPiDevic
 		if (nDeviceIndex == 0)
 		{
 			pUSBDevice = (TUSBDevice *) s_pLibrary->pTic0;
+		}
+		break;
+	#endif
+
+	#ifdef USBBLT
+	case BLT_CLASS:
+		if (nDeviceIndex == 0)
+		{
+			pUSBDevice = (TUSBDevice *) s_pLibrary->pBlt0;
 		}
 		break;
 	#endif

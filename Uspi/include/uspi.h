@@ -204,6 +204,7 @@ void USPiGamePadRegisterStatusHandler (TGamePadStatusHandler *pStatusHandler);
 #define ETHERNET_CLASS	4
 #define GAMEPAD_CLASS	5
 #define TICT834_CLASS	6
+#define BLT_CLASS		7
 
 typedef struct TUSPiDeviceInformation
 {

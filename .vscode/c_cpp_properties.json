@@ -14,7 +14,8 @@
                 "MUART",
                 "PRVLIB",
                 "configBLUETHUNDER=0",
-                "USBTIC"
+                "USBTIC",
+                "USBBLT"
             ],
             "compilerPath": "${workspaceFolder}/../gcc-arm-none-eabi/bin/arm-none-eabi-gcc",
             "cStandard": "c99",

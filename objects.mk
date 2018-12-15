@@ -78,32 +78,36 @@ OBJECTS += $(BUILD_DIR)Uspi/lib/dwhcirootport.o
 OBJECTS += $(BUILD_DIR)Uspi/lib/dwhciframeschednsplit.o
 OBJECTS += $(BUILD_DIR)Uspi/lib/synchronize.o
 OBJECTS += $(BUILD_DIR)Uspi/lib/usbstring.o
+OBJECTS += $(BUILD_DIR)Uspi/lib/usbcommon.o
 
 OBJECTS += $(BUILD_DIR)Uspi/lib/macaddress.o
 OBJECTS += $(BUILD_DIR)Uspi/lib/smsc951x.o
 
-ifeq ($(strip $(USBDEV)),-DUSBKBD)
+ifneq (,$(findstring -DUSBKBD,$(USBDEV)))
 OBJECTS += $(BUILD_DIR)Uspi/lib/usbkeyboard.o
 OBJECTS += $(BUILD_DIR)Uspi/lib/keymap.o
 endif
 
-ifeq ($(strip $(USBDEV)),-DUSBMEM)
+ifneq (,$(findstring -DUSBMEM,$(USBDEV)))
 OBJECTS += $(BUILD_DIR)Uspi/lib/usbmassdevice.o
 endif
 
-ifeq ($(strip $(USBDEV)),-DUSBMOU)
+ifneq (,$(findstring -DUSBMOU,$(USBDEV)))
 OBJECTS += $(BUILD_DIR)Uspi/lib/usbmouse.o
 endif
 
-ifeq ($(strip $(USBDEV)),-DUSBPAD)
+ifneq (,$(findstring -DUSBPAD,$(USBDEV)))
 OBJECTS += $(BUILD_DIR)Uspi/lib/usbgamepad.o
 endif
 
 #
 #	StuFA Peripherals Drivers
 #
-ifeq ($(strip $(USBDEV)),-DUSBTIC)
+ifneq (,$(findstring -DUSBTIC,$(USBDEV)))
 OBJECTS += $(BUILD_DIR)Uspi/lib/usbtict834.o
+endif
+ifneq (,$(findstring -DUSBBLT,$(USBDEV)))
+OBJECTS += $(BUILD_DIR)Uspi/lib/usbblt.o
 endif
 
 #

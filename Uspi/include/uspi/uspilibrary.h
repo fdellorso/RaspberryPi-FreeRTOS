@@ -28,6 +28,8 @@
 #include <uspi/usbmassdevice.h>
 #include <uspi/smsc951x.h>
 #include <uspi/usbtict834.h>
+#include <uspi/usbblt.h>
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,6 +56,9 @@ typedef struct TUSPiLibrary
 	#endif
 	#ifdef USBTIC
 	TUSBTicT834Device				*pTic0;
+	#endif
+	#ifdef USBBLT
+	TUSBBltDevice					*pBlt0;
 	#endif
 }
 TUSPiLibrary;

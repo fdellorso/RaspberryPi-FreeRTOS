@@ -19,6 +19,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include <uspi/usbtict834.h>
+#include <uspi/usbcommon.h>
 #include <uspi/usbhostcontroller.h>
 #include <uspi/devicenameservice.h>
 #include <uspi/assert.h>
@@ -29,7 +30,7 @@ static const char FromTicT834[] = "tict834";
 
 static unsigned s_nDeviceNumber = 0;
 
-void USBDescriptorPrinter(TUSBTicT834Device *pThis);
+// void USBDescriptorPrinter(TUSBTicT834Device *pThis);
 
 void USBTicT834Device (TUSBTicT834Device *pThis, TUSBDevice *pDevice)
 {
@@ -95,7 +96,7 @@ boolean USBTicT834DeviceConfigure (TUSBDevice *pUSBDevice)
 
     pThis->serial_number = new_string;
 
-    // USBDescriptorPrinter(pThis);
+    // USBDescriptorPrinter(&pThis->m_USBDevice, FromTicT834);
 
     // Configuration Check
     if (!USBDeviceConfigure (&pThis->m_USBDevice))
@@ -164,105 +165,4 @@ char * USBTicT834DeviceGetSerialNumber(TUSBTicT834Device *pThis)
   assert (pThis != 0);
 
   return pThis->serial_number;
-}
-
-void USBDescriptorPrinter(TUSBTicT834Device *pThis)
-{
-    const TUSBDeviceDescriptor *pDeviceDesc = 
-        USBDeviceGetDeviceDescriptor (&pThis->m_USBDevice);
-	assert (pDeviceDesc != 0);
-
-    LogWrite (FromTicT834, LOG_NOTICE, "\r\n");
-    LogWrite (FromTicT834, LOG_NOTICE, "Device Descriptor");
-    LogWrite (FromTicT834, LOG_NOTICE, "------------------------------");
-    LogWrite (FromTicT834, LOG_NOTICE, "bLength\t\t\t%u", pDeviceDesc->bLength);
-    LogWrite (FromTicT834, LOG_NOTICE, "bDescriptorType\t\t%u", pDeviceDesc->bDescriptorType);
-    LogWrite (FromTicT834, LOG_NOTICE, "bcdUSB\t\t\t0x%x", pDeviceDesc->bcdUSB);
-    LogWrite (FromTicT834, LOG_NOTICE, "bDeviceClass\t\t0x%x", pDeviceDesc->bDeviceClass);
-    LogWrite (FromTicT834, LOG_NOTICE, "bDeviceSubClass\t\t0x%x", pDeviceDesc->bDeviceSubClass);
-    LogWrite (FromTicT834, LOG_NOTICE, "bDeviceProtocol\t\t0x%x", pDeviceDesc->bDeviceProtocol);
-    LogWrite (FromTicT834, LOG_NOTICE, "bMaxPacketSize0\t\t%u", pDeviceDesc->bMaxPacketSize0);
-    LogWrite (FromTicT834, LOG_NOTICE, "idVendor\t\t0x%x", pDeviceDesc->idVendor);
-    LogWrite (FromTicT834, LOG_NOTICE, "idProduct\t\t0x%x", pDeviceDesc->idProduct);
-    LogWrite (FromTicT834, LOG_NOTICE, "bcdDevice\t\t0x%x", pDeviceDesc->bcdDevice);
-    LogWrite (FromTicT834, LOG_NOTICE, "iManufacturer\t\t%u", pDeviceDesc->iManufacturer);
-    LogWrite (FromTicT834, LOG_NOTICE, "iProduct\t\t%u", pDeviceDesc->iProduct);
-    LogWrite (FromTicT834, LOG_NOTICE, "iSerialNumber\t\t%u", pDeviceDesc->iSerialNumber);
-    LogWrite (FromTicT834, LOG_NOTICE, "bNumConfigurations\t%u", pDeviceDesc->bNumConfigurations);
-    LogWrite (FromTicT834, LOG_NOTICE, "------------------------------");
-
-
-    // Configurator Descriptor
-	const TUSBConfigurationDescriptor *pConfDesc =
-		USBDeviceGetConfigurationDescriptor (&pThis->m_USBDevice);
-	assert (pConfDesc != 0);
-
-    LogWrite (FromTicT834, LOG_NOTICE, "\r\n");
-    LogWrite (FromTicT834, LOG_NOTICE, "Configuration Descriptor");
-    LogWrite (FromTicT834, LOG_NOTICE, "------------------------------");
-    LogWrite (FromTicT834, LOG_NOTICE, "bLength\t\t\t%u", pConfDesc->bLength);
-    LogWrite (FromTicT834, LOG_NOTICE, "bDescriptorType\t\t%u", pConfDesc->bDescriptorType);
-    LogWrite (FromTicT834, LOG_NOTICE, "wTotalLength\t\t%u", pConfDesc->wTotalLength);
-    LogWrite (FromTicT834, LOG_NOTICE, "bNumInterfaces\t\t%u", pConfDesc->bNumInterfaces);
-    LogWrite (FromTicT834, LOG_NOTICE, "bConfigurationValue\t%u", pConfDesc->bConfigurationValue);
-    LogWrite (FromTicT834, LOG_NOTICE, "iConfiguration\t\t%u", pConfDesc->iConfiguration);
-    LogWrite (FromTicT834, LOG_NOTICE, "bmAttributes\t\t0x%x", pConfDesc->bmAttributes);
-    LogWrite (FromTicT834, LOG_NOTICE, "bMaxPower\t\t%u", pConfDesc->bMaxPower);
-    LogWrite (FromTicT834, LOG_NOTICE, "------------------------------");
-
-
-    // Interface Descriptor
-    TUSBInterfaceDescriptor *pInterfaceDesc =
-        (TUSBInterfaceDescriptor *) USBDeviceGetDescriptor (&pThis->m_USBDevice, DESCRIPTOR_INTERFACE);
-    assert (pInterfaceDesc != 0);
-
-    LogWrite (FromTicT834, LOG_NOTICE, "\r\n");
-    LogWrite (FromTicT834, LOG_NOTICE, "Interface Descriptor");
-    LogWrite (FromTicT834, LOG_NOTICE, "------------------------------");
-    LogWrite (FromTicT834, LOG_NOTICE, "bLength\t\t\t%u", pInterfaceDesc->bLength);
-    LogWrite (FromTicT834, LOG_NOTICE, "bDescriptorType\t\t%u", pInterfaceDesc->bDescriptorType);
-    LogWrite (FromTicT834, LOG_NOTICE, "bInterfaceNumber\t%u", pInterfaceDesc->bInterfaceNumber);
-    LogWrite (FromTicT834, LOG_NOTICE, "bAlternateSetting\t%u", pInterfaceDesc->bAlternateSetting);
-    LogWrite (FromTicT834, LOG_NOTICE, "bNumEndpoints\t\t%u", pInterfaceDesc->bNumEndpoints);
-    LogWrite (FromTicT834, LOG_NOTICE, "bInterfaceClass\t\t0x%x", pInterfaceDesc->bInterfaceClass);
-    LogWrite (FromTicT834, LOG_NOTICE, "bInterfaceSubClass\t0x%x", pInterfaceDesc->bInterfaceSubClass);
-    LogWrite (FromTicT834, LOG_NOTICE, "bInterfaceProtocol\t0x%x", pInterfaceDesc->bInterfaceProtocol);
-    LogWrite (FromTicT834, LOG_NOTICE, "iInterface\t\t%u", pInterfaceDesc->iInterface);
-    LogWrite (FromTicT834, LOG_NOTICE, "------------------------------");
-
-
-    // Endpoint Descriptor
-    if (pInterfaceDesc->bNumEndpoints > 0)
-    {
-        TUSBEndpointDescriptor *pEndpointDesc =
-            (TUSBEndpointDescriptor *) USBDeviceGetDescriptor (&pThis->m_USBDevice, DESCRIPTOR_ENDPOINT);
-        // assert (pEndpointDesc != 0);
-
-        LogWrite (FromTicT834, LOG_NOTICE, "\r\n");
-        LogWrite (FromTicT834, LOG_NOTICE, "Endpoint Descriptor");
-        LogWrite (FromTicT834, LOG_NOTICE, "------------------------------");
-        LogWrite (FromTicT834, LOG_NOTICE, "bLength\t\t\t%u", pEndpointDesc->bLength);
-        LogWrite (FromTicT834, LOG_NOTICE, "bDescriptorType\t\t%u", pEndpointDesc->bDescriptorType);
-        LogWrite (FromTicT834, LOG_NOTICE, "bEndpointAddress\t0x%x", pEndpointDesc->bEndpointAddress);
-        LogWrite (FromTicT834, LOG_NOTICE, "bmAttributes\t\t0x%x", pEndpointDesc->bmAttributes);
-        LogWrite (FromTicT834, LOG_NOTICE, "wMaxPacketSize\t\t0x%x", pEndpointDesc->wMaxPacketSize);
-        LogWrite (FromTicT834, LOG_NOTICE, "bInterval\t\t0x%x", pEndpointDesc->bInterval);
-        LogWrite (FromTicT834, LOG_NOTICE, "------------------------------");
-    }
-
-
-    // String Descriptor
-    TUSBStringDescriptor *pStringDesc =
-        (TUSBStringDescriptor *) USBDeviceGetDescriptor (&pThis->m_USBDevice, DESCRIPTOR_STRING);
-    // assert (pEndpointDesc != 0);
-
-    LogWrite (FromTicT834, LOG_NOTICE, "\r\n");
-    LogWrite (FromTicT834, LOG_NOTICE, "String Descriptor");
-    LogWrite (FromTicT834, LOG_NOTICE, "------------------------------");
-    LogWrite (FromTicT834, LOG_NOTICE, "bLength\t\t\t%u", pStringDesc->bLength);
-    LogWrite (FromTicT834, LOG_NOTICE, "bDescriptorType\t\t%u", pStringDesc->bDescriptorType);
-    LogWrite (FromTicT834, LOG_NOTICE, "bString\t\t\t%u", pStringDesc->bString);
-    LogWrite (FromTicT834, LOG_NOTICE, "------------------------------");
-
-    LogWrite (FromTicT834, LOG_NOTICE, "\r\n");
 }

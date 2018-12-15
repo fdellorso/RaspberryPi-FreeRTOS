@@ -24,26 +24,12 @@
 // for factory
 #include <uspi/usbstandardhub.h>
 #include <uspi/smsc951x.h>
-
-#ifdef USBMEM
 #include <uspi/usbmassdevice.h>
-#endif
-
-#ifdef USBKBD
 #include <uspi/usbkeyboard.h>
-#endif
-
-#ifdef USBMOU
 #include <uspi/usbmouse.h>
-#endif
-
-#ifdef USBPAD
 #include <uspi/usbgamepad.h>
-#endif
-
-#ifdef USBTIC
 #include <uspi/usbtict834.h>
-#endif
+#include <uspi/usbblt.h>
 
 
 TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName);
@@ -129,6 +115,16 @@ TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName)
         TUSBTicT834Device *pDevice = (TUSBTicT834Device *) malloc (sizeof (TUSBTicT834Device));
         assert (pDevice != 0);
         USBTicT834Device (pDevice, pParent);
+        pResult = (TUSBDevice *) pDevice;
+    }
+	#endif
+	// TODO Qua inizia il driver per Bluetooth
+	#ifdef USBBLT
+	else if (StringCompare (pName, "vena12-1") == 0)
+    {
+        TUSBBltDevice *pDevice = (TUSBBltDevice *) malloc (sizeof (TUSBBltDevice));
+        assert (pDevice != 0);
+        USBBltDevice (pDevice, pParent);
         pResult = (TUSBDevice *) pDevice;
     }
 	#endif

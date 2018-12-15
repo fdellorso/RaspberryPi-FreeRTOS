@@ -72,7 +72,8 @@
 			"aux.h": "c",
 			"spi.h": "c",
 			"uspi.h": "c",
-			"stufa_task.h": "c"
+			"stufa_task.h": "c",
+			"usbcommon.h": "c"
 		}
 	}
 }
