@@ -16,6 +16,7 @@ CFLAGS += -I $(BASE)Drivers/prvlib
 endif
 CFLAGS += -I $(BASE)Uspi/include/
 CFLAGS += -I $(BASE)Tic/include/
+CFLAGS += -I $(BASE)Rsta_Bt/include/
 # CFLAGS += -I $(BASE)Tic/lib/libyaml
 CFLAGS += -I $(BASE)FreeRTOS/Source/include/
 CFLAGS += -I $(BASE)FreeRTOS/Source/portable/GCC/RaspberryPi/

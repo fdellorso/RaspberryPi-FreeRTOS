@@ -28,7 +28,7 @@
 #include <uspi/usbmassdevice.h>
 #include <uspi/smsc951x.h>
 #include <uspi/usbtict834.h>
-#include <uspi/usbblt.h>
+#include <uspi/usbbluetooth.h>
 
 
 #ifdef __cplusplus
@@ -58,7 +58,7 @@ typedef struct TUSPiLibrary
 	TUSBTicT834Device				*pTic0;
 	#endif
 	#ifdef USBBLT
-	TUSBBltDevice					*pBlt0;
+	TUSBBluetoothDevice				*pUbt0;
 	#endif
 }
 TUSPiLibrary;

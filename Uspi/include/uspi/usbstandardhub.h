@@ -17,8 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#ifndef _usbstandardhub_h
-#define _usbstandardhub_h
+#ifndef _uspi_usbstandardhub_h
+#define _uspi_usbstandardhub_h
 
 #include <uspi/usb.h>
 #include <uspi/usbhub.h>

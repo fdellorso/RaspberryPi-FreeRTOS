@@ -26,6 +26,7 @@
 
 static volatile unsigned s_nCriticalLevel = 0;
 static volatile boolean s_bWereEnabled;
+
 __attribute__((no_instrument_function))
 void uspi_EnterCritical (void)
 {
@@ -41,6 +42,7 @@ void uspi_EnterCritical (void)
 
 	DataMemBarrier ();
 }
+
 __attribute__((no_instrument_function))
 void uspi_LeaveCritical (void)
 {

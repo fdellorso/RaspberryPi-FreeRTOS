@@ -107,7 +107,7 @@ ifneq (,$(findstring -DUSBTIC,$(USBDEV)))
 OBJECTS += $(BUILD_DIR)Uspi/lib/usbtict834.o
 endif
 ifneq (,$(findstring -DUSBBLT,$(USBDEV)))
-OBJECTS += $(BUILD_DIR)Uspi/lib/usbblt.o
+OBJECTS += $(BUILD_DIR)Uspi/lib/usbbluetooth.o
 endif
 
 #

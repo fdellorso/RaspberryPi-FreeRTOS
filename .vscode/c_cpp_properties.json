@@ -6,6 +6,7 @@
                 "${workspaceFolder}/Drivers",
                 "${workspaceFolder}/Tic/include",
                 "${workspaceFolder}/Uspi/include",
+                "${workspaceFolder}/Rsta_Bt/include",
                 "${workspaceFolder}/FreeRTOS/Source/include",
                 "${workspaceFolder}/FreeRTOS/Source/portable/GCC/RaspberryPi"
             ],

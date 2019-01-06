@@ -67,6 +67,7 @@ PACKED TSetupData;
 #define REQUEST_CLASS				0x20
 #define REQUEST_VENDOR				0x40
 
+#define REQUEST_TO_DEVICE			0
 #define REQUEST_TO_INTERFACE		1
 #define REQUEST_TO_OTHER			3
 
@@ -171,7 +172,7 @@ typedef struct TUSBStringDescriptor
 	unsigned char	bLength;
 	unsigned char	bDescriptorType;
 	// unsigned short	bString[0];
-	unsigned short	bString[];		// FIXME
+	unsigned short	bString[];			// FIXME Warning
 }
 PACKED TUSBStringDescriptor;
 

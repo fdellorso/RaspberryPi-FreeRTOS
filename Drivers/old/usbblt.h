@@ -24,14 +24,26 @@
 #include <uspi/usbdevice.h>
 #include <uspi/usbendpoint.h>
 #include <uspi/usbrequest.h>
-#include <uspi/usbhid.h>
 #include <uspi/types.h>
 #include <uspi.h>
 
+#define OGF_INFO_CMD            0x04
+
+#define OCF_HCI_READ_BD_ADDR    0x0009
+
 typedef struct TUSBBltDevice
 {
-    TUSBDevice  m_USBDevice;
+    TUSBDevice      m_USBDevice;
 
+    u8              m_ucInterfaceNumber;
+	u8              m_ucAlternateSetting;
+
+    TUSBEndpoint    *m_pEndpointBulkIn;
+	TUSBEndpoint    *m_pEndpointBulkOut;
+    TUSBEndpoint    *m_pReportEndpoint;
+
+    u8              *m_pReportBuffer;
+    u8              *m_pBd_addr;
 }
 TUSBBltDevice;
 

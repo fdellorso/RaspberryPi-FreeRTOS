@@ -29,7 +29,7 @@
 #include <uspi/usbmouse.h>
 #include <uspi/usbgamepad.h>
 #include <uspi/usbtict834.h>
-#include <uspi/usbblt.h>
+#include <uspi/usbbluetooth.h>
 
 
 TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName);
@@ -120,11 +120,12 @@ TUSBDevice *GetDevice (TUSBDevice *pParent, TString *pName)
 	#endif
 	// TODO Qua inizia il driver per Bluetooth
 	#ifdef USBBLT
-	else if (StringCompare (pName, "vena12-1") == 0)
+	else if (StringCompare (pName, "inte0-1-1") == 0 || 
+			 StringCompare (pName, "vena12-1") == 0)
     {
-        TUSBBltDevice *pDevice = (TUSBBltDevice *) malloc (sizeof (TUSBBltDevice));
+        TUSBBluetoothDevice *pDevice = (TUSBBluetoothDevice *) malloc (sizeof (TUSBBluetoothDevice));
         assert (pDevice != 0);
-        USBBltDevice (pDevice, pParent);
+        USBBluetoothDevice (pDevice, pParent);
         pResult = (TUSBDevice *) pDevice;
     }
 	#endif

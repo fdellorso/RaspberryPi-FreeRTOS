@@ -1,0 +1,44 @@
+# GIT Ignore
+
+# C/C++
+# ----------------------------------------------
+# Object files
+*.elf
+*.o
+*.d
+*.ko
+*.lo
+*.obj
+*.slo
+# Precompiled Headers
+*.gch
+*.pch
+# Libraries
+*.a
+*.la
+*.lai
+*.lib
+*.lo
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Builded
+# ----------------------------------------------
+*.img
+*.list
+*.map
+*.syms
+
+# Directories
+# ----------------------------------------------
+build/

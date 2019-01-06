@@ -10,7 +10,10 @@
 			"path": "./../raspbootin"
 		},
 		{
-			"path": "/media/stufa_sw"
+			"path": "../stufa_sw"
+		},
+		{
+			"path": "/home/francesco/circle"
 		}
 	],
 	"settings": {

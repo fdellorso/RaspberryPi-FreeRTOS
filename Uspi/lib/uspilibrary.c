@@ -94,7 +94,7 @@ int USPiInitialize (void)
 	#endif
 
 	#ifdef USBBLT
-	s_pLibrary->pBlt0 = (TUSBBltDevice *) DeviceNameServiceGetDevice (DeviceNameServiceGet (), "blt0", FALSE);
+	s_pLibrary->pUbt0 = (TUSBBluetoothDevice *) DeviceNameServiceGetDevice (DeviceNameServiceGet (), "blt0", FALSE);
 	#endif
 
 	LogWrite (FromUSPi, LOG_DEBUG, "USPi library successfully initialized");
@@ -423,7 +423,7 @@ int USPiDeviceGetInformation (unsigned nClass, unsigned nDeviceIndex, TUSPiDevic
 	case BLT_CLASS:
 		if (nDeviceIndex == 0)
 		{
-			pUSBDevice = (TUSBDevice *) s_pLibrary->pBlt0;
+			pUSBDevice = (TUSBDevice *) s_pLibrary->pUbt0;
 		}
 		break;
 	#endif
