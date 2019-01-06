@@ -23,15 +23,15 @@
 #include <uspios.h>
 
 #if RASPPI == 1
-#define ARM_IO_BASE		0x20000000
+#define ARM_IO_BASE				0x20000000
 #else
-#define ARM_IO_BASE		0x3F000000
+#define ARM_IO_BASE				0x3F000000
 #endif
 
-#define GPU_IO_BASE		0x7E000000
+#define GPU_IO_BASE				0x7E000000
 
-#define GPU_CACHED_BASE		0x40000000
-#define GPU_UNCACHED_BASE	0xC0000000
+#define GPU_CACHED_BASE			0x40000000
+#define GPU_UNCACHED_BASE		0xC0000000
 
 #if RASPPI == 1
 	#ifdef GPU_L2_CACHE_ENABLED
@@ -40,16 +40,16 @@
 		#define GPU_MEM_BASE	GPU_UNCACHED_BASE
 	#endif
 #else
-	#define GPU_MEM_BASE	GPU_UNCACHED_BASE
+	#define GPU_MEM_BASE		GPU_UNCACHED_BASE
 #endif
 
 //
 // USB Host Controller
 //
-#define ARM_USB_BASE		(ARM_IO_BASE + 0x980000)
+#define ARM_USB_BASE			(ARM_IO_BASE + 0x980000)
 
-#define ARM_USB_CORE_BASE	ARM_USB_BASE
-#define ARM_USB_HOST_BASE	(ARM_USB_BASE + 0x400)
-#define ARM_USB_POWER		(ARM_USB_BASE + 0xE00)
+#define ARM_USB_CORE_BASE		ARM_USB_BASE
+#define ARM_USB_HOST_BASE		(ARM_USB_BASE + 0x400)
+#define ARM_USB_POWER			(ARM_USB_BASE + 0xE00)
 
 #endif
