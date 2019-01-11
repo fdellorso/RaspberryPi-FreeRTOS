@@ -15,6 +15,7 @@ ifdef $(LIBUSE)
 CFLAGS += -I $(BASE)Drivers/prvlib
 endif
 CFLAGS += -I $(BASE)Uspi/include/
+# CFLAGS += -I $(BASE)Uspi2/include/
 CFLAGS += -I $(BASE)Tic/include/
 CFLAGS += -I $(BASE)Rsta_Bt/include/
 # CFLAGS += -I $(BASE)Tic/lib/libyaml

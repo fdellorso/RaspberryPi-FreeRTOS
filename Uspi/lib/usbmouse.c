@@ -48,7 +48,7 @@ void USBMouseDevice (TUSBMouseDevice *pThis, TUSBDevice *pDevice)
 	assert (pThis->m_pReportBuffer != 0);
 }
 
-void _CUSBMouseDevice (TUSBMouseDevice *pThis)
+void _USBMouseDevice (TUSBMouseDevice *pThis)
 {
 	assert (pThis != 0);
 

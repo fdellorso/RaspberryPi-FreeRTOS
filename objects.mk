@@ -57,7 +57,9 @@ endif
 #
 # OBJECTS += $(BUILD_DIR)trace/trace.o
 
-# smsc9514 (LAN and USB)
+#
+#	USPi Library (LAN and USB)
+#
 OBJECTS += $(BUILD_DIR)Uspi/uspibind.o
 OBJECTS += $(BUILD_DIR)Uspi/lib/uspilibrary.o
 OBJECTS += $(BUILD_DIR)Uspi/lib/dwhcidevice.o
@@ -129,6 +131,13 @@ OBJECTS += $(BUILD_DIR)Tic/lib/tic_variables.o
 # OBJECTS += $(BUILD_DIR)Tic/lib/tic_settings_read_from_string.o
 # OBJECTS += $(BUILD_DIR)Tic/lib/tic_settings_to_string.o
 # OBJECTS += $(BUILD_DIR)Tic/lib/libyaml/yaml.o
+
+#
+#	USPi Library (LAN and USB)
+#
+OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/ptrarray.o
+OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/btinquiryresults.o
+OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/btqueue.o
 
 #
 #	FreeRTOS portable layer for RaspberryPi

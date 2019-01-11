@@ -46,7 +46,7 @@ typedef struct TUSBMouseDevice
 TUSBMouseDevice;
 
 void USBMouseDevice (TUSBMouseDevice *pThis, TUSBDevice *pDevice);
-void _CUSBMouseDevice (TUSBMouseDevice *pThis);
+void _USBMouseDevice (TUSBMouseDevice *pThis);
 
 boolean USBMouseDeviceConfigure (TUSBDevice *pUSBDevice);
 

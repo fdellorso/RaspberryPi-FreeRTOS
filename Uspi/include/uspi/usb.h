@@ -172,7 +172,7 @@ typedef struct TUSBStringDescriptor
 	unsigned char	bLength;
 	unsigned char	bDescriptorType;
 	// unsigned short	bString[0];
-	unsigned short	bString[];			// FIXME Warning
+	unsigned short	*bString;			// FIXME Warning
 }
 PACKED TUSBStringDescriptor;
 

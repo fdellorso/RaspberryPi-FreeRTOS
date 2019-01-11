@@ -29,7 +29,7 @@ extern "C" {
 
 #ifdef USPI_PROVIDE_MEM_FUNCTIONS
 	#define memset		uspi_memset
-	#define memcpy		uspi_memcpy
+	#define memcpy		uspi_memcpy2
 	#define memcpy2		uspi_memcpy2
 	#define memcmp		uspi_memcmp
 #endif

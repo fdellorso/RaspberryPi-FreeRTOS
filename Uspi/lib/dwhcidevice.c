@@ -735,7 +735,7 @@ boolean DWHCIDeviceTransferStage (TDWHCIDevice *pThis, TUSBRequest *pURB, boolea
 		portYIELD_WITHIN_API();
 	}
 
-	return USBRequestGetStatus (pURB);	// FIXME
+	return USBRequestGetStatus (pURB);
 }
 
 void DWHCIDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pContext)
