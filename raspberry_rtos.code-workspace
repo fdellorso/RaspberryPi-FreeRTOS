@@ -4,16 +4,16 @@
 			"path": "."
 		},
 		{
-			"path": "/home/fra/Raspberry_Lib"
-		},
-		{
 			"path": "./../raspbootin"
 		},
 		{
 			"path": "../stufa_sw"
 		},
 		{
-			"path": "/home/francesco/circle"
+			"path": "../circle"
+		},
+		{
+			"path": "/media/stufa_sw"
 		}
 	],
 	"settings": {
