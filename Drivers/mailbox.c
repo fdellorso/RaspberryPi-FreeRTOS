@@ -18,7 +18,7 @@ typedef struct {
 	unsigned long	SENDER;
 	unsigned long	STATUS;
 	unsigned long	CONFIG;
-	unsigned long	WRITE ;
+	unsigned long	WRITE;
 } BCM2835_MAIL0_REGS;
 
 static volatile BCM2835_MAIL0_REGS * const pRegs = (BCM2835_MAIL0_REGS *) (BCM2835_MAIL0_BASE);
@@ -28,28 +28,24 @@ static volatile BCM2835_MAIL0_REGS * const pRegs = (BCM2835_MAIL0_REGS *) (BCM28
 //unsigned int mailbuffer[22] __attribute__((aligned (16)));
 //https://github.com/raspberrypi/firmware/wiki/Mailbox-property-interface
 void mailboxWrite(int data_addr, int channel){
-	// int mailbox = 0x2000B880;
 	while(1){
-		// if((GET32(mailbox + 0x18)&0x80000000) == 0) break;
 		if((pRegs->STATUS & MAIL_FULL) == 0) break;
 	}
-	// PUT32(mailbox + 0x20, data_addr + channel);
+
 	pRegs->WRITE = data_addr + channel;
 	return;
 }
 
 int mailboxRead(int channel){
-	int ra;
-	// int mailbox = 0x2000B880;
+	int mail;
+
 	while(1){
 		while(1){
-			// ra = GET32(mailbox + 0x18);
-			// if((ra&0x40000000) == 0) break;
 			if((pRegs->STATUS & MAIL_EMPTY) == 0) break;
 		}
-		// ra = GET32(mailbox + 0x00);
-		ra = pRegs->READ;
-		if((ra&0xF) == channel) break;
+		mail = pRegs->READ;
+		if((mail & 0xF) == channel) break;
 	}
-	return(ra);
+	
+	return(mail);
 }

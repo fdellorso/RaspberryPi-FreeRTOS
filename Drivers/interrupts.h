@@ -50,6 +50,7 @@
 #define BCM2835_IRQ_ID_DOORBELL_1 	67
 #define BCM2835_IRQ_ID_GPU0_HALTED 	68
 
+
 typedef void (*FN_INTERRUPT_HANDLER)(int nIRQ, void *pParam);
 
 typedef struct {

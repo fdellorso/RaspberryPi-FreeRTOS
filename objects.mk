@@ -30,6 +30,7 @@ OBJECTS += $(BUILD_DIR)Drivers/arm_timer.o
 OBJECTS += $(BUILD_DIR)Drivers/gpio.o
 OBJECTS += $(BUILD_DIR)Drivers/interrupts.o
 OBJECTS += $(BUILD_DIR)Drivers/mailbox.o
+OBJECTS += $(BUILD_DIR)Drivers/pwm.o
 OBJECTS += $(BUILD_DIR)Drivers/spi.o
 OBJECTS += $(BUILD_DIR)Drivers/sys_timer.o
 

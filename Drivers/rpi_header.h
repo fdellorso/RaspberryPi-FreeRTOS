@@ -4,6 +4,7 @@
 #include <arm_timer.h>
 #include <aux.h>
 #include <bcm2835_base.h>
+#include <clk.h>
 #include <gpio.h>
 #include <interrupts.h>
 #include <mailbox.h>

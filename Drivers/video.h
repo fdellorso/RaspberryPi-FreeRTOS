@@ -13,6 +13,7 @@
 #define VIDEO_VIOLET    0xFFCC88CC
 #define VIDEO_WHITE     0xFFFFFFFF
 
+
 char loaded;
 
 void enablelogging(void);

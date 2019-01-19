@@ -11,6 +11,7 @@
 // ogni secondo su System Timer
 #define ST_INTERVAL 0x000F4240 
 
+
 uint32_t width, height;
 uint8_t hour, minute, second, current_clk;
 uint8_t exit_clk;

@@ -6,6 +6,7 @@
 // Base Physical Address of the GPIO registers
 #define BCM2835_GPIO_BASE               (BCM2835_PERI_BASE + 0x200000)
 
+
 /* GPIO event detect types */
 enum DETECT_TYPE {
 	DETECT_NONE,

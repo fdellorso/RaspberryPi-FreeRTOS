@@ -17,11 +17,11 @@
 #define STATUS_TX_IDLE              0x04
 #define STATUS_RX_IDLE              0x02
 
-
 #define LINE_FEED                   0x0A
 #define CARRIAGE_RETURN             0x0D
 
 #define CLEAR_SCREEN                "\033[2J"
+
 
 char loaded;
 
