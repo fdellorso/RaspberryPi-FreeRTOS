@@ -3,7 +3,7 @@
 //
 //tasks for StuFA Project
 
-// TODO Tic MNG
+// TODO Resolve DRB8825 Interrupt
 // TODO Conversion loops -> pulses
 // TODO Tic Home Routine
 
@@ -49,6 +49,7 @@ xTaskHandle			xHandleWDog		= NULL;
 xTaskHandle			xHandleUSPi		= NULL;
 xTaskHandle			xHandleTicCtrl	= NULL;
 xTaskHandle			xHandleTicCnsl	= NULL;
+xTaskHandle			xHandle8825Ctrl	= NULL;
 
 // Semaphores
 xSemaphoreHandle	xSemUSPiInit	= NULL;
@@ -82,6 +83,9 @@ int prvFunc_TicCommandInit(tic_command **ticCommand);
 void prvFunc_TicCommandScan(tic_command * ticCommand, tic_variables * ticVariables);
 tic_error * prvFunc_TicCommandExec(tic_command * ticCommand, tic_settings * ticSettings,
 	tic_handle * ticHandle);
+
+
+void vStepISR(int nIRQ, void *pParam);
 
 
 // WatchDog boot other tasks and 
@@ -136,7 +140,8 @@ void prvTask_WatchDog(void *pParam) {
 			if(xSemaphoreTake(xSemUSPiInit, xBlockTime) == pdPASS) {
 				vSemaphoreDelete(xSemUSPiInit);
 				vTaskSuspend(xHandleUSPi);
-				if(USPiTicAvailable()) vTaskResume(xHandleTicCtrl);
+				if(USPiTicAvailable())	vTaskResume(xHandleTicCtrl);
+				else 					vTaskResume(xHandle8825Ctrl);
 			}
 		}
 
@@ -370,6 +375,81 @@ void prvTask_TicConsole(void *pParam) {
 
 		vTaskDelay(500);
 	}
+}
+
+
+int step;
+
+void prvTask_8825Control(void *pParam) {
+	int i = 0;
+
+	/* Stop warnings. */
+	( void ) pParam;
+
+	step = 0;
+
+	SetGpioFunction(16, GPIO_FUNC_OUTPUT);
+	SetGpioFunction(19, GPIO_FUNC_OUTPUT);		// Raw Test Stepping
+
+	PudGpio(16, PULL_DISABLE);
+	PudGpio(19, PULL_DISABLE);
+
+	SetGpio(16, 0);
+	SetGpio(19, step%2);
+
+
+	taskENTER_CRITICAL();
+
+	prvSystemTimerStepSetup();
+	RegisterInterrupt(BCM2835_IRQ_ID_ST_C3, vStepISR, NULL);
+	EnableInterrupt(BCM2835_IRQ_ID_ST_C3);
+
+	taskEXIT_CRITICAL();
+
+
+	prvFunc_Print("\nDrv8825 Control...\t\t     Started");
+
+	while(1) {
+		i++;
+
+		// prvFunc_Print("Step nr. %u", step);
+
+		vTaskDelay(100);
+	}
+}
+
+void vStepISR(int nIRQ, void *pParam) {
+	(void)nIRQ;		// FIXME Wunused
+	(void)pParam;	// FIXME Wunused
+
+	// if(dir == 0)	step += 1;
+	// else			step -= 1;
+
+	// if(step == 0) {
+	// 	dir = 0;
+	// 	SetGpio(16, dir);
+	// }
+
+	// if(step == 400 - 1) {
+	// 	step = 0;
+	// 	dir = 1;
+	// 	SetGpio(16, dir);
+	// }
+
+	step += 1;
+
+	if(step == 400 - 1) {
+		step = -400;
+		SetGpio(16, 1);							// Raw Test Stepping
+	}
+
+	if(step == 0) {
+		SetGpio(16, 0);							// Raw Test Stepping
+	}
+
+	SetGpio(19, step%2);						// Raw Test Stepping
+
+	prvSystemTimerStepClear();
 }
 
 // UI Function

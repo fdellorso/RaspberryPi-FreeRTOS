@@ -14,6 +14,7 @@ extern xTaskHandle xHandleWDog;
 extern xTaskHandle xHandleUSPi;
 extern xTaskHandle xHandleTicCtrl;
 extern xTaskHandle xHandleTicCnsl;
+extern xTaskHandle xHandle8825Ctrl;
 
 
 int main(void) {
@@ -49,6 +50,13 @@ int main(void) {
 		8 * configMINIMAL_STACK_SIZE, NULL, 0, &xHandleTicCnsl) == pdPASS) {
 		if(uxTaskPriorityGet(xHandleTicCnsl) < configMAX_CO_ROUTINE_PRIORITIES) {
 			vTaskSuspend(xHandleTicCnsl);
+		}
+	}
+
+	if(xTaskCreate(prvTask_8825Control, (signed char *) "8825Control",
+		configMINIMAL_STACK_SIZE, NULL, 0, &xHandle8825Ctrl) == pdPASS) {
+		if(uxTaskPriorityGet(xHandle8825Ctrl) < configMAX_CO_ROUTINE_PRIORITIES) {
+			vTaskSuspend(xHandle8825Ctrl);
 		}
 	}
 

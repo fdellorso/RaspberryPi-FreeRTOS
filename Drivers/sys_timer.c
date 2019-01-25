@@ -16,14 +16,24 @@ typedef struct {
 
 static volatile BCM2835_SYS_TIMER_REGS * const pRegs = (BCM2835_SYS_TIMER_REGS *) (BCM2835_SYS_TIMER_BASE);
 
-void prvSystemTimerIrqClear(void) {
+void prvSystemTimerTickClear(void) {
 	pRegs->C1 += ST_TICK;
-	pRegs->CS = 0x02;
+	pRegs->CS |= 0x02;
 }
 
-void prvSystemTimerSetup(void) {
+void prvSystemTimerTickSetup(void) {
 	pRegs->C1 = pRegs->CLO + ST_TICK;
-	pRegs->CS = 0x02;
+	pRegs->CS |= 0x02;
+}
+
+void prvSystemTimerStepClear(void) {
+	pRegs->C3 += ST_STEP_MIN;
+	pRegs->CS |= 0x04;
+}
+
+void prvSystemTimerStepSetup(void) {
+	pRegs->C3 = pRegs->CLO + ST_STEP_MIN;
+	pRegs->CS |= 0x04;
 }
 
 // Read the System Timer Counter (64-bits)

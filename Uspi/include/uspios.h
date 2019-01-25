@@ -86,6 +86,7 @@ int GetMACAddress (unsigned char Buffer[6]);	// "get board MAC address"
 //
 
 // Severity (change this before building if you want different values)
+#define LOG_PANIC	0
 #define LOG_ERROR	1
 #define LOG_WARNING	2
 #define LOG_NOTICE	3

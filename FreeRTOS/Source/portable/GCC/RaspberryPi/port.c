@@ -157,7 +157,7 @@ void vPortEndScheduler( void ) {
  *	See bt_interrupts.c in the RaspberryPi Drivers folder.
  */
 __attribute__((no_instrument_function))
-void vTickISR(int nIRQ, void *pParam ) {
+void vTickISR(int nIRQ, void *pParam) {
 	vTaskIncrementTick();
 
 	#if ( configUSE_PREEMPTION == 1 )
@@ -168,7 +168,7 @@ void vTickISR(int nIRQ, void *pParam ) {
 
 	// pRegs->CLI = 0;			// Acknowledge the timer interrupt.
 	// prvArmTimerIrqClear();
-	prvSystemTimerIrqClear();
+	prvSystemTimerTickClear();
 
 	(void)nIRQ;		// FIXME Wunused
 	(void)pParam;	// FIXME Wunused
@@ -207,9 +207,9 @@ static void prvSetupTimerInterrupt( void ) {
 	// RegisterInterrupt(64, vTickISR, NULL);
 	// EnableInterrupt(64);
 
-	prvSystemTimerSetup();
-	RegisterInterrupt(1, vTickISR, NULL);
-	EnableInterrupt(1);
+	prvSystemTimerTickSetup();
+	RegisterInterrupt(BCM2835_IRQ_ID_ST_C1, vTickISR, NULL);
+	EnableInterrupt(BCM2835_IRQ_ID_ST_C1);
 
 	EnableInterrupts();
 }

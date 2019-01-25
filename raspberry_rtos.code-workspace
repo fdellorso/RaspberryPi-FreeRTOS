@@ -76,7 +76,10 @@
 			"spi.h": "c",
 			"uspi.h": "c",
 			"stufa_task.h": "c",
-			"usbcommon.h": "c"
+			"usbcommon.h": "c",
+			"machineinfo.h": "c",
+			"logger.h": "c",
+			"memio.h": "c"
 		}
 	}
 }

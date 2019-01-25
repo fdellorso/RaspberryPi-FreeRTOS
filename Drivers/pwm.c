@@ -49,8 +49,7 @@ void PwmSetClock(uint32_t divisor) {
 void PwmSetMode(uint8_t channel, uint8_t markspace, uint8_t enabled) {
 	uint32_t control = pRegs->CTL;
 
-	if (channel == 0)
-	{
+	if (channel == 0) {
 		if (markspace)
 			control |= PWM0_MS_MODE;
 		else
@@ -60,8 +59,7 @@ void PwmSetMode(uint8_t channel, uint8_t markspace, uint8_t enabled) {
 		else
 			control &= ~PWM0_ENABLE;
 	}
-	else if (channel == 1)
-	{
+	else if (channel == 1) {
 		if (markspace)
 			control |= PWM1_MS_MODE;
 		else

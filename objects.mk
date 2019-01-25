@@ -139,6 +139,7 @@ OBJECTS += $(BUILD_DIR)Tic/lib/tic_variables.o
 OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/ptrarray.o
 OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/btinquiryresults.o
 OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/btqueue.o
+# OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/bttask.o
 
 #
 #	FreeRTOS portable layer for RaspberryPi

@@ -9,6 +9,7 @@
 #include <interrupts.h>
 #include <mailbox.h>
 #include <muart.h>
+#include <pwm.h>
 #include <spi.h>
 #include <sys_timer.h>
 

@@ -14,17 +14,17 @@
 #define SPI0_CE0                    8
 #define SPI0_CE1                    7
 
-#define SPI0_CS_CLK_PHASE           1 << 2
-#define SPI0_CS_CLK_POLARITY        1 << 3
-#define SPI0_CS_CLEAR_FIFO_TX       1 << 4
-#define SPI0_CS_CLEAR_FIFO_RX       1 << 5
-#define SPI0_CS_TRANSFER_ACTIVE     1 << 7
-#define SPI0_CS_DONE                1 << 16
-#define SPI0_CS_RXD                 1 << 17
-#define SPI0_CS_TXD                 1 << 18
-#define SPI0_CS_CHIP_SELECT0_POL    1 << 21
-#define SPI0_CS_CHIP_SELECT1_POL    1 << 22
-#define SPI0_CS_CHIP_SELECT2_POL    1 << 23
+#define SPI0_CS_CLK_PHASE           (1 << 2)
+#define SPI0_CS_CLK_POLARITY        (1 << 3)
+#define SPI0_CS_CLEAR_FIFO_TX       (1 << 4)
+#define SPI0_CS_CLEAR_FIFO_RX       (1 << 5)
+#define SPI0_CS_TRANSFER_ACTIVE     (1 << 7)
+#define SPI0_CS_DONE                (1 << 16)
+#define SPI0_CS_RXD                 (1 << 17)
+#define SPI0_CS_TXD                 (1 << 18)
+#define SPI0_CS_CHIP_SELECT0_POL    (1 << 21)
+#define SPI0_CS_CHIP_SELECT1_POL    (1 << 22)
+#define SPI0_CS_CHIP_SELECT2_POL    (1 << 23)
 
 typedef enum {
 	SPI0_MODE0 =                    0,      ///< CPOL = 0, CPHA = 0

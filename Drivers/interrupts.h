@@ -24,9 +24,9 @@
 #define BCM2835_IRQ_DISABLE2		(BCM2835_BASE_INTC + 0x20)
 #define BCM2835_IRQ_DISABLE_BASIC	(BCM2835_BASE_INTC + 0x24)
 
-#define BCM2835_IRQ_ID_ST_C0		0       // Reserved by VideoCore
+#define BCM2835_IRQ_ID_ST_C0		0			// Reserved by VideoCore
 #define BCM2835_IRQ_ID_ST_C1		1
-#define BCM2835_IRQ_ID_ST_C2		2       // Reserved by VideoCore
+#define BCM2835_IRQ_ID_ST_C2		2			// Reserved by VideoCore
 #define BCM2835_IRQ_ID_ST_C3		3
 #define BCM2835_IRQ_ID_USB			9
 #define BCM2835_IRQ_ID_AUX			29
