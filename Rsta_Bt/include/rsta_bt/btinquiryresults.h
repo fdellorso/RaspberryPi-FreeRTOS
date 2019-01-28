@@ -30,6 +30,15 @@ typedef struct TBTInquiryResults
 }
 TBTInquiryResults;
 
+typedef struct TBTInquiryResponse
+{
+	u8	BDAddress[BT_BD_ADDR_SIZE];
+	u8	ClassOfDevice[BT_CLASS_SIZE];
+	u8	PageScanRepetitionMode;
+	u8	RemoteName[BT_NAME_SIZE];
+}
+TBTInquiryResponse;
+
 void BTInquiryResults (TBTInquiryResults *pThis);
 void _BTInquiryResults (TBTInquiryResults *pThis);
 

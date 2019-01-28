@@ -20,36 +20,37 @@
 #ifndef _rsta_bt_btsubsystem_h
 #define _rsta_bt_btsubsystem_h
 
-#include <circle/interrupt.h>
+#include <circle/interrupt.h>	// TODO
 #include <rsta_bt/bluetooth.h>
 #include <rsta_bt/btinquiryresults.h>
-#include <rsta_bt/btuarttransport.h>
+#include <rsta_bt/btuarttransport.h>	// TODO
 #include <rsta_bt/bthcilayer.h>
-#include <rsta_bt/btlogicallayer.h>
+#include <rsta_bt/btlogicallayer.h>	// TODO
 #include <uspi/types.h>
 
-class CBTSubSystem
+typedef struct TBTSubSystem
 {
-public:
-	CBTSubSystem (CInterruptSystem *pInterruptSystem,
-		      u32 nClassOfDevice = BT_CLASS_DESKTOP_COMPUTER,
-		      const char *pLocalName = "Raspberry Pi");
-	~CBTSubSystem (void);
-
-	boolean Initialize (void);
-
-	void Process (void);
-
-	// returns 0 on failure, result must be deleted by caller otherwise
-	CBTInquiryResults *Inquiry (unsigned nSeconds);		// 1 <= nSeconds <= 61
-
-private:
 	CInterruptSystem	*m_pInterruptSystem;
 
-	CBTUARTTransport	*m_pUARTTransport;
+	TBTUARTTransport	*m_pUARTTransport;
 
-	CBTHCILayer			m_HCILayer;
-	CBTLogicalLayer		m_LogicalLayer;
-};
+	TBTHCILayer			m_HCILayer;
+	TBTLogicalLayer		m_LogicalLayer;
+}
+TBTSubSystem;
+
+// BT_CLASS_DESKTOP_COMPUTER, "Raspberry Pi"	// TODO
+
+void BTSubSystem (TBTSubSystem *pThis, CInterruptSystem *pInterruptSystem,
+				  u32 nClassOfDevice, const char *pLocalName);
+
+void _BTSubSystem (TBTSubSystem *pThis);
+
+boolean BTSubSystemInitialize (TBTSubSystem *pThis);
+
+void BTSubSystemProcess (TBTSubSystem *pThis);
+
+// returns 0 on failure, result must be deleted by caller otherwise
+TBTInquiryResults *BTSubSystemInquiry (TBTSubSystem *pThis, unsigned nSeconds);		// 1 <= nSeconds <= 61
 
 #endif

@@ -20,8 +20,10 @@
 #include <rsta_bt/btdevicemanager.h>
 #include <rsta_bt/bthcilayer.h>
 #include <rsta_bt/bcmvendor.h>
-#include <circle/sched/scheduler.h>
-#include <circle/logger.h>
+// #include <circle/sched/scheduler.h>
+#include <sys_timer.h>
+// #include <circle/logger.h>
+#include <uspios.h>
 #include <uspi/util.h>
 #include <uspi/assert.h>
 
@@ -32,207 +34,211 @@ static const u8 Firmware[] =
 
 static const char FromDeviceManager[] = "btdev";
 
-BTDeviceManager (CBTHCILayer *pHCILayer, CBTQueue *pEventQueue,
-				    u32 nClassOfDevice, const char *pLocalName)
-:	m_pHCILayer (pHCILayer),
-	m_pEventQueue (pEventQueue),
-	m_nClassOfDevice (nClassOfDevice),
-	m_State (BTDeviceStateUnknown),
-	m_pBuffer (0)
+void BTDeviceManager (TBTDeviceManager *pThis, TBTHCILayer *pHCILayer,
+					  TBTQueue *pEventQueue, u32 nClassOfDevice, const char *pLocalName)
 {
-	memset (m_LocalName, 0, sizeof m_LocalName);
-	strncpy ((char *) m_LocalName, pLocalName, sizeof m_LocalName);
+	pThis->m_pHCILayer		= pHCILayer;
+	pThis->m_pEventQueue	= pEventQueue;
+	pThis->m_nClassOfDevice	= nClassOfDevice;
+	pThis->m_State			= BTDeviceStateUnknown;
+	pThis->m_pBuffer		= 0;
+
+	memset (pThis->m_LocalName, 0, sizeof pThis->m_LocalName);
+	strncpy ((char *) pThis->m_LocalName, pLocalName, sizeof pThis->m_LocalName);
 }
 
-_BTDeviceManager (void)
+void _BTDeviceManager (TBTDeviceManager *pThis)
 {
-	delete [] m_pBuffer;
-	m_pBuffer = 0;
+	free (pThis->m_pBuffer);
+	pThis->m_pBuffer = 0;
 
-	m_pHCILayer = 0;
-	m_pEventQueue = 0;
+	pThis->m_pHCILayer = 0;
+	pThis->m_pEventQueue = 0;
 }
 
-boolean BTDeviceManagerInitialize (void)
+boolean BTDeviceManagerInitialize (TBTDeviceManager *pThis)
 {
-	assert (m_pHCILayer != 0);
+	assert (pThis->m_pHCILayer != 0);
 
-	m_pBuffer = new u8[BT_MAX_HCI_EVENT_SIZE];
-	assert (m_pBuffer != 0);
+	pThis->m_pBuffer = (u8) malloc (sizeof(u8) * BT_MAX_HCI_EVENT_SIZE);
+	assert (pThis->m_pBuffer != 0);
 
 	TBTHCICommandHeader Cmd;
 	Cmd.OpCode = OP_CODE_RESET;
 	Cmd.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);
-	m_pHCILayer->SendCommand (&Cmd, sizeof Cmd);
+	BTHCILayerSendCommand(pThis->m_pHCILayer, &Cmd, sizeof Cmd);
 
-	m_State = BTDeviceStateResetPending;
+	pThis->m_State = BTDeviceStateResetPending;
 
 	return TRUE;
 }
 
-void BTDeviceManagerProcess (void)
+void BTDeviceManagerProcess (TBTDeviceManager *pThis)
 {
-	assert (m_pHCILayer != 0);
-	assert (m_pEventQueue != 0);
-	assert (m_pBuffer != 0);
+	assert (pThis->m_pHCILayer != 0);
+	assert (pThis->m_pEventQueue != 0);
+	assert (pThis->m_pBuffer != 0);
 
 	unsigned nLength;
-	while ((nLength = m_pEventQueue->Dequeue (m_pBuffer)) > 0)
+	while ((nLength = BTQueueDequeue(pThis->m_pEventQueue, pThis->m_pBuffer, NULL)) > 0)
 	{
 		assert (nLength >= sizeof (TBTHCIEventHeader));
-		TBTHCIEventHeader *pHeader = (TBTHCIEventHeader *) m_pBuffer;
+		TBTHCIEventHeader *pHeader = (TBTHCIEventHeader *) pThis->m_pBuffer;
 
 		switch (pHeader->EventCode)
 		{
-		case EVENT_CODE_COMMAND_COMPLETE: {
-			assert (nLength >= sizeof (TBTHCIEventCommandComplete));
-			TBTHCIEventCommandComplete *pCommandComplete = (TBTHCIEventCommandComplete *) pHeader;
+			case EVENT_CODE_COMMAND_COMPLETE: {
+				assert (nLength >= sizeof (TBTHCIEventCommandComplete));
+				TBTHCIEventCommandComplete *pCommandComplete = (TBTHCIEventCommandComplete *) pHeader;
 
-			m_pHCILayer->SetCommandPackets (pCommandComplete->NumHCICommandPackets);
+				BTHCILayerSetCommandPackets(pThis->m_pHCILayer, pCommandComplete->NumHCICommandPackets);
 
-			if (pCommandComplete->Status != BT_STATUS_SUCCESS)
-			{
-				CLogger::Get ()->Write (FromDeviceManager, LogError,
-							"Command 0x%X failed (status 0x%X)",
-							(unsigned) pCommandComplete->CommandOpCode,
-							(unsigned) pCommandComplete->Status);
-
-				m_State = BTDeviceStateFailed;
-
-				continue;
-			}
-
-			switch (pCommandComplete->CommandOpCode)
-			{
-			case OP_CODE_RESET: {
-				assert (m_State == BTDeviceStateResetPending);
-
-				if (m_pHCILayer->GetTransportType () != BTTransportTypeUART)
+				if (pCommandComplete->Status != BT_STATUS_SUCCESS)
 				{
-					goto NoFirmwareLoad;
+					LogWrite (FromDeviceManager, LOG_ERROR,
+								"Command 0x%X failed (status 0x%X)",
+								(unsigned) pCommandComplete->CommandOpCode,
+								(unsigned) pCommandComplete->Status);
+
+					pThis->m_State = BTDeviceStateFailed;
+
+					continue;
 				}
 
-				TBTHCICommandHeader Cmd;
-				Cmd.OpCode = OP_CODE_DOWNLOAD_MINIDRIVER;
-				Cmd.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);
-				m_pHCILayer->SendCommand (&Cmd, sizeof Cmd);
-				CScheduler::Get ()->MsSleep (50);
-
-				m_nFirmwareOffset = 0;
-				m_State = BTDeviceStateWriteRAMPending;
-				} break;
-
-			case OP_CODE_DOWNLOAD_MINIDRIVER:
-			case OP_CODE_WRITE_RAM: {
-				assert (m_State == BTDeviceStateWriteRAMPending);
-
-				assert (m_nFirmwareOffset+3 <= sizeof Firmware);
-				u16 nOpCode  = Firmware[m_nFirmwareOffset++];
-				    nOpCode |= Firmware[m_nFirmwareOffset++] << 8;
-				u8 nLength = Firmware[m_nFirmwareOffset++];
-
-				TBTHCIBcmVendorCommand Cmd;
-				Cmd.Header.OpCode = nOpCode;
-				Cmd.Header.ParameterTotalLength = nLength;
-
-				for (unsigned i = 0; i < nLength; i++)
+				switch (pCommandComplete->CommandOpCode)
 				{
-					assert (m_nFirmwareOffset < sizeof Firmware);
-					Cmd.Data[i] = Firmware[m_nFirmwareOffset++];
+					case OP_CODE_RESET: {
+						assert (pThis->m_State == BTDeviceStateResetPending);
+
+						if (BTHCILayerGetTransportType(pThis->m_pHCILayer) != BTTransportTypeUART)
+						{
+							goto NoFirmwareLoad;
+						}
+
+						TBTHCICommandHeader Cmd;
+						Cmd.OpCode = OP_CODE_DOWNLOAD_MINIDRIVER;
+						Cmd.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);
+						BTHCILayerSendCommand(pThis->m_pHCILayer, &Cmd, sizeof Cmd);
+						// CScheduler::Get ()->MsSleep (50);
+						DelayMilliSysTimer(50);
+
+						pThis->m_nFirmwareOffset = 0;
+						pThis->m_State = BTDeviceStateWriteRAMPending;
+					} break;
+
+					case OP_CODE_DOWNLOAD_MINIDRIVER:
+					case OP_CODE_WRITE_RAM: {
+						assert (pThis->m_State == BTDeviceStateWriteRAMPending);
+
+						assert (pThis->m_nFirmwareOffset + 3 <= sizeof Firmware);
+						(u16) nOpCode  = Firmware[pThis->m_nFirmwareOffset++];
+							  nOpCode |= Firmware[pThis->m_nFirmwareOffset++] << 8;
+						(u8)  nLength  = Firmware[pThis->m_nFirmwareOffset++];
+
+						TBTHCIBcmVendorCommand Cmd;
+						Cmd.Header.OpCode = nOpCode;
+						Cmd.Header.ParameterTotalLength = nLength;
+
+						unsigned i;
+						for (i = 0; i < nLength; i++)
+						{
+							assert (pThis->m_nFirmwareOffset < sizeof Firmware);
+							Cmd.Data[i] = Firmware[pThis->m_nFirmwareOffset++];
+						}
+
+						BTHCILayerSendCommand(pThis->m_pHCILayer, &Cmd, sizeof Cmd.Header + nLength);
+
+						if (nOpCode == OP_CODE_LAUNCH_RAM)
+						{
+							pThis->m_State = BTDeviceStateLaunchRAMPending;
+						}
+					} break;
+
+					case OP_CODE_LAUNCH_RAM: {
+						assert (pThis->m_State == BTDeviceStateLaunchRAMPending);
+						// CScheduler::Get ()->MsSleep (250);
+						DelayMilliSysTimer(250);
+
+					NoFirmwareLoad:
+						TBTHCICommandHeader Cmd;
+						Cmd.OpCode = OP_CODE_READ_BD_ADDR;
+						Cmd.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);
+						BTHCILayerSendCommand(pThis->m_pHCILayer, &Cmd, sizeof Cmd);
+
+						pThis->m_State = BTDeviceStateReadBDAddrPending;
+					} break;
+
+					case OP_CODE_READ_BD_ADDR: {
+						assert (pThis->m_State == BTDeviceStateReadBDAddrPending);
+
+						assert (nLength >= sizeof (TBTHCIEventReadBDAddrComplete));
+						TBTHCIEventReadBDAddrComplete *pEvent = (TBTHCIEventReadBDAddrComplete *) pHeader;
+						memcpy (pThis->m_LocalBDAddr, pEvent->BDAddr, BT_BD_ADDR_SIZE);
+
+						LogWrite (FromDeviceManager, LOG_NOTICE,
+									"Local BD address is %02X:%02X:%02X:%02X:%02X:%02X",
+									(unsigned) pThis->m_LocalBDAddr[5],
+									(unsigned) pThis->m_LocalBDAddr[4],
+									(unsigned) pThis->m_LocalBDAddr[3],
+									(unsigned) pThis->m_LocalBDAddr[2],
+									(unsigned) pThis->m_LocalBDAddr[1],
+									(unsigned) pThis->m_LocalBDAddr[0]);
+
+						TBTHCIWriteClassOfDeviceCommand Cmd;
+						Cmd.Header.OpCode = OP_CODE_WRITE_CLASS_OF_DEVICE;
+						Cmd.Header.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);
+						Cmd.ClassOfDevice[0] = pThis->m_nClassOfDevice       & 0xFF;
+						Cmd.ClassOfDevice[1] = pThis->m_nClassOfDevice >> 8  & 0xFF;
+						Cmd.ClassOfDevice[2] = pThis->m_nClassOfDevice >> 16 & 0xFF;
+						BTHCILayerSendCommand(pThis->m_pHCILayer, &Cmd, sizeof Cmd);
+
+						pThis->m_State = BTDeviceStateWriteClassOfDevicePending;
+					} break;
+
+					case OP_CODE_WRITE_CLASS_OF_DEVICE: {
+						assert (pThis->m_State == BTDeviceStateWriteClassOfDevicePending);
+
+						TBTHCIWriteLocalNameCommand Cmd;
+						Cmd.Header.OpCode = OP_CODE_WRITE_LOCAL_NAME;
+						Cmd.Header.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);
+						memcpy (Cmd.LocalName, pThis->m_LocalName, sizeof Cmd.LocalName);
+						BTHCILayerSendCommand(pThis->m_pHCILayer, &Cmd, sizeof Cmd);
+
+						pThis->m_State = BTDeviceStateWriteLocalNamePending;
+					} break;
+
+					case OP_CODE_WRITE_LOCAL_NAME: {
+						assert (pThis->m_State == BTDeviceStateWriteLocalNamePending);
+
+						TBTHCIWriteScanEnableCommand Cmd;
+						Cmd.Header.OpCode = OP_CODE_WRITE_SCAN_ENABLE;
+						Cmd.Header.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);
+						Cmd.ScanEnable = SCAN_ENABLE_BOTH_ENABLED;
+						BTHCILayerSendCommand(pThis->m_pHCILayer, &Cmd, sizeof Cmd);
+
+						pThis->m_State = BTDeviceStateWriteScanEnabledPending;
+					} break;
+
+					case OP_CODE_WRITE_SCAN_ENABLE: {
+						assert (pThis->m_State == BTDeviceStateWriteScanEnabledPending);
+						pThis->m_State = BTDeviceStateRunning;
+					} break;
+
+					default:
+						break;
 				}
+			} break;
 
-				m_pHCILayer->SendCommand (&Cmd, sizeof Cmd.Header + nLength);
+			case EVENT_CODE_COMMAND_STATUS: {
+				assert (nLength >= sizeof (TBTHCIEventCommandStatus));
+				TBTHCIEventCommandStatus *pCommandStatus = (TBTHCIEventCommandStatus *) pHeader;
 
-				if (nOpCode == OP_CODE_LAUNCH_RAM)
-				{
-					m_State = BTDeviceStateLaunchRAMPending;
-				}
-				} break;
-
-			case OP_CODE_LAUNCH_RAM: {
-				assert (m_State == BTDeviceStateLaunchRAMPending);
-				CScheduler::Get ()->MsSleep (250);
-
-			NoFirmwareLoad:
-				TBTHCICommandHeader Cmd;
-				Cmd.OpCode = OP_CODE_READ_BD_ADDR;
-				Cmd.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);
-				m_pHCILayer->SendCommand (&Cmd, sizeof Cmd);
-
-				m_State = BTDeviceStateReadBDAddrPending;
-				} break;
-
-			case OP_CODE_READ_BD_ADDR: {
-				assert (m_State == BTDeviceStateReadBDAddrPending);
-
-				assert (nLength >= sizeof (TBTHCIEventReadBDAddrComplete));
-				TBTHCIEventReadBDAddrComplete *pEvent = (TBTHCIEventReadBDAddrComplete *) pHeader;
-				memcpy (m_LocalBDAddr, pEvent->BDAddr, BT_BD_ADDR_SIZE);
-
-				CLogger::Get ()->Write (FromDeviceManager, LogNotice,
-							"Local BD address is %02X:%02X:%02X:%02X:%02X:%02X",
-							(unsigned) m_LocalBDAddr[5],
-							(unsigned) m_LocalBDAddr[4],
-							(unsigned) m_LocalBDAddr[3],
-							(unsigned) m_LocalBDAddr[2],
-							(unsigned) m_LocalBDAddr[1],
-							(unsigned) m_LocalBDAddr[0]);
-
-				TBTHCIWriteClassOfDeviceCommand Cmd;
-				Cmd.Header.OpCode = OP_CODE_WRITE_CLASS_OF_DEVICE;
-				Cmd.Header.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);
-				Cmd.ClassOfDevice[0] = m_nClassOfDevice       & 0xFF;
-				Cmd.ClassOfDevice[1] = m_nClassOfDevice >> 8  & 0xFF;
-				Cmd.ClassOfDevice[2] = m_nClassOfDevice >> 16 & 0xFF;
-				m_pHCILayer->SendCommand (&Cmd, sizeof Cmd);
-
-				m_State = BTDeviceStateWriteClassOfDevicePending;
-				} break;
-
-			case OP_CODE_WRITE_CLASS_OF_DEVICE: {
-				assert (m_State == BTDeviceStateWriteClassOfDevicePending);
-
-				TBTHCIWriteLocalNameCommand Cmd;
-				Cmd.Header.OpCode = OP_CODE_WRITE_LOCAL_NAME;
-				Cmd.Header.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);
-				memcpy (Cmd.LocalName, m_LocalName, sizeof Cmd.LocalName);
-				m_pHCILayer->SendCommand (&Cmd, sizeof Cmd);
-
-				m_State = BTDeviceStateWriteLocalNamePending;
-				} break;
-
-			case OP_CODE_WRITE_LOCAL_NAME: {
-				assert (m_State == BTDeviceStateWriteLocalNamePending);
-
-				TBTHCIWriteScanEnableCommand Cmd;
-				Cmd.Header.OpCode = OP_CODE_WRITE_SCAN_ENABLE;
-				Cmd.Header.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);
-				Cmd.ScanEnable = SCAN_ENABLE_BOTH_ENABLED;
-				m_pHCILayer->SendCommand (&Cmd, sizeof Cmd);
-
-				m_State = BTDeviceStateWriteScanEnabledPending;
-				} break;
-
-			case OP_CODE_WRITE_SCAN_ENABLE:
-				assert (m_State == BTDeviceStateWriteScanEnabledPending);
-				m_State = BTDeviceStateRunning;
-				break;
+				BTHCILayerSetCommandPackets(pThis->m_pHCILayer, pCommandStatus->NumHCICommandPackets);
+			} break;
 
 			default:
+				assert (0);
 				break;
-			}
-			} break;
-
-		case EVENT_CODE_COMMAND_STATUS: {
-			assert (nLength >= sizeof (TBTHCIEventCommandStatus));
-			TBTHCIEventCommandStatus *pCommandStatus = (TBTHCIEventCommandStatus *) pHeader;
-
-			m_pHCILayer->SetCommandPackets (pCommandStatus->NumHCICommandPackets);
-			} break;
-
-		default:
-			assert (0);
-			break;
 		}
 	}
 }

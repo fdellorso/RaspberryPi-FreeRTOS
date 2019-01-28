@@ -17,13 +17,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include <circle/bt/bttask.h>
+#include <rsta_bt/bttask.h>
 // #include <circle/sched/scheduler.h>
+#include <FreeRTOS.h>
 #include <uspi/assert.h>
 
-CBTTask (TBTTask *pThis, CBTSubSystem *pBTSubSystem)
+void BTTask (TBTTask *pThis, TBTSubSystem *pBTSubSystem)
 {
-	// :	m_pBTSubSystem (pBTSubSystem)
+	pThis->m_pBTSubSystem = pBTSubSystem;
 }
 
 void _BTTask (TBTTask *pThis)
@@ -36,8 +37,9 @@ void BTTaskRun (TBTTask *pThis)
 	while (1)
 	{	
 		assert (pThis->m_pBTSubSystem != 0);
-		pThis->m_pBTSubSystem->Process ();
+		BTSubSystemProcess(pThis->m_pBTSubSystem);
 
 		// CScheduler::Get ()->Yield ();
+		taskYIELD();
 	}
 }

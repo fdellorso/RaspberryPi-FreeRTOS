@@ -19,73 +19,73 @@
 //
 #include <rsta_bt/btsubsystem.h>
 #include <rsta_bt/bttask.h>
-#include <circle/sched/scheduler.h>
+// #include <circle/sched/scheduler.h>
+#include <FreeRTOS.h>
 #include <uspi/devicenameservice.h>
-#include <circle/machineinfo.h>
+// #include <circle/machineinfo.h>
 #include <uspi/assert.h>
 
-CBTSubSystem::CBTSubSystem (CInterruptSystem *pInterruptSystem, u32 nClassOfDevice, const char *pLocalName)
-:	m_pInterruptSystem (pInterruptSystem),
-	m_pUARTTransport (0),
-	m_HCILayer (nClassOfDevice, pLocalName),
-	m_LogicalLayer (&m_HCILayer)
+void BTSubSystem (TBTSubSystem *pThis, CInterruptSystem *pInterruptSystem, u32 nClassOfDevice, const char *pLocalName)
 {
+	m_pInterruptSystem (pInterruptSystem);		// TODO
+	pThis->m_pUARTTransport = 0;
+	BTHCILayer(pThis->m_HCILayer, nClassOfDevice, pLocalName);
+	BTLogicalLayer(pThis->m_LogicalLayer, &pThis->m_HCILayer);
 }
 
-CBTSubSystem::~CBTSubSystem (void)
+void _BTSubSystem (TBTSubSystem *pThis)
 {
-	delete m_pUARTTransport;
-	m_pUARTTransport = 0;
+	free (pThis->m_pUARTTransport);
+	pThis->m_pUARTTransport = 0;
 }
 
-boolean CBTSubSystem::Initialize (void)
+boolean BTSubSystemInitialize (TBTSubSystem *pThis)
 {
 	// if USB transport not available, UART still free and this is a RPi 3B or Zero W:
 	//	use UART transport
-	if (   CDeviceNameService::Get ()->GetDevice ("ubt1", FALSE) == 0
-	    && CDeviceNameService::Get ()->GetDevice ("ttyS1", FALSE) == 0
-	    && (   CMachineInfo::Get ()->GetMachineModel () == MachineModel3B
-		|| CMachineInfo::Get ()->GetMachineModel () == MachineModelZeroW))
+	if (DeviceNameServiceGetDevice (DeviceNameServiceGet (), "ubt1", FALSE) == 0)
 	{
-		assert (m_pUARTTransport == 0);
-		assert (m_pInterruptSystem != 0);
-		m_pUARTTransport = new CBTUARTTransport (m_pInterruptSystem);
-		assert (m_pUARTTransport != 0);
+		assert (pThis->m_pUARTTransport == 0);
+		assert (pThis->m_pInterruptSystem != 0);
+		pThis->m_pUARTTransport = new CBTUARTTransport (m_pInterruptSystem);	// TODO
+		assert (pThis->m_pUARTTransport != 0);
 
-		if (!m_pUARTTransport->Initialize ())
+		if (!BTUARTTransportInitialize(pThis->m_pUARTTransport)
 		{
 			return FALSE;
 		}
 	}
 
-	if (!m_HCILayer.Initialize ())
+	if (!BTHCILayerInitialize(pThis->m_HCILayer)
 	{
 		return FALSE;
 	}
 
-	if (!m_LogicalLayer.Initialize ())
+	if (!BTLogicalLayerInitialize(pThis->m_LogicalLayer)
 	{
 		return FALSE;
 	}
 
-	new CBTTask (this);
+	TBTTask *pTask = (TBTTask *) malloc (sizeof(TBTTask));
+	BTTask (pTask);
 
-	while (!m_HCILayer.GetDeviceManager ()->DeviceIsRunning ())
+	while (!BTDeviceManagerDeviceIsRunning(BTHCILayerGetDeviceManager(pThis->m_HCILayer)))
 	{
-		CScheduler::Get ()->Yield ();
+		// CScheduler::Get ()->Yield ();
+		taskYIELD();
 	}
 
 	return TRUE;
 }
 
-void CBTSubSystem::Process (void)
+void BTSubSystemProcess (TBTSubSystem *pThis)
 {
-	m_HCILayer.Process ();
+	BTHCILayerProcess(pThis->m_HCILayer);
 
-	m_LogicalLayer.Process ();
+	BTLogicalLayerProcess(pThis->m_LogicalLayer);
 }
 
-CBTInquiryResults *CBTSubSystem::Inquiry (unsigned nSeconds)
+TBTInquiryResults *BTSubSystemInquiry (TBTSubSystem *pThis, unsigned nSeconds)
 {
-	return m_LogicalLayer.Inquiry (nSeconds);
+	return BTLogicalLayerInquiry(pThis->m_LogicalLayer, nSeconds);
 }

@@ -27,25 +27,8 @@
 #include <circle/gpiopin.h>
 #include <uspi/types.h>
 
-class CBTUARTTransport : public CDevice
+typedef struct TBTUARTTransport
 {
-public:
-	CBTUARTTransport (CInterruptSystem *pInterruptSystem);
-	~CBTUARTTransport (void);
-
-	boolean Initialize (unsigned nBaudrate = 115200);
-
-	boolean SendHCICommand (const void *pBuffer, unsigned nLength);
-
-	void RegisterHCIEventHandler (TBTHCIEventHandler *pHandler);
-
-private:
-	void Write (u8 nChar);
-
-	void IRQHandler (void);
-	static void IRQStub (void *pParam);
-
-private:
 	CGPIOPin			m_GPIO14;
 	CGPIOPin			m_GPIO15;
 	CGPIOPin			m_TxDPin;
@@ -60,6 +43,18 @@ private:
 	unsigned			m_nRxState;
 	unsigned			m_nRxParamLength;
 	unsigned			m_nRxInPtr;
-};
+}
+TBTUARTTransport;
+
+void BTUARTTransport (TBTUARTTransport *pThis, CInterruptSystem *pInterruptSystem);
+void _BTUARTTransport (TBTUARTTransport *pThis);
+
+boolean BTUARTTransportInitialize (TBTUARTTransport *pThis, unsigned nBaudrate);
+
+boolean BTUARTTransportSendHCICommand (TBTUARTTransport *pThis, const void *pBuffer, unsigned nLength);
+
+void BTUARTTransportRegisterHCIEventHandler (TBTUARTTransport *pThis, TBTHCIEventHandler *pHandler);
 
 #endif
+
+// nBaudrate = 115200	// TODO

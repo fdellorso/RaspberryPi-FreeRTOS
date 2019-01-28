@@ -28,50 +28,45 @@
 #include <rsta_bt/btqueue.h>
 #include <uspi/types.h>
 
-class CBTHCILayer
+typedef struct TBTHCILayer
 {
-public:
-	CBTHCILayer (u32 nClassOfDevice, const char *pLocalName);
-	~CBTHCILayer (void);
+	TUSBBluetoothDevice			*m_pHCITransportUSB;
+	TBTUARTTransport			*m_pHCITransportUART;
 
-	boolean Initialize (void);
+	TBTDeviceManager			m_DeviceManager;
 
-	TBTTransportType GetTransportType (void) const;
+	TBTQueue					m_CommandQueue;
+	TBTQueue					m_DeviceEventQueue;
+	TBTQueue					m_LinkEventQueue;
 
-	void Process (void);
+	u8							*m_pEventBuffer;
+	unsigned					m_nEventLength;
+	unsigned					m_nEventFragmentOffset;
 
-	void SendCommand (const void *pBuffer, unsigned nLength);
+	u8							*m_pBuffer;
 
-	// pBuffer must have size BT_MAX_HCI_EVENT_SIZE
-	boolean ReceiveLinkEvent (void *pBuffer, unsigned *pResultLength);
+	unsigned					m_nCommandPackets;				// commands allowed to be sent
 
-	void SetCommandPackets (unsigned nCommandPackets);	// set commands allowed to be sent
+	static struct TBTHCILayer	*s_pThis;
+}
+TBTHCILayer;
 
-	CBTDeviceManager *GetDeviceManager (void);
+void BTHCILayer (TBTHCILayer *pThis, u32 nClassOfDevice, const char *pLocalName);
+void _BTHCILayer (TBTHCILayer *pThis);
 
-private:
-	void EventHandler (const void *pBuffer, unsigned nLength);
-	static void EventStub (const void *pBuffer, unsigned nLength);
+boolean BTHCILayerInitialize (TBTHCILayer *pThis);
 
-private:
-	CUSBBluetoothDevice	*m_pHCITransportUSB;
-	CBTUARTTransport	*m_pHCITransportUART;
+void BTHCILayerProcess (TBTHCILayer *pThis);
 
-	CBTDeviceManager	m_DeviceManager;
+void BTHCILayerSendCommand (TBTHCILayer *pThis, const void *pBuffer, unsigned nLength);
 
-	CBTQueue			m_CommandQueue;
-	CBTQueue			m_DeviceEventQueue;
-	CBTQueue			m_LinkEventQueue;
+// pBuffer must have size BT_MAX_HCI_EVENT_SIZE
+boolean BTHCILayerReceiveLinkEvent (TBTHCILayer *pThis, void *pBuffer, unsigned *pResultLength);
 
-	u8					*m_pEventBuffer;
-	unsigned			m_nEventLength;
-	unsigned			m_nEventFragmentOffset;
+void BTHCILayerSetCommandPackets (TBTHCILayer *pThis, unsigned nCommandPackets);	// set commands allowed to be sent
 
-	u8					*m_pBuffer;
+TBTTransportType BTHCILayerGetTransportType (TBTHCILayer *pThis);
 
-	unsigned			m_nCommandPackets;				// commands allowed to be sent
-
-	static CBTHCILayer	*s_pThis;
-};
+TBTDeviceManager *BTHCILayerGetDeviceManager (TBTHCILayer *pThis);
 
 #endif

@@ -22,122 +22,123 @@
 #include <uspi/util.h>
 #include <uspi/assert.h>
 
-CBTLogicalLayer::CBTLogicalLayer (CBTHCILayer *pHCILayer)
-:	m_pHCILayer (pHCILayer),
-	m_pInquiryResults (0),
-	m_pBuffer (0)
+void BTLogicalLayer (TBTLogicalLayer *pThis, TBTHCILayer *pHCILayer)
 {
+	pThis->m_pHCILayer 			= pHCILayer;
+	pThis->m_pInquiryResults	= 0;
+	pThis->m_pBuffer			= 0;
 }
 
-CBTLogicalLayer::~CBTLogicalLayer (void)
+void _BTLogicalLayer (TBTLogicalLayer *pThis)
 {
-	assert (m_pInquiryResults == 0);
+	assert (pThis->m_pInquiryResults == 0);
 
-	delete [] m_pBuffer;
-	m_pBuffer = 0;
+	free (pThis->m_pBuffer;
+	pThis->m_pBuffer = 0;
 
-	m_pHCILayer = 0;
+	pThis->m_pHCILayer = 0;
 }
 
-boolean CBTLogicalLayer::Initialize (void)
+boolean BTLogicalLayerInitialize (TBTLogicalLayer *pThis)
 {
-	m_pBuffer = new u8[BT_MAX_DATA_SIZE];
-	assert (m_pBuffer != 0);
+	pThis->m_pBuffer = (u8) malloc (sizeof(u8) * BT_MAX_DATA_SIZE);
+	assert (pThis->m_pBuffer != 0);
 
 	return TRUE;
 }
 
-void CBTLogicalLayer::Process (void)
+void BTLogicalLayerProcess (TBTLogicalLayer *pThis)
 {
-	assert (m_pHCILayer != 0);
-	assert (m_pBuffer != 0);
+	assert (pThis->m_pHCILayer != 0);
+	assert (pThis->m_pBuffer != 0);
 
 	unsigned nLength;
-	while (m_pHCILayer->ReceiveLinkEvent (m_pBuffer, &nLength))
+	while (BTHCILayerReceiveLinkEvent(pThis->m_pHCILayer, pThis->m_pBuffer, &nLength))
 	{
 		assert (nLength >= sizeof (TBTHCIEventHeader));
-		TBTHCIEventHeader *pHeader = (TBTHCIEventHeader *) m_pBuffer;
+		TBTHCIEventHeader *pHeader = (TBTHCIEventHeader *) pThis->m_pBuffer;
 
 		switch (pHeader->EventCode)
 		{
-		case EVENT_CODE_INQUIRY_RESULT: {
-			assert (nLength >= sizeof (TBTHCIEventInquiryResult));
-			TBTHCIEventInquiryResult *pEvent = (TBTHCIEventInquiryResult *) pHeader;
-			assert (nLength >=   sizeof (TBTHCIEventInquiryResult)
-					   + pEvent->NumResponses * INQUIRY_RESP_SIZE);
+			case EVENT_CODE_INQUIRY_RESULT: {
+				assert (nLength >= sizeof (TBTHCIEventInquiryResult));
+				TBTHCIEventInquiryResult *pEvent = (TBTHCIEventInquiryResult *) pHeader;
+				assert (nLength >= sizeof (TBTHCIEventInquiryResult)
+						+ pEvent->NumResponses * INQUIRY_RESP_SIZE);
 
-			assert (m_pInquiryResults != 0);
-			m_pInquiryResults->AddInquiryResult (pEvent);
+				assert (pThis->m_pInquiryResults != 0);
+				BTInquiryResultsAddInquiryResult(pThis->m_pInquiryResults, pEvent);
 			} break;
 
-		case EVENT_CODE_INQUIRY_COMPLETE: {
-			assert (nLength >= sizeof (TBTHCIEventInquiryComplete));
-			TBTHCIEventInquiryComplete *pEvent = (TBTHCIEventInquiryComplete *) pHeader;
+			case EVENT_CODE_INQUIRY_COMPLETE: {
+				assert (nLength >= sizeof (TBTHCIEventInquiryComplete));
+				TBTHCIEventInquiryComplete *pEvent = (TBTHCIEventInquiryComplete *) pHeader;
 
-			if (pEvent->Status != BT_STATUS_SUCCESS)
-			{
-				delete m_pInquiryResults;
-				m_pInquiryResults = 0;
+				if (pEvent->Status != BT_STATUS_SUCCESS)
+				{
+					free (pThis->m_pInquiryResults);
+					pThis->m_pInquiryResults = 0;
 
-				m_Event.Set ();
+					m_Event.Set ();		// TODO
 
+					break;
+				}
+
+				pThis->m_nNameRequestsPending = BTInquiryResultsGetCount(pThis->m_pInquiryResults);
+				if (pThis->m_nNameRequestsPending == 0)
+				{
+					m_Event.Set ();		// TODO
+
+					break;
+				}
+
+				assert (pThis->m_pInquiryResults != 0);
+				unsigned nResponse;
+				for (nResponse = 0; nResponse < BTInquiryResultsGetCount(pThis->m_pInquiryResults); nResponse++)
+				{
+					TBTHCIRemoteNameRequestCommand Cmd;
+					Cmd.Header.OpCode = OP_CODE_REMOTE_NAME_REQUEST;
+					Cmd.Header.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);
+					memcpy (Cmd.BDAddr, BTInquiryResultsGetBDAddress(pThis->m_pInquiryResults, nResponse), BT_BD_ADDR_SIZE);
+					Cmd.PageScanRepetitionMode = BTInquiryResultsGetPageScanRepetitionMode(pThis->m_pInquiryResults, nResponse);
+					Cmd.Reserved = 0;
+					Cmd.ClockOffset = CLOCK_OFFSET_INVALID;
+					BTHCILayerSendCommand(pThis->m_pHCILayer, &Cmd, sizeof Cmd);
+				}
+			} break;
+
+			case EVENT_CODE_REMOTE_NAME_REQUEST_COMPLETE: {
+				assert (nLength >= sizeof (TBTHCIEventRemoteNameRequestComplete));
+				TBTHCIEventRemoteNameRequestComplete *pEvent = (TBTHCIEventRemoteNameRequestComplete *) pHeader;
+
+				if (pEvent->Status == BT_STATUS_SUCCESS)
+				{
+					assert (pThis->m_pInquiryResults != 0);
+					BTInquiryResultsSetRemoteName(pThis->m_pInquiryResults, pEvent);
+				}
+
+				if (--pThis->m_nNameRequestsPending == 0)
+				{
+					m_Event.Set ();		// TODO
+				}
+			} break;
+
+			default:
 				break;
-			}
-
-			m_nNameRequestsPending = m_pInquiryResults->GetCount ();
-			if (m_nNameRequestsPending == 0)
-			{
-				m_Event.Set ();
-
-				break;
-			}
-
-			assert (m_pInquiryResults != 0);
-			for (unsigned nResponse = 0; nResponse < m_pInquiryResults->GetCount (); nResponse++)
-			{
-				TBTHCIRemoteNameRequestCommand Cmd;
-				Cmd.Header.OpCode = OP_CODE_REMOTE_NAME_REQUEST;
-				Cmd.Header.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);
-				memcpy (Cmd.BDAddr, m_pInquiryResults->GetBDAddress (nResponse), BT_BD_ADDR_SIZE);
-				Cmd.PageScanRepetitionMode = m_pInquiryResults->GetPageScanRepetitionMode (nResponse);
-				Cmd.Reserved = 0;
-				Cmd.ClockOffset = CLOCK_OFFSET_INVALID;
-				m_pHCILayer->SendCommand (&Cmd, sizeof Cmd);
-			}
-			} break;
-
-		case EVENT_CODE_REMOTE_NAME_REQUEST_COMPLETE: {
-			assert (nLength >= sizeof (TBTHCIEventRemoteNameRequestComplete));
-			TBTHCIEventRemoteNameRequestComplete *pEvent = (TBTHCIEventRemoteNameRequestComplete *) pHeader;
-
-			if (pEvent->Status == BT_STATUS_SUCCESS)
-			{
-				assert (m_pInquiryResults != 0);
-				m_pInquiryResults->SetRemoteName (pEvent);
-			}
-
-			if (--m_nNameRequestsPending == 0)
-			{
-				m_Event.Set ();
-			}
-			} break;
-
-		default:
-			break;
 		}
 	}
 }
 
-CBTInquiryResults *CBTLogicalLayer::Inquiry (unsigned nSeconds)
+TBTInquiryResults *BTLogicalLayerInquiry (TBTLogicalLayer *pThis, unsigned nSeconds)
 {
 	assert (1 <= nSeconds && nSeconds <= 61);
-	assert (m_pHCILayer != 0);
+	assert (pThis->m_pHCILayer != 0);
 
-	assert (m_pInquiryResults == 0);
-	m_pInquiryResults = new CBTInquiryResults;
-	assert (m_pInquiryResults != 0);
+	assert (pThis->m_pInquiryResults == 0);
+	pThis->m_pInquiryResults = (TBTInquiryResults *) malloc (sizeof(TBTInquiryResults));
+	assert (pThis->m_pInquiryResults != 0);
 
-	m_Event.Clear ();
+	m_Event.Clear ();					// TODO
 
 	TBTHCIInquiryCommand Cmd;
 	Cmd.Header.OpCode = OP_CODE_INQUIRY;
@@ -147,12 +148,12 @@ CBTInquiryResults *CBTLogicalLayer::Inquiry (unsigned nSeconds)
 	Cmd.LAP[2] = INQUIRY_LAP_GIAC >> 16 & 0xFF;
 	Cmd.InquiryLength = INQUIRY_LENGTH (nSeconds);
 	Cmd.NumResponses = INQUIRY_NUM_RESPONSES_UNLIMITED;
-	m_pHCILayer->SendCommand (&Cmd, sizeof Cmd);
+	BTHCILayerSendCommand(pThis->m_pHCILayer, &Cmd, sizeof Cmd);
 
-	m_Event.Wait ();
+	m_Event.Wait ();					// TODO
 
-	CBTInquiryResults *pResult = m_pInquiryResults;
-	m_pInquiryResults = 0;
+	TBTInquiryResults *pResult = pThis->m_pInquiryResults;
+	pThis->m_pInquiryResults = 0;
 	
 	return pResult;
 }

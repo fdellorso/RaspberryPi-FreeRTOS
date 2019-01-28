@@ -25,11 +25,11 @@
 
 typedef struct TBTTask
 {
-	CBTSubSystem *m_pBTSubSystem;
+	TBTSubSystem *m_pBTSubSystem;
 }
 TBTTask;
 
-void BTTask (TBTTask *pThis, CBTSubSystem *pBTSubSystem);
+void BTTask (TBTTask *pThis, TBTSubSystem *pBTSubSystem);
 void _BTTask (TBTTask *pThis);
 
 void BTTaskRun (TBTTask *pThis);

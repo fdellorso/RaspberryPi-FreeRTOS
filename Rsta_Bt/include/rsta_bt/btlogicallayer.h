@@ -22,31 +22,30 @@
 
 #include <rsta_bt/bthcilayer.h>
 #include <rsta_bt/btinquiryresults.h>
-#include <circle/sched/synchronizationevent.h>
+#include <circle/sched/synchronizationevent.h>		// TODO
 #include <uspi/types.h>
 
-class CBTLogicalLayer
+typedef struct TBTLogicalLayer
 {
-public:
-	CBTLogicalLayer (CBTHCILayer *pHCILayer);
-	~CBTLogicalLayer (void);
+	TBTHCILayer				*m_pHCILayer;
 
-	boolean Initialize (void);
-
-	void Process (void);
-
-	// returns 0 on failure, result must be deleted by caller otherwise
-	CBTInquiryResults *Inquiry (unsigned nSeconds);		// 1 <= nSeconds <= 61
-
-private:
-	CBTHCILayer				*m_pHCILayer;
-
-	CBTInquiryResults		*m_pInquiryResults;
+	TBTInquiryResults		*m_pInquiryResults;
 
 	unsigned				m_nNameRequestsPending;
-	CSynchronizationEvent	m_Event;
+	CSynchronizationEvent	m_Event;				// TODO
 
-	u8 *m_pBuffer;
-};
+	u8 						*m_pBuffer;
+}
+TBTLogicalLayer;
+
+void BTLogicalLayer (TBTLogicalLayer *pThis, TBTHCILayer *pHCILayer);
+void _BTLogicalLayer (TBTLogicalLayer *pThis);
+
+boolean BTLogicalLayerInitialize (TBTLogicalLayer *pThis);
+
+void BTLogicalLayerProcess (TBTLogicalLayer *pThis);
+
+// returns 0 on failure, result must be deleted by caller otherwise
+TBTInquiryResults *BTLogicalLayerInquiry (TBTLogicalLayer *pThis, unsigned nSeconds);		// 1 <= nSeconds <= 61
 
 #endif
