@@ -26,5 +26,6 @@ enum MAIL0_CHANNELS {
 
 void mailboxWrite(int data_addr, int channel);
 int mailboxRead(int channel);
+int GetClockRate(unsigned nClockId);
 
 #endif

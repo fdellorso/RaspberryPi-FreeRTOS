@@ -20,26 +20,25 @@
 #ifndef _rsta_bt_btsubsystem_h
 #define _rsta_bt_btsubsystem_h
 
-#include <circle/interrupt.h>	// TODO
+// #include <circle/interrupt.h>
+#include <interrupts.h>
 #include <rsta_bt/bluetooth.h>
 #include <rsta_bt/btinquiryresults.h>
-#include <rsta_bt/btuarttransport.h>	// TODO
+#include <rsta_bt/btuarttransport.h>
 #include <rsta_bt/bthcilayer.h>
-#include <rsta_bt/btlogicallayer.h>	// TODO
+#include <rsta_bt/btlogicallayer.h>
 #include <uspi/types.h>
 
 typedef struct TBTSubSystem
 {
-	CInterruptSystem	*m_pInterruptSystem;
+	CInterruptSystem	*m_pInterruptSystem;	// TODO
 
 	TBTUARTTransport	*m_pUARTTransport;
 
-	TBTHCILayer			m_HCILayer;
-	TBTLogicalLayer		m_LogicalLayer;
+	TBTHCILayer			*m_pHCILayer;
+	TBTLogicalLayer		*m_pLogicalLayer;
 }
 TBTSubSystem;
-
-// BT_CLASS_DESKTOP_COMPUTER, "Raspberry Pi"	// TODO
 
 void BTSubSystem (TBTSubSystem *pThis, CInterruptSystem *pInterruptSystem,
 				  u32 nClassOfDevice, const char *pLocalName);

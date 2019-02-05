@@ -20,7 +20,7 @@
 #ifndef _rsta_bt_btqueue_h
 #define _rsta_bt_btqueue_h
 
-// #include <circle/spinlock.h>
+// #include <circle/spinlock.h>		// Multi_Core
 #include <rsta_bt/bluetooth.h>
 #include <uspi/types.h>
 

@@ -11,12 +11,13 @@
 #define OP_CODE_WRITE_RAM			(OGF_VENDOR_COMMANDS | 0x04C)
 #define OP_CODE_LAUNCH_RAM			(OGF_VENDOR_COMMANDS | 0x04E)
 
-struct TBTHCIBcmVendorCommand
+typedef struct TBTHCIBcmVendorCommand
 {
 	TBTHCICommandHeader	Header;
 
 	u8	Data[255];
 }
+TBTHCIBcmVendorCommand
 PACKED;
 
 #endif

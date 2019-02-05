@@ -20,8 +20,9 @@
 #include <rsta_bt/btuarttransport.h>
 #include <uspi/devicenameservice.h>
 #include <uspi/bcm2835.h>
-#include <circle/memio.h>
-#include <circle/machineinfo.h>
+// #include <circle/memio.h>
+// #include <circle/machineinfo.h>
+#include <mailbox.h>
 #include <uspi/synchronize.h>
 // #include <circle/logger.h>
 #include <uspios.h>
@@ -45,21 +46,24 @@ enum TBTUARTRxState
 
 static const char FromBTUART[] = "btuart";
 
+static unsigned s_nDeviceNumber = 1;
+
+
 void BTUARTTransportWrite (u8 nChar);
 void BTUARTTransportIRQHandler (TBTUARTTransport *pThis);
 static void BTUARTTransportIRQStub (void *pParam);
 
 void BTUARTTransport (TBTUARTTransport *pThis, CInterruptSystem *pInterruptSystem)
 {
-	:	// to be sure there is no collision with the UART GPIO interface
-	m_GPIO14 (14, GPIOModeInput),
-	m_GPIO15 (15, GPIOModeInput),
-	m_TxDPin (32, GPIOModeAlternateFunction3),
-	m_RxDPin (33, GPIOModeAlternateFunction3),
-	m_pInterruptSystem (pInterruptSystem),
-	m_bIRQConnected (FALSE),
-	m_pEventHandler (0),
-	m_nRxState (RxStateStart)
+	// to be sure there is no collision with the UART GPIO interface
+	SetGpioFunction(14, GPIO_FUNC_INPUT);
+	SetGpioFunction(15, GPIO_FUNC_INPUT);
+	SetGpioFunction(32, GPIO_FUNC_ALT_3);
+	SetGpioFunction(33, GPIO_FUNC_ALT_3);
+	pThis->m_pInterruptSystem (pInterruptSystem);		// TODO
+	pThis->m_bIRQConnected	= FALSE;
+	pThis->m_pEventHandler	= 0;
+	pThis->m_nRxState		= RxStateStart;
 }
 
 void _BTUARTTransport (TBTUARTTransport *pThis)
@@ -70,21 +74,24 @@ void _BTUARTTransport (TBTUARTTransport *pThis)
 	BTUARTClose();
 	PeripheralExit ();
 
-	m_pEventHandler = 0;
+	pThis->m_pEventHandler = 0;
 
-	if (m_bIRQConnected)
+	if (pThis->m_bIRQConnected)
 	{
-		assert (m_pInterruptSystem != 0);
-		m_pInterruptSystem->DisconnectIRQ (ARM_IRQ_UART);
+		assert (pThis->m_pInterruptSystem != 0);
+		pThis->m_pInterruptSystem->DisconnectIRQ (ARM_IRQ_UART);	// TODO
 	}
 
-	m_pInterruptSystem = 0;
+	pThis->m_pInterruptSystem = 0;
 }
 
 boolean BTUARTTransportInitialize (TBTUARTTransport *pThis, unsigned nBaudrate)
 {
-	unsigned nClockRate = CMachineInfo::Get ()->GetClockRate (CLOCK_ID_UART);
+	// unsigned nClockRate = CMachineInfo::Get ()->GetClockRate (CLOCK_ID_UART);
+	unsigned nClockRate = GetClockRate(0); // CLOCK_ID_UART)	// TODO
 	assert (nClockRate > 0);
+
+	if(nBaudrate == 0) nBaudrate = 115200;
 
 	assert (300 <= nBaudrate && nBaudrate <= 3000000);
 	unsigned nBaud16 = nBaudrate * 16;
@@ -94,9 +101,9 @@ boolean BTUARTTransportInitialize (TBTUARTTransport *pThis, unsigned nBaudrate)
 	unsigned nFractDiv = nFractDiv2 / 2 + nFractDiv2 % 2;
 	assert (nFractDiv <= 0x3F);
 
-	assert (m_pInterruptSystem != 0);
-	m_pInterruptSystem->ConnectIRQ (ARM_IRQ_UART, IRQStub, this);
-	m_bIRQConnected = TRUE;
+	assert (pThis->m_pInterruptSystem != 0);
+	pThis->m_pInterruptSystem->ConnectIRQ (ARM_IRQ_UART, IRQStub, this);			// TODO
+	pThis->m_bIRQConnected = TRUE;
 
 	PeripheralEntry ();
 
@@ -113,7 +120,15 @@ boolean BTUARTTransportInitialize (TBTUARTTransport *pThis, unsigned nBaudrate)
 
 	PeripheralExit ();
 
-	CDeviceNameService::Get ()->AddDevice ("ttyBT1", this, FALSE);
+	// CDeviceNameService::Get ()->AddDevice ("ttyBT1", this, FALSE);
+	
+	//DNS ADD
+	TString DeviceName;
+	String (&DeviceName);
+	StringFormat (&DeviceName, "ttyBT%u", s_nDeviceNumber++);
+	DeviceNameServiceAddDevice (DeviceNameServiceGet (), StringGet (&DeviceName), pThis, FALSE);
+
+	_String (&DeviceName);
 
 	return TRUE;
 }
@@ -122,14 +137,14 @@ boolean BTUARTTransportSendHCICommand (TBTUARTTransport *pThis, const void *pBuf
 {
 	PeripheralEntry ();
 
-	Write (HCI_PACKET_COMMAND);
+	BTUARTTransportWrite (HCI_PACKET_COMMAND);
 
 	u8 *pChar = (u8 *) pBuffer;
 	assert (pChar != 0);
 	
 	while (nLength--)
 	{
-		Write (*pChar++);
+		BTUARTTransportWrite (*pChar++);
 	}
 
 	PeripheralExit ();
@@ -139,92 +154,94 @@ boolean BTUARTTransportSendHCICommand (TBTUARTTransport *pThis, const void *pBuf
 
 void BTUARTTransportRegisterHCIEventHandler (TBTUARTTransport *pThis, TBTHCIEventHandler *pHandler)
 {
-	assert (m_pEventHandler == 0);
-	m_pEventHandler = pHandler;
-	assert (m_pEventHandler != 0);
+	assert (pThis->m_pEventHandler == 0);
+	pThis->m_pEventHandler = pHandler;
+	assert (pThis->m_pEventHandler != 0);
 }
 
 void BTUARTTransportWrite (u8 nChar)
 {
-	while (read32 (ARM_UART0_FR) & FR_TXFF_MASK)
-	{
-		// do nothing
-	}
+	// while (read32 (ARM_UART0_FR) & FR_TXFF_MASK)
+	// {
+	// 	// do nothing
+	// }
 		
-	write32 (ARM_UART0_DR, nChar);
+	// write32 (ARM_UART0_DR, nChar);
+
+	BTUARTWrite(nChar);
 }
 
 void BTUARTTransportIRQHandler (TBTUARTTransport *pThis)
 {
 	PeripheralEntry ();
 
-	u32 nMIS = read32 (ARM_UART0_MIS);
+	u32 nMIS = BTUARTReadReg (UART0_MIS);
 	if (nMIS & INT_OE)
 	{
-		LogWrite (FromDeviceManager, LOG_PANIC, "Overrun error");
+		LogWrite (FromBTUART, LOG_PANIC, "Overrun error");
 	}
 
-	write32 (ARM_UART0_ICR, nMIS);
+	BTUARTWriteReg (UART0_ICR, nMIS);
 
-	while (1)
+	while (1)		// FIXME Warning Maybe necessary convert IRQ in Task
 	{
-		if (read32 (ARM_UART0_FR) & FR_RXFE_MASK)
+		if (BTUARTReadReg (UART0_FR) & FR_RXFE_MASK)
 		{
 			break;
 		}
 
-		u8 nData = read32 (ARM_UART0_DR) & 0xFF;
+		u8 nData = BTUARTReadReg (UART0_DR) & 0xFF;
 
-		switch (m_nRxState)
+		switch (pThis->m_nRxState)
 		{
-		case RxStateStart:
-			if (nData == HCI_PACKET_EVENT)
-			{
-				m_nRxInPtr = 0;
-				m_nRxState = RxStateCommand;
-			}
-			break;
-
-		case RxStateCommand:
-			m_RxBuffer[m_nRxInPtr++] = nData;
-			m_nRxState = RxStateLength;
-			break;
-
-		case RxStateLength:
-			m_RxBuffer[m_nRxInPtr++] = nData;
-			if (nData > 0)
-			{
-				m_nRxParamLength = nData;
-				m_nRxState = RxStateParam;
-			}
-			else
-			{
-				if (m_pEventHandler != 0)
+			case RxStateStart:
+				if (nData == HCI_PACKET_EVENT)
 				{
-					(*m_pEventHandler) (m_RxBuffer, m_nRxInPtr);
+					pThis->m_nRxInPtr = 0;
+					pThis->m_nRxState = RxStateCommand;
 				}
+				break;
 
-				m_nRxState = RxStateStart;
-			}
-			break;
+			case RxStateCommand:
+				pThis->m_RxBuffer[pThis->m_nRxInPtr++] = nData;
+				pThis->m_nRxState = RxStateLength;
+				break;
 
-		case RxStateParam:
-			assert (m_nRxInPtr < BT_MAX_HCI_EVENT_SIZE);
-			m_RxBuffer[m_nRxInPtr++] = nData;
-			if (--m_nRxParamLength == 0)
-			{
-				if (m_pEventHandler != 0)
+			case RxStateLength:
+				pThis->m_RxBuffer[pThis->m_nRxInPtr++] = nData;
+				if (nData > 0)
 				{
-					(*m_pEventHandler) (m_RxBuffer, m_nRxInPtr);
+					pThis->m_nRxParamLength = nData;
+					pThis->m_nRxState = RxStateParam;
 				}
+				else
+				{
+					if (pThis->m_pEventHandler != 0)
+					{
+						(*pThis->m_pEventHandler) (pThis->m_RxBuffer, pThis->m_nRxInPtr);		// TODO
+					}
 
-				m_nRxState = RxStateStart;
-			}
-			break;
+					pThis->m_nRxState = RxStateStart;
+				}
+				break;
 
-		default:
-			assert (0);
-			break;
+			case RxStateParam:
+				assert (pThis->m_nRxInPtr < BT_MAX_HCI_EVENT_SIZE);
+				pThis->m_RxBuffer[pThis->m_nRxInPtr++] = nData;
+				if (--pThis->m_nRxParamLength == 0)
+				{
+					if (pThis->m_pEventHandler != 0)
+					{
+						(*pThis->m_pEventHandler) (pThis->m_RxBuffer, pThis->m_nRxInPtr);		// TODO
+					}
+
+					pThis->m_nRxState = RxStateStart;
+				}
+				break;
+
+			default:
+				assert (0);
+				break;
 		}
 	}
 

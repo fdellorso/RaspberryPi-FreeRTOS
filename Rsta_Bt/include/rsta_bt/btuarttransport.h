@@ -20,19 +20,20 @@
 #ifndef _rsta_bt_btuarttransport_h
 #define _rsta_bt_btuarttransport_h
 
-#include <circle/device.h>
+// #include <circle/device.h>
 #include <rsta_bt/bttransportlayer.h>
 #include <rsta_bt/bluetooth.h>
-#include <circle/interrupt.h>
-#include <circle/gpiopin.h>
+// #include <circle/interrupt.h>
+#include <interrupts.h>
+// #include <circle/gpiopin.h>
 #include <uspi/types.h>
 
 typedef struct TBTUARTTransport
 {
-	CGPIOPin			m_GPIO14;
-	CGPIOPin			m_GPIO15;
-	CGPIOPin			m_TxDPin;
-	CGPIOPin			m_RxDPin;
+	// CGPIOPin			m_GPIO14;
+	// CGPIOPin			m_GPIO15;
+	// CGPIOPin			m_TxDPin;
+	// CGPIOPin			m_RxDPin;
 
 	CInterruptSystem	*m_pInterruptSystem;
 	boolean				m_bIRQConnected;
@@ -56,5 +57,3 @@ boolean BTUARTTransportSendHCICommand (TBTUARTTransport *pThis, const void *pBuf
 void BTUARTTransportRegisterHCIEventHandler (TBTUARTTransport *pThis, TBTHCIEventHandler *pHandler);
 
 #endif
-
-// nBaudrate = 115200	// TODO

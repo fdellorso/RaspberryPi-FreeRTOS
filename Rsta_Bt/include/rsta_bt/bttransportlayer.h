@@ -20,12 +20,12 @@
 #ifndef _rsta_bt_bttransportlayer_h
 #define _rsta_bt_bttransportlayer_h
 
-enum TBTTransportType
+typedef enum
 {
 	BTTransportTypeUSB,
 	BTTransportTypeUART,
 	BTTransportTypeUnknown
-};
+} TBTTransportType;
 
 typedef void TBTHCIEventHandler (const void *pBuffer, unsigned nLength);
 

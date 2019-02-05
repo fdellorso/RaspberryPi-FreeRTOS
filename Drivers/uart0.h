@@ -65,8 +65,36 @@
 #define INT_CTSM			(1 << 1)
 
 
+typedef enum{
+    UART0_DR,
+    UART0_RSRECR,
+    UART0_FR,
+    UART0_ILPR,
+    UART0_IBRD,
+    UART0_FBRD,
+    UART0_LCRH,
+    UART0_CR,
+    UART0_IFLS,
+    UART0_IMSC,
+    UART0_RIS,
+    UART0_MIS,
+    UART0_ICR,
+    UART0_DMACR,
+    UART0_ITCR,
+    UART0_ITIP,
+    UART0_ITOP,
+    UART0_TDR
+} UART0_REG;
+
+
 void BTUARTClose(void);
 
 void BTUARTInit(unsigned int nIntDiv, unsigned int nFractDiv);
+
+void BTUARTWrite (unsigned char nChar);
+
+unsigned int BTUARTReadReg (UART0_REG regs);
+
+void BTUARTWriteReg (UART0_REG regs, unsigned int toWrite);
 
 #endif

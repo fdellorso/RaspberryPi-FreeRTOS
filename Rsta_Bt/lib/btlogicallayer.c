@@ -33,7 +33,7 @@ void _BTLogicalLayer (TBTLogicalLayer *pThis)
 {
 	assert (pThis->m_pInquiryResults == 0);
 
-	free (pThis->m_pBuffer;
+	free (pThis->m_pBuffer);
 	pThis->m_pBuffer = 0;
 
 	pThis->m_pHCILayer = 0;

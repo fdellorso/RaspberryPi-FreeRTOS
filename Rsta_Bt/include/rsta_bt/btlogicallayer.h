@@ -22,7 +22,7 @@
 
 #include <rsta_bt/bthcilayer.h>
 #include <rsta_bt/btinquiryresults.h>
-#include <circle/sched/synchronizationevent.h>		// TODO
+// #include <circle/sched/synchronizationevent.h>		// TODO
 #include <uspi/types.h>
 
 typedef struct TBTLogicalLayer

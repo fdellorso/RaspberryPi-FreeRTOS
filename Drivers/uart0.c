@@ -46,3 +46,118 @@ void BTUARTInit(unsigned int nIntDiv, unsigned int nFractDiv) {
 	pRegs->CR	= CR_UART_EN_MASK | CR_TXE_MASK | CR_RXE_MASK;
 	pRegs->IMSC	= INT_RX | INT_RT | INT_OE;
 }
+
+void BTUARTWrite (unsigned char nChar) {
+	while (pRegs->FR & FR_TXFF_MASK)
+	{
+		// do nothing
+	}
+		
+	pRegs->DR = nChar;
+}
+
+unsigned int BTUARTReadReg (UART0_REG regs) {
+	switch(regs)
+	{
+		case UART0_DR:
+			return pRegs->DR;
+    	case UART0_RSRECR:
+			return pRegs->RSRECR;
+    	case UART0_FR:
+			return pRegs->FR;
+    	case UART0_ILPR:
+			return pRegs->ILPR;
+    	case UART0_IBRD:
+			return pRegs->IBRD;
+    	case UART0_FBRD:
+			return pRegs->FBRD;
+    	case UART0_LCRH:
+			return pRegs->LCRH;
+    	case UART0_CR:
+			return pRegs->CR;
+    	case UART0_IFLS:
+			return pRegs->IFLS;
+    	case UART0_IMSC:
+			return pRegs->IMSC;
+    	case UART0_RIS:
+			return pRegs->RIS;
+    	case UART0_MIS:
+			return pRegs->MIS;
+    	case UART0_ICR:
+			return pRegs->ICR;
+    	case UART0_DMACR:
+			return pRegs->DMACR;
+    	case UART0_ITCR:
+			return pRegs->ITCR;
+    	case UART0_ITIP:
+			return pRegs->ITIP;
+    	case UART0_ITOP:
+			return pRegs->ITOP;
+    	case UART0_TDR:
+			return pRegs->TDR;
+		default:
+			return -1;
+	}
+}
+
+void BTUARTWriteReg (UART0_REG regs, unsigned int toWrite) {
+	switch(regs)
+	{
+		case UART0_DR:
+			pRegs->DR = toWrite;
+			break;
+    	case UART0_RSRECR:
+			pRegs->RSRECR = toWrite;
+			break;
+    	case UART0_FR:
+			pRegs->FR = toWrite;
+			break;
+    	case UART0_ILPR:
+			pRegs->ILPR = toWrite;
+			break;
+    	case UART0_IBRD:
+			pRegs->IBRD = toWrite;
+			break;
+    	case UART0_FBRD:
+			pRegs->FBRD = toWrite;
+			break;
+    	case UART0_LCRH:
+			pRegs->LCRH = toWrite;
+			break;
+    	case UART0_CR:
+			pRegs->CR = toWrite;
+			break;
+    	case UART0_IFLS:
+			pRegs->IFLS = toWrite;
+			break;
+    	case UART0_IMSC:
+			pRegs->IMSC = toWrite;
+			break;
+    	case UART0_RIS:
+			pRegs->RIS = toWrite;
+			break;
+    	case UART0_MIS:
+			pRegs->MIS = toWrite;
+			break;
+    	case UART0_ICR:
+			pRegs->ICR = toWrite;
+			break;
+    	case UART0_DMACR:
+			pRegs->DMACR = toWrite;
+			break;
+    	case UART0_ITCR:
+			pRegs->ITCR = toWrite;
+			break;
+    	case UART0_ITIP:
+			pRegs->ITIP = toWrite;
+			break;
+    	case UART0_ITOP:
+			pRegs->ITOP = toWrite;
+			break;
+    	case UART0_TDR:
+			pRegs->TDR = toWrite;
+			break;
+		default:
+			break;
+	}
+}

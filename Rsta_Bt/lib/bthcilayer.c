@@ -35,7 +35,7 @@ void BTHCILayer (TBTHCILayer *pThis, u32 nClassOfDevice, const char *pLocalName)
 {
 	pThis->m_pHCITransportUSB		= 0;
 	pThis->m_pHCITransportUART		= 0;
-	BTDeviceManager(pThis->m_DeviceManager, pThis, &m_DeviceEventQueue, nClassOfDevice, pLocalName);
+	BTDeviceManager(pThis->m_pDeviceManager, pThis, pThis->m_pDeviceEventQueue, nClassOfDevice, pLocalName);
 	pThis->m_pEventBuffer			= 0;
 	pThis->m_nEventLength			= 0;
 	pThis->m_nEventFragmentOffset	= 0;
@@ -90,7 +90,7 @@ boolean BTHCILayerInitialize (TBTHCILayer *pThis)
 		BTUARTTransportRegisterHCIEventHandler(pThis->m_pHCITransportUART, BTHCILayerEventStub);
 	}
 
-	return BTDeviceManagerInitialize(pThis->m_DeviceManager);
+	return BTDeviceManagerInitialize(pThis->m_pDeviceManager);
 }
 
 TBTTransportType BTHCILayerGetTransportType (TBTHCILayer *pThis)
@@ -115,11 +115,11 @@ void BTHCILayerProcess (TBTHCILayer *pThis)
 
 	unsigned nLength;
 	while (   pThis->m_nCommandPackets > 0
-	       && (nLength = BTQueueDequeue(pThis->m_CommandQueue, pThis->m_pBuffer, NULL)) > 0)
+	       && (nLength = BTQueueDequeue(pThis->m_pCommandQueue, pThis->m_pBuffer, 0)) > 0)
 	{
-		if (  m_pHCITransportUSB != 0
-		    ? !USBBluetoothDeviceSendHCICommand(pThis->m_pHCITransportUSB, m_pBuffer, nLength)
-		    : !BTUARTTransportSendHCICommand(pThis->m_pHCITransportUART, m_pBuffer, nLength))
+		if (  pThis->m_pHCITransportUSB != 0
+		    ? !USBBluetoothDeviceSendHCICommand(pThis->m_pHCITransportUSB, pThis->m_pBuffer, nLength)
+		    : !BTUARTTransportSendHCICommand(pThis->m_pHCITransportUART, pThis->m_pBuffer, nLength))
 		{
 			LogWrite (FromHCILayer, LOG_ERROR, "HCI command dropped");
 
@@ -129,17 +129,17 @@ void BTHCILayerProcess (TBTHCILayer *pThis)
 		pThis->m_nCommandPackets--;
 	}
 
-	BTDeviceManagerProcess(pThis->m_DeviceManager);
+	BTDeviceManagerProcess(pThis->m_pDeviceManager);
 }
 
 void BTHCILayerSendCommand (TBTHCILayer *pThis, const void *pBuffer, unsigned nLength)
 {
-	BTQueueEnqueue(pThis->m_CommandQueue, pBuffer, nLength, NULL);
+	BTQueueEnqueue(pThis->m_pCommandQueue, pBuffer, nLength, 0);
 }
 
 boolean BTHCILayerReceiveLinkEvent (TBTHCILayer *pThis, void *pBuffer, unsigned *pResultLength)
 {
-	unsigned nLength = BTQueueDequeue(pThis->m_LinkEventQueue, pBuffer, NULL);
+	unsigned nLength = BTQueueDequeue(pThis->m_pLinkEventQueue, pBuffer, 0);
 	if (nLength > 0)
 	{
 		assert (pResultLength != 0);
@@ -158,7 +158,7 @@ void BTHCILayerSetCommandPackets (TBTHCILayer *pThis, unsigned nCommandPackets)
 
 TBTDeviceManager *BTHCILayerGetDeviceManager (TBTHCILayer *pThis)
 {
-	return &pThis->m_DeviceManager;
+	return &pThis->m_pDeviceManager;
 }
 
 void BTHCILayerEventHandler (TBTHCILayer *pThis, const void *pBuffer, unsigned nLength)
@@ -195,11 +195,11 @@ void BTHCILayerEventHandler (TBTHCILayer *pThis, const void *pBuffer, unsigned n
 	{
 	case EVENT_CODE_COMMAND_COMPLETE:
 	case EVENT_CODE_COMMAND_STATUS:
-		BTQueueEnqueue(pThis->m_DeviceEventQueue, pThis->m_pEventBuffer, pThis->m_nEventLength, NULL);
+		BTQueueEnqueue(pThis->m_pDeviceEventQueue, pThis->m_pEventBuffer, pThis->m_nEventLength, 0);
 		break;
 
 	default:
-		BTQueueEnqueue(pThis->m_LinkEventQueue, pThis->m_pEventBuffer, pThis->m_nEventLength, NULL);
+		BTQueueEnqueue(pThis->m_pLinkEventQueue, pThis->m_pEventBuffer, pThis->m_nEventLength, 0);
 		break;
 	}
 

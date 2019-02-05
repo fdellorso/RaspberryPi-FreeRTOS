@@ -49,3 +49,30 @@ int mailboxRead(int channel){
 	
 	return(mail);
 }
+
+int GetClockRate(unsigned nClockId) {
+	// TODO
+	(void) nClockId;
+	// unsigned int mailbuffer[8] __attribute__((aligned (16)));
+
+	// //set power state
+	// mailbuffer[0] = 8 * 4;		//mailbuffer size
+	// mailbuffer[1] = 0;			//response code
+	// mailbuffer[2] = 0x00030002;	//set power state
+	// mailbuffer[3] = 8;			//value buffer size
+	// mailbuffer[4] = 8;			//Req. + value length (bytes)
+	// mailbuffer[5] = nDeviceId;	//device id 3
+	// mailbuffer[6] = 3;			//state
+	// mailbuffer[7] = 0;			//terminate buffer
+
+	// //spam mail until the response code is ok
+	// while(mailbuffer[1] != 0x80000000){
+	// 	mailboxWrite((int)mailbuffer, BCM2835_MAIL0_ARM_VC);
+	// 	mailboxRead(BCM2835_MAIL0_ARM_VC);
+	// }
+
+	// if(!(mailbuffer[6] & 1) || (mailbuffer[6] & 2)) return 0;
+	// return 1;
+
+	return 48000000;
+}

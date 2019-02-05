@@ -29,8 +29,13 @@ void BTSubSystem (TBTSubSystem *pThis, CInterruptSystem *pInterruptSystem, u32 n
 {
 	m_pInterruptSystem (pInterruptSystem);		// TODO
 	pThis->m_pUARTTransport = 0;
-	BTHCILayer(pThis->m_HCILayer, nClassOfDevice, pLocalName);
-	BTLogicalLayer(pThis->m_LogicalLayer, &pThis->m_HCILayer);
+	if(nClassOfDevice != 0 && pLocalName != "") {
+		BTHCILayer(pThis->m_pHCILayer, nClassOfDevice, pLocalName);
+	}
+	else {
+		BTHCILayer(pThis->m_pHCILayer, BT_CLASS_DESKTOP_COMPUTER, "Raspberry Pi");
+	}
+	BTLogicalLayer(pThis->m_pLogicalLayer, &pThis->m_pHCILayer);
 }
 
 void _BTSubSystem (TBTSubSystem *pThis)
@@ -50,18 +55,18 @@ boolean BTSubSystemInitialize (TBTSubSystem *pThis)
 		pThis->m_pUARTTransport = new CBTUARTTransport (m_pInterruptSystem);	// TODO
 		assert (pThis->m_pUARTTransport != 0);
 
-		if (!BTUARTTransportInitialize(pThis->m_pUARTTransport)
+		if (!BTUARTTransportInitialize(pThis->m_pUARTTransport, 0))
 		{
 			return FALSE;
 		}
 	}
 
-	if (!BTHCILayerInitialize(pThis->m_HCILayer)
+	if (!BTHCILayerInitialize(pThis->m_pHCILayer)
 	{
 		return FALSE;
 	}
 
-	if (!BTLogicalLayerInitialize(pThis->m_LogicalLayer)
+	if (!BTLogicalLayerInitialize(pThis->m_pLogicalLayer)
 	{
 		return FALSE;
 	}
@@ -80,12 +85,12 @@ boolean BTSubSystemInitialize (TBTSubSystem *pThis)
 
 void BTSubSystemProcess (TBTSubSystem *pThis)
 {
-	BTHCILayerProcess(pThis->m_HCILayer);
+	BTHCILayerProcess(pThis->m_pHCILayer);
 
-	BTLogicalLayerProcess(pThis->m_LogicalLayer);
+	BTLogicalLayerProcess(pThis->m_pLogicalLayer);
 }
 
 TBTInquiryResults *BTSubSystemInquiry (TBTSubSystem *pThis, unsigned nSeconds)
 {
-	return BTLogicalLayerInquiry(pThis->m_LogicalLayer, nSeconds);
+	return BTLogicalLayerInquiry(pThis->m_pLogicalLayer, nSeconds);
 }

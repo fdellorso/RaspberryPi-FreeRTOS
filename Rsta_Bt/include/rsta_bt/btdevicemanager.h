@@ -25,7 +25,7 @@
 #include <rsta_bt/btqueue.h>
 #include <uspi/types.h>
 
-enum TBTDeviceState
+typedef enum
 {
 	BTDeviceStateResetPending,
 	BTDeviceStateWriteRAMPending,
@@ -37,7 +37,7 @@ enum TBTDeviceState
 	BTDeviceStateRunning,
 	BTDeviceStateFailed,
 	BTDeviceStateUnknown
-};
+} TBTDeviceState;
 
 typedef struct TBTDeviceManager
 {

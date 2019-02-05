@@ -80,7 +80,7 @@ void BTDeviceManagerProcess (TBTDeviceManager *pThis)
 	assert (pThis->m_pBuffer != 0);
 
 	unsigned nLength;
-	while ((nLength = BTQueueDequeue(pThis->m_pEventQueue, pThis->m_pBuffer, NULL)) > 0)
+	while ((nLength = BTQueueDequeue(pThis->m_pEventQueue, pThis->m_pBuffer, 0)) > 0)
 	{
 		assert (nLength >= sizeof (TBTHCIEventHeader));
 		TBTHCIEventHeader *pHeader = (TBTHCIEventHeader *) pThis->m_pBuffer;
@@ -131,9 +131,9 @@ void BTDeviceManagerProcess (TBTDeviceManager *pThis)
 						assert (pThis->m_State == BTDeviceStateWriteRAMPending);
 
 						assert (pThis->m_nFirmwareOffset + 3 <= sizeof Firmware);
-						(u16) nOpCode  = Firmware[pThis->m_nFirmwareOffset++];
-							  nOpCode |= Firmware[pThis->m_nFirmwareOffset++] << 8;
-						(u8)  nLength  = Firmware[pThis->m_nFirmwareOffset++];
+						u16 nOpCode  = Firmware[pThis->m_nFirmwareOffset++];
+							nOpCode |= Firmware[pThis->m_nFirmwareOffset++] << 8;
+						u8  nLength  = Firmware[pThis->m_nFirmwareOffset++];
 
 						TBTHCIBcmVendorCommand Cmd;
 						Cmd.Header.OpCode = nOpCode;
