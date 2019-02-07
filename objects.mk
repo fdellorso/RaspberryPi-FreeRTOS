@@ -33,6 +33,7 @@ OBJECTS += $(BUILD_DIR)Drivers/mailbox.o
 OBJECTS += $(BUILD_DIR)Drivers/pwm.o
 OBJECTS += $(BUILD_DIR)Drivers/spi.o
 OBJECTS += $(BUILD_DIR)Drivers/sys_timer.o
+OBJECTS += $(BUILD_DIR)Drivers/uart0.o
 
 # McCauley Library
 # OBJECTS += $(BUILD_DIR)Drivers/bcm2835.o
@@ -136,10 +137,15 @@ OBJECTS += $(BUILD_DIR)Tic/lib/tic_variables.o
 #
 #	USPi Library (LAN and USB)
 #
-OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/ptrarray.o
-OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/btinquiryresults.o
-OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/btqueue.o
-# OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/bttask.o
+OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/ptrarray.o				# Compile OK
+OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/btdevicemanager.o
+OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/bthcilayer.o
+OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/btinquiryresults.o		# Compile OK
+OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/btlogicallayer.o
+OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/btqueue.o				# Compile OK
+OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/btsubsystem.o
+OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/bttask.o
+OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/btuarttransport.o		# Compile OK
 
 #
 #	FreeRTOS portable layer for RaspberryPi

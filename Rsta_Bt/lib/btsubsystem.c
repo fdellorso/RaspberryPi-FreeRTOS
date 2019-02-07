@@ -20,22 +20,24 @@
 #include <rsta_bt/btsubsystem.h>
 #include <rsta_bt/bttask.h>
 // #include <circle/sched/scheduler.h>
-#include <FreeRTOS.h>
+#include <task.h>
 #include <uspi/devicenameservice.h>
 // #include <circle/machineinfo.h>
+#include <uspi/util.h>
 #include <uspi/assert.h>
 
-void BTSubSystem (TBTSubSystem *pThis, CInterruptSystem *pInterruptSystem, u32 nClassOfDevice, const char *pLocalName)
+// void BTSubSystem (TBTSubSystem *pThis, CInterruptSystem *pInterruptSystem, u32 nClassOfDevice, const char *pLocalName)
+void BTSubSystem (TBTSubSystem *pThis, u32 nClassOfDevice, const char *pLocalName)
 {
-	m_pInterruptSystem (pInterruptSystem);		// TODO
+	// m_pInterruptSystem (pInterruptSystem);		// TODO
 	pThis->m_pUARTTransport = 0;
-	if(nClassOfDevice != 0 && pLocalName != "") {
+	if(nClassOfDevice != 0 && pLocalName != NULL) {
 		BTHCILayer(pThis->m_pHCILayer, nClassOfDevice, pLocalName);
 	}
 	else {
 		BTHCILayer(pThis->m_pHCILayer, BT_CLASS_DESKTOP_COMPUTER, "Raspberry Pi");
 	}
-	BTLogicalLayer(pThis->m_pLogicalLayer, &pThis->m_pHCILayer);
+	BTLogicalLayer(pThis->m_pLogicalLayer, pThis->m_pHCILayer);
 }
 
 void _BTSubSystem (TBTSubSystem *pThis)
@@ -51,8 +53,10 @@ boolean BTSubSystemInitialize (TBTSubSystem *pThis)
 	if (DeviceNameServiceGetDevice (DeviceNameServiceGet (), "ubt1", FALSE) == 0)
 	{
 		assert (pThis->m_pUARTTransport == 0);
-		assert (pThis->m_pInterruptSystem != 0);
-		pThis->m_pUARTTransport = new CBTUARTTransport (m_pInterruptSystem);	// TODO
+		// assert (pThis->m_pInterruptSystem != 0);
+		// pThis->m_pUARTTransport = new CBTUARTTransport (m_pInterruptSystem);	// TODO
+		pThis->m_pUARTTransport = (TBTUARTTransport *) malloc (sizeof(TBTUARTTransport));
+		BTUARTTransport(pThis->m_pUARTTransport);
 		assert (pThis->m_pUARTTransport != 0);
 
 		if (!BTUARTTransportInitialize(pThis->m_pUARTTransport, 0))
@@ -61,20 +65,20 @@ boolean BTSubSystemInitialize (TBTSubSystem *pThis)
 		}
 	}
 
-	if (!BTHCILayerInitialize(pThis->m_pHCILayer)
+	if (!BTHCILayerInitialize(pThis->m_pHCILayer))
 	{
 		return FALSE;
 	}
 
-	if (!BTLogicalLayerInitialize(pThis->m_pLogicalLayer)
+	if (!BTLogicalLayerInitialize(pThis->m_pLogicalLayer))
 	{
 		return FALSE;
 	}
 
 	TBTTask *pTask = (TBTTask *) malloc (sizeof(TBTTask));
-	BTTask (pTask);
+	BTTask (pTask, pThis);
 
-	while (!BTDeviceManagerDeviceIsRunning(BTHCILayerGetDeviceManager(pThis->m_HCILayer)))
+	while (!BTDeviceManagerDeviceIsRunning(BTHCILayerGetDeviceManager(pThis->m_pHCILayer)))
 	{
 		// CScheduler::Get ()->Yield ();
 		taskYIELD();

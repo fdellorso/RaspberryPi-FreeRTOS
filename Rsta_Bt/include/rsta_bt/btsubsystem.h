@@ -31,7 +31,7 @@
 
 typedef struct TBTSubSystem
 {
-	CInterruptSystem	*m_pInterruptSystem;	// TODO
+	// CInterruptSystem	*m_pInterruptSystem;	// TODO
 
 	TBTUARTTransport	*m_pUARTTransport;
 
@@ -40,8 +40,9 @@ typedef struct TBTSubSystem
 }
 TBTSubSystem;
 
-void BTSubSystem (TBTSubSystem *pThis, CInterruptSystem *pInterruptSystem,
-				  u32 nClassOfDevice, const char *pLocalName);
+// void BTSubSystem (TBTSubSystem *pThis, CInterruptSystem *pInterruptSystem,
+// 				  u32 nClassOfDevice, const char *pLocalName);
+void BTSubSystem (TBTSubSystem *pThis, u32 nClassOfDevice, const char *pLocalName);
 
 void _BTSubSystem (TBTSubSystem *pThis);
 

@@ -17,7 +17,6 @@ typedef struct TBTHCIBcmVendorCommand
 
 	u8	Data[255];
 }
-TBTHCIBcmVendorCommand
-PACKED;
+PACKED TBTHCIBcmVendorCommand;
 
 #endif

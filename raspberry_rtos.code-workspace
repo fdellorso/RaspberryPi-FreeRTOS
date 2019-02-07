@@ -79,7 +79,8 @@
 			"usbcommon.h": "c",
 			"machineinfo.h": "c",
 			"logger.h": "c",
-			"memio.h": "c"
+			"memio.h": "c",
+			"bluetooth.h": "c"
 		}
 	}
 }

@@ -20,15 +20,16 @@
 #include <rsta_bt/btuarttransport.h>
 #include <uspi/devicenameservice.h>
 #include <uspi/bcm2835.h>
+#include <uspi/synchronize.h>
+#include <uspi/util.h>
+#include <uspi/assert.h>
 // #include <circle/memio.h>
 // #include <circle/machineinfo.h>
-#include <mailbox.h>
-#include <uspi/synchronize.h>
 // #include <circle/logger.h>
-#include <uspios.h>
-#include <uspi/assert.h>
+#include <task.h>
 #include <gpio.h>
 #include <uart0.h>
+#include <mailbox.h>
 
 enum TBTUARTRxState
 {
@@ -48,19 +49,18 @@ static const char FromBTUART[] = "btuart";
 
 static unsigned s_nDeviceNumber = 1;
 
-
 void BTUARTTransportWrite (u8 nChar);
 void BTUARTTransportIRQHandler (TBTUARTTransport *pThis);
-static void BTUARTTransportIRQStub (void *pParam);
+static void BTUARTTransportIRQStub (int nIRQ, void *pParam);
 
-void BTUARTTransport (TBTUARTTransport *pThis, CInterruptSystem *pInterruptSystem)
+void BTUARTTransport (TBTUARTTransport *pThis) //, CInterruptSystem *pInterruptSystem)
 {
 	// to be sure there is no collision with the UART GPIO interface
 	SetGpioFunction(14, GPIO_FUNC_INPUT);
 	SetGpioFunction(15, GPIO_FUNC_INPUT);
 	SetGpioFunction(32, GPIO_FUNC_ALT_3);
 	SetGpioFunction(33, GPIO_FUNC_ALT_3);
-	pThis->m_pInterruptSystem (pInterruptSystem);		// TODO
+	// pThis->m_pInterruptSystem (pInterruptSystem);		// TODO
 	pThis->m_bIRQConnected	= FALSE;
 	pThis->m_pEventHandler	= 0;
 	pThis->m_nRxState		= RxStateStart;
@@ -78,11 +78,14 @@ void _BTUARTTransport (TBTUARTTransport *pThis)
 
 	if (pThis->m_bIRQConnected)
 	{
-		assert (pThis->m_pInterruptSystem != 0);
-		pThis->m_pInterruptSystem->DisconnectIRQ (ARM_IRQ_UART);	// TODO
+		// assert (pThis->m_pInterruptSystem != 0);
+		// pThis->m_pInterruptSystem->DisconnectIRQ (ARM_IRQ_UART);	// TODO
+		taskENTER_CRITICAL();
+		DisableInterrupt(BCM2835_IRQ_ID_UART);
+		taskEXIT_CRITICAL();
 	}
 
-	pThis->m_pInterruptSystem = 0;
+	// pThis->m_pInterruptSystem = 0;
 }
 
 boolean BTUARTTransportInitialize (TBTUARTTransport *pThis, unsigned nBaudrate)
@@ -101,8 +104,12 @@ boolean BTUARTTransportInitialize (TBTUARTTransport *pThis, unsigned nBaudrate)
 	unsigned nFractDiv = nFractDiv2 / 2 + nFractDiv2 % 2;
 	assert (nFractDiv <= 0x3F);
 
-	assert (pThis->m_pInterruptSystem != 0);
-	pThis->m_pInterruptSystem->ConnectIRQ (ARM_IRQ_UART, IRQStub, this);			// TODO
+	// assert (pThis->m_pInterruptSystem != 0);
+	// pThis->m_pInterruptSystem->ConnectIRQ (ARM_IRQ_UART, IRQStub, this);			// TODO
+	taskENTER_CRITICAL();		// FIXME Possible to move after Init
+	RegisterInterrupt(BCM2835_IRQ_ID_UART, BTUARTTransportIRQStub, pThis);
+	EnableInterrupt(BCM2835_IRQ_ID_UART);
+	taskEXIT_CRITICAL();
 	pThis->m_bIRQConnected = TRUE;
 
 	PeripheralEntry ();
@@ -135,6 +142,8 @@ boolean BTUARTTransportInitialize (TBTUARTTransport *pThis, unsigned nBaudrate)
 
 boolean BTUARTTransportSendHCICommand (TBTUARTTransport *pThis, const void *pBuffer, unsigned nLength)
 {
+	(void) pThis;
+	
 	PeripheralEntry ();
 
 	BTUARTTransportWrite (HCI_PACKET_COMMAND);
@@ -248,8 +257,10 @@ void BTUARTTransportIRQHandler (TBTUARTTransport *pThis)
 	PeripheralExit ();
 }
 
-void BTUARTTransportIRQStub (void *pParam)
+static void BTUARTTransportIRQStub (int nIRQ, void *pParam)
 {
+	(void) nIRQ;		// FIXME Wunused
+
 	TBTUARTTransport *pThis = (TBTUARTTransport *) pParam;
 	assert (pThis != 0);
 

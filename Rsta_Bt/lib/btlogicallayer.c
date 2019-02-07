@@ -41,7 +41,7 @@ void _BTLogicalLayer (TBTLogicalLayer *pThis)
 
 boolean BTLogicalLayerInitialize (TBTLogicalLayer *pThis)
 {
-	pThis->m_pBuffer = (u8) malloc (sizeof(u8) * BT_MAX_DATA_SIZE);
+	pThis->m_pBuffer = (u8 *) malloc (sizeof(u8) * BT_MAX_DATA_SIZE);
 	assert (pThis->m_pBuffer != 0);
 
 	return TRUE;
@@ -79,7 +79,7 @@ void BTLogicalLayerProcess (TBTLogicalLayer *pThis)
 					free (pThis->m_pInquiryResults);
 					pThis->m_pInquiryResults = 0;
 
-					m_Event.Set ();		// TODO
+					// m_Event.Set ();		// TODO
 
 					break;
 				}
@@ -87,7 +87,7 @@ void BTLogicalLayerProcess (TBTLogicalLayer *pThis)
 				pThis->m_nNameRequestsPending = BTInquiryResultsGetCount(pThis->m_pInquiryResults);
 				if (pThis->m_nNameRequestsPending == 0)
 				{
-					m_Event.Set ();		// TODO
+					// m_Event.Set ();		// TODO
 
 					break;
 				}
@@ -119,7 +119,7 @@ void BTLogicalLayerProcess (TBTLogicalLayer *pThis)
 
 				if (--pThis->m_nNameRequestsPending == 0)
 				{
-					m_Event.Set ();		// TODO
+					// m_Event.Set ();		// TODO
 				}
 			} break;
 
@@ -136,9 +136,10 @@ TBTInquiryResults *BTLogicalLayerInquiry (TBTLogicalLayer *pThis, unsigned nSeco
 
 	assert (pThis->m_pInquiryResults == 0);
 	pThis->m_pInquiryResults = (TBTInquiryResults *) malloc (sizeof(TBTInquiryResults));
+	BTInquiryResults(pThis->m_pInquiryResults);
 	assert (pThis->m_pInquiryResults != 0);
 
-	m_Event.Clear ();					// TODO
+	// m_Event.Clear ();					// TODO
 
 	TBTHCIInquiryCommand Cmd;
 	Cmd.Header.OpCode = OP_CODE_INQUIRY;
@@ -150,7 +151,7 @@ TBTInquiryResults *BTLogicalLayerInquiry (TBTLogicalLayer *pThis, unsigned nSeco
 	Cmd.NumResponses = INQUIRY_NUM_RESPONSES_UNLIMITED;
 	BTHCILayerSendCommand(pThis->m_pHCILayer, &Cmd, sizeof Cmd);
 
-	m_Event.Wait ();					// TODO
+	// m_Event.Wait ();					// TODO
 
 	TBTInquiryResults *pResult = pThis->m_pInquiryResults;
 	pThis->m_pInquiryResults = 0;

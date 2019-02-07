@@ -24,16 +24,12 @@
 #include <rsta_bt/bluetooth.h>
 #include <uspi/types.h>
 
+struct TBTQueueEntry;
+
 typedef struct TBTQueue
 {
-	struct TBTQueue *m_pFirst;
-	struct TBTQueue *m_pLast;
-
-	struct TBTQueue	*pPrev;
-	struct TBTQueue	*pNext;
-	unsigned		nLength;
-	unsigned char	Buffer[BT_MAX_DATA_SIZE];
-	void			*pParam;
+	struct TBTQueueEntry *m_pFirst;
+	struct TBTQueueEntry *m_pLast;
 
 	// CSpinLock m_SpinLock;
 }

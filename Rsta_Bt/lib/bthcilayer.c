@@ -20,7 +20,7 @@
 #include <rsta_bt/bthcilayer.h>
 #include <uspi/devicenameservice.h>
 // #include <circle/logger.h>
-#include <uspios.h>
+// #include <uspios.h>
 #include <uspi/util.h>
 #include <uspi/assert.h>
 
@@ -74,10 +74,10 @@ boolean BTHCILayerInitialize (TBTHCILayer *pThis)
 		}
 	}
 
-	pThis->m_pEventBuffer = (u8) malloc (sizeof(u8) * BT_MAX_HCI_EVENT_SIZE);
+	pThis->m_pEventBuffer = (u8 *) malloc (sizeof(u8) * BT_MAX_HCI_EVENT_SIZE);
 	assert (pThis->m_pEventBuffer != 0);
 
-	pThis->m_pBuffer = (u8) malloc (sizeof(u8) * BT_MAX_DATA_SIZE);
+	pThis->m_pBuffer = (u8 *) malloc (sizeof(u8) * BT_MAX_DATA_SIZE);
 	assert (pThis->m_pBuffer != 0);
 
 	if (pThis->m_pHCITransportUSB != 0)
@@ -158,7 +158,7 @@ void BTHCILayerSetCommandPackets (TBTHCILayer *pThis, unsigned nCommandPackets)
 
 TBTDeviceManager *BTHCILayerGetDeviceManager (TBTHCILayer *pThis)
 {
-	return &pThis->m_pDeviceManager;
+	return pThis->m_pDeviceManager;
 }
 
 void BTHCILayerEventHandler (TBTHCILayer *pThis, const void *pBuffer, unsigned nLength)

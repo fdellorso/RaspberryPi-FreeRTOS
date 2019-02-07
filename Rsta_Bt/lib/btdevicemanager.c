@@ -23,14 +23,16 @@
 // #include <circle/sched/scheduler.h>
 #include <sys_timer.h>
 // #include <circle/logger.h>
-#include <uspios.h>
+// #include <uspios.h>
 #include <uspi/util.h>
 #include <uspi/assert.h>
 
-static const u8 Firmware[] =
-{
-	#include "BCM43430A1.h"
-};
+// static const u8 Firmware[] =
+// {
+// 	#include "BCM43430A1.h"
+// };
+
+static const u8 *Firmware;
 
 static const char FromDeviceManager[] = "btdev";
 
@@ -60,7 +62,7 @@ boolean BTDeviceManagerInitialize (TBTDeviceManager *pThis)
 {
 	assert (pThis->m_pHCILayer != 0);
 
-	pThis->m_pBuffer = (u8) malloc (sizeof(u8) * BT_MAX_HCI_EVENT_SIZE);
+	pThis->m_pBuffer = (u8 *) malloc (sizeof(u8) * BT_MAX_HCI_EVENT_SIZE);
 	assert (pThis->m_pBuffer != 0);
 
 	TBTHCICommandHeader Cmd;
@@ -131,9 +133,9 @@ void BTDeviceManagerProcess (TBTDeviceManager *pThis)
 						assert (pThis->m_State == BTDeviceStateWriteRAMPending);
 
 						assert (pThis->m_nFirmwareOffset + 3 <= sizeof Firmware);
-						u16 nOpCode  = Firmware[pThis->m_nFirmwareOffset++];
-							nOpCode |= Firmware[pThis->m_nFirmwareOffset++] << 8;
-						u8  nLength  = Firmware[pThis->m_nFirmwareOffset++];
+						u16   nOpCode  = Firmware[pThis->m_nFirmwareOffset++];
+							  nOpCode |= Firmware[pThis->m_nFirmwareOffset++] << 8;
+						/* (u8) */	nLength  = Firmware[pThis->m_nFirmwareOffset++];
 
 						TBTHCIBcmVendorCommand Cmd;
 						Cmd.Header.OpCode = nOpCode;
@@ -159,7 +161,7 @@ void BTDeviceManagerProcess (TBTDeviceManager *pThis)
 						// CScheduler::Get ()->MsSleep (250);
 						DelayMilliSysTimer(250);
 
-					NoFirmwareLoad:
+					NoFirmwareLoad:	;
 						TBTHCICommandHeader Cmd;
 						Cmd.OpCode = OP_CODE_READ_BD_ADDR;
 						Cmd.ParameterTotalLength = PARM_TOTAL_LEN (Cmd);

@@ -22,14 +22,15 @@
 #include <uspi/util.h>
 #include <uspi/assert.h>
 
-// struct TBTQueue
-// {
-// 	volatile TBTQueue	*pPrev;
-// 	volatile TBTQueue	*pNext;
-// 	unsigned		 	nLength;
-// 	unsigned char		 Buffer[BT_MAX_DATA_SIZE];
-// 	void				*pParam;
-// };
+typedef struct TBTQueueEntry
+{
+	struct TBTQueueEntry	*pPrev;
+	struct TBTQueueEntry	*pNext;
+	unsigned		 		nLength;
+	unsigned char		 	Buffer[BT_MAX_DATA_SIZE];
+	void					*pParam;
+}
+TBTQueueEntry;
 
 void BTQueue (TBTQueue *pThis)
 {
@@ -53,7 +54,7 @@ void BTQueueFlush (TBTQueue *pThis)
 	{
 		// m_SpinLock.Acquire ();
 
-		TBTQueue *pEntry = pThis->m_pFirst;
+		TBTQueueEntry *pEntry = pThis->m_pFirst;
 		assert (pEntry != 0);
 
 		pThis->m_pFirst = pEntry->pNext;
@@ -75,7 +76,7 @@ void BTQueueFlush (TBTQueue *pThis)
 	
 void BTQueueEnqueue (TBTQueue *pThis, const void *pBuffer, unsigned nLength, void *pParam)
 {
-	TBTQueue *pEntry = (TBTQueue *) malloc (sizeof(TBTQueue));
+	TBTQueueEntry *pEntry = (TBTQueueEntry *) malloc (sizeof(TBTQueueEntry));
 	assert (pEntry != 0);
 
 	assert (nLength > 0);
@@ -117,8 +118,7 @@ unsigned BTQueueDequeue (TBTQueue *pThis, void *pBuffer, void **ppParam)
 	{
 		// m_SpinLock.Acquire ();
 
-		TBTQueue *pEntry = (TBTQueue *) malloc (sizeof(TBTQueue));
-		pEntry = pThis->m_pFirst;
+		TBTQueueEntry *pEntry = pThis->m_pFirst;
 		assert (pEntry != 0);
 
 		pThis->m_pFirst = pEntry->pNext;

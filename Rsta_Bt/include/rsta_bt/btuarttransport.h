@@ -35,7 +35,7 @@ typedef struct TBTUARTTransport
 	// CGPIOPin			m_TxDPin;
 	// CGPIOPin			m_RxDPin;
 
-	CInterruptSystem	*m_pInterruptSystem;
+	// CInterruptSystem	*m_pInterruptSystem;
 	boolean				m_bIRQConnected;
 
 	TBTHCIEventHandler	*m_pEventHandler;
@@ -47,7 +47,7 @@ typedef struct TBTUARTTransport
 }
 TBTUARTTransport;
 
-void BTUARTTransport (TBTUARTTransport *pThis, CInterruptSystem *pInterruptSystem);
+void BTUARTTransport (TBTUARTTransport *pThis); //, CInterruptSystem *pInterruptSystem);
 void _BTUARTTransport (TBTUARTTransport *pThis);
 
 boolean BTUARTTransportInitialize (TBTUARTTransport *pThis, unsigned nBaudrate);

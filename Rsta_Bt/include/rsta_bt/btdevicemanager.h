@@ -41,7 +41,7 @@ typedef enum
 
 typedef struct TBTDeviceManager
 {
-	TBTHCILayer		*m_pHCILayer;
+	struct TBTHCILayer		*m_pHCILayer;
 	TBTQueue		*m_pEventQueue;
 	u32				m_nClassOfDevice;
 	u8				m_LocalName[BT_NAME_SIZE];
@@ -56,8 +56,8 @@ typedef struct TBTDeviceManager
 }
 TBTDeviceManager;
 
-BTDeviceManager (TBTDeviceManager *pThis, TBTHCILayer *pHCILayer, TBTQueue *pEventQueue, u32 nClassOfDevice, const char *pLocalName);
-_BTDeviceManager (TBTDeviceManager *pThis);
+void BTDeviceManager (TBTDeviceManager *pThis, struct TBTHCILayer *pHCILayer, TBTQueue *pEventQueue, u32 nClassOfDevice, const char *pLocalName);
+void _BTDeviceManager (TBTDeviceManager *pThis);
 
 boolean BTDeviceManagerInitialize (TBTDeviceManager *pThis);
 

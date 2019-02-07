@@ -19,7 +19,7 @@
 //
 #include <rsta_bt/bttask.h>
 // #include <circle/sched/scheduler.h>
-#include <FreeRTOS.h>
+#include <task.h>
 #include <uspi/assert.h>
 
 void BTTask (TBTTask *pThis, TBTSubSystem *pBTSubSystem)

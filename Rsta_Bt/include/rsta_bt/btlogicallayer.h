@@ -32,7 +32,7 @@ typedef struct TBTLogicalLayer
 	TBTInquiryResults		*m_pInquiryResults;
 
 	unsigned				m_nNameRequestsPending;
-	CSynchronizationEvent	m_Event;				// TODO
+	// CSynchronizationEvent	m_Event;				// TODO
 
 	u8 						*m_pBuffer;
 }
