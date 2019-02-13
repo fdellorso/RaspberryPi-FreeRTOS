@@ -50,6 +50,15 @@ char * USPiTicGetSerialNumber(void);
 #endif
 
 //
+// Bluetooth Device
+//
+#ifdef USBBLT
+
+int USPiBTAvailable (void);
+
+#endif
+
+//
 // Keyboard device
 //
 #ifdef USBKBD

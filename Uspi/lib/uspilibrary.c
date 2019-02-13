@@ -171,6 +171,16 @@ char * USPiTicGetSerialNumber(void)
 }
 #endif
 
+
+#ifdef USBBLT
+int USPiBTAvailable (void)
+{
+	assert (s_pLibrary != 0);
+	return s_pLibrary->pUbt0 != 0;
+}
+#endif
+
+
 #ifdef USBKBD
 int USPiKeyboardAvailable (void)
 {

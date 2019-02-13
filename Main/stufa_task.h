@@ -6,5 +6,6 @@ void prvTask_UspiInit(void *pParam);
 void prvTask_TicControl(void *pParam);
 void prvTask_TicConsole(void *pParam);
 void prvTask_8825Control(void *pParam);
+void prvTask_Bluetooth(void *pParam);
 
 #endif

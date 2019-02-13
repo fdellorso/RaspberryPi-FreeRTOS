@@ -15,7 +15,7 @@ extern xTaskHandle xHandleUSPi;
 extern xTaskHandle xHandleTicCtrl;
 extern xTaskHandle xHandleTicCnsl;
 extern xTaskHandle xHandle8825Ctrl;
-
+extern xTaskHandle xHandleBluetooth;
 
 int main(void) {
 
@@ -57,6 +57,13 @@ int main(void) {
 		configMINIMAL_STACK_SIZE, NULL, 0, &xHandle8825Ctrl) == pdPASS) {
 		if(uxTaskPriorityGet(xHandle8825Ctrl) < configMAX_CO_ROUTINE_PRIORITIES) {
 			vTaskSuspend(xHandle8825Ctrl);
+		}
+	}
+
+	if(xTaskCreate(prvTask_Bluetooth, (signed char *) "Bluetooth",
+		configMINIMAL_STACK_SIZE, NULL, 0, &xHandleBluetooth) == pdPASS) {
+		if(uxTaskPriorityGet(xHandleBluetooth) < configMAX_CO_ROUTINE_PRIORITIES) {
+			vTaskSuspend(xHandleBluetooth);
 		}
 	}
 

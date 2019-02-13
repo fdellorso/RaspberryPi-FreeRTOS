@@ -30,7 +30,7 @@
 
 #include <uspi.h>
 #include <tic.h>
-
+#include <rsta_bt/btsubsystem.h>
 
 #ifndef TIC_SPEED
 #define TIC_SPEED	700		// Pulses/s
@@ -45,11 +45,12 @@ typedef struct tic_command {
 } tic_command;
 
 // Tasks
-xTaskHandle			xHandleWDog		= NULL;
-xTaskHandle			xHandleUSPi		= NULL;
-xTaskHandle			xHandleTicCtrl	= NULL;
-xTaskHandle			xHandleTicCnsl	= NULL;
-xTaskHandle			xHandle8825Ctrl	= NULL;
+xTaskHandle			xHandleWDog			= NULL;
+xTaskHandle			xHandleUSPi			= NULL;
+xTaskHandle			xHandleTicCtrl		= NULL;
+xTaskHandle			xHandleTicCnsl		= NULL;
+xTaskHandle			xHandle8825Ctrl		= NULL;
+xTaskHandle			xHandleBluetooth	= NULL;
 
 // Semaphores
 xSemaphoreHandle	xSemUSPiInit	= NULL;
@@ -141,7 +142,8 @@ void prvTask_WatchDog(void *pParam) {
 				vSemaphoreDelete(xSemUSPiInit);
 				vTaskSuspend(xHandleUSPi);
 				if(USPiTicAvailable())	vTaskResume(xHandleTicCtrl);
-				else 					vTaskResume(xHandle8825Ctrl);
+				if(0) 					vTaskResume(xHandle8825Ctrl);
+				if(USPiBTAvailable())	vTaskResume(xHandleBluetooth);
 			}
 		}
 
@@ -408,6 +410,23 @@ void prvTask_8825Control(void *pParam) {
 
 
 	prvFunc_Print("\nDrv8825 Control...\t\t     Started");
+
+	while(1) {
+		i++;
+
+		// prvFunc_Print("Step nr. %u", step);
+
+		vTaskDelay(100);
+	}
+}
+
+void prvTask_Bluetooth(void *pParam) {
+	int i = 0;
+
+	/* Stop warnings. */
+	( void ) pParam;
+
+	
 
 	while(1) {
 		i++;
