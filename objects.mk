@@ -5,6 +5,8 @@
 #
 OBJECTS += $(BUILD_DIR)Main/main.o
 OBJECTS += $(BUILD_DIR)Main/stufa_task.o
+OBJECTS += $(BUILD_DIR)Main/shared_resources.o
+OBJECTS += $(BUILD_DIR)Main/tic_taskfunc.o
 
 #
 #	Startup and platform initialisation code.

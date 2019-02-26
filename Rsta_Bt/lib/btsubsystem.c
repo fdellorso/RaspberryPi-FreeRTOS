@@ -26,6 +26,8 @@
 #include <uspi/util.h>
 #include <uspi/assert.h>
 
+#include <shared_resources.h>
+
 // void BTSubSystem (TBTSubSystem *pThis, CInterruptSystem *pInterruptSystem, u32 nClassOfDevice, const char *pLocalName)
 void BTSubSystem (TBTSubSystem *pThis, u32 nClassOfDevice, const char *pLocalName)
 {
@@ -69,7 +71,7 @@ boolean BTSubSystemInitialize (TBTSubSystem *pThis)
 	{
 		return FALSE;
 	}
-
+	
 	if (!BTLogicalLayerInitialize(pThis->m_pLogicalLayer))
 	{
 		return FALSE;

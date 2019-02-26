@@ -10,6 +10,7 @@ TOOLCHAIN=$(BASE)../gcc-arm-none-eabi/bin/arm-none-eabi-
 # TOOLCHAIN=/home/fra/x-tools/arm-unknown-eabi/bin/arm-unknown-eabi-
 
 # Header Include
+CFLAGS += -I $(BASE)Main/
 CFLAGS += -I $(BASE)Drivers/
 ifdef $(LIBUSE)
 CFLAGS += -I $(BASE)Drivers/prvlib

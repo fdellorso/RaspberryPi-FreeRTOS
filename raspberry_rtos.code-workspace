@@ -80,7 +80,9 @@
 			"machineinfo.h": "c",
 			"logger.h": "c",
 			"memio.h": "c",
-			"bluetooth.h": "c"
+			"bluetooth.h": "c",
+			"shared_resources.h": "c",
+			"rpi_logger.h": "c"
 		}
 	}
 }

@@ -3,6 +3,7 @@
         {
             "name": "ARM",
             "includePath": [
+                "${workspaceFolder}/Main",
                 "${workspaceFolder}/Drivers",
                 "${workspaceFolder}/Tic/include",
                 "${workspaceFolder}/Uspi/include",

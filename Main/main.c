@@ -5,9 +5,12 @@
 #include "stufa_task.h"
 
 #include <rpi_header.h>
+#include <rpi_logger.h>
 
 #include <FreeRTOS.h>
 #include <task.h>
+
+#include <uspi.h>
 
 
 extern xTaskHandle xHandleWDog;
@@ -61,11 +64,21 @@ int main(void) {
 	}
 
 	if(xTaskCreate(prvTask_Bluetooth, (signed char *) "Bluetooth",
-		configMINIMAL_STACK_SIZE, NULL, 0, &xHandleBluetooth) == pdPASS) {
+		8 * configMINIMAL_STACK_SIZE, NULL, 0, &xHandleBluetooth) == pdPASS) {
 		if(uxTaskPriorityGet(xHandleBluetooth) < configMAX_CO_ROUTINE_PRIORITIES) {
 			vTaskSuspend(xHandleBluetooth);
 		}
 	}
+
+	// logger_init();
+	// #ifdef ILI9340
+	// 	bcm2835_init();
+	// 	ili9340_set_rotation(1);
+	// #endif
+
+	// if(!USPiInitialize()) {
+	// 	printf("USPi failed to initialize");
+	// }
 
 	vTaskStartScheduler();
 
