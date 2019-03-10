@@ -33,7 +33,7 @@ typedef struct TBTHCILayer
 	TUSBBluetoothDevice			*m_pHCITransportUSB;
 	TBTUARTTransport			*m_pHCITransportUART;
 
-	struct TBTDeviceManager			*m_pDeviceManager;
+	struct TBTDeviceManager		*m_pDeviceManager;
 
 	TBTQueue					*m_pCommandQueue;
 	TBTQueue					*m_pDeviceEventQueue;
@@ -47,7 +47,7 @@ typedef struct TBTHCILayer
 
 	unsigned					m_nCommandPackets;				// commands allowed to be sent
 
-	struct TBTHCILayer			*s_pThis;
+	// struct TBTHCILayer			*s_pThis;
 }
 TBTHCILayer;
 

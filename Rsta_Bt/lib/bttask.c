@@ -18,8 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include <rsta_bt/bttask.h>
+
 // #include <circle/sched/scheduler.h>
+#include <FreeRTOS.h>
 #include <task.h>
+
 #include <uspi/assert.h>
 
 void BTTask (TBTTask *pThis, TBTSubSystem *pBTSubSystem)

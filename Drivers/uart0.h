@@ -2,7 +2,6 @@
 #define _UART0_H_
 
 #include <rpi_header.h>
-#include <uspi/string.h>
 
 // Base Physical Address of the Mini UART registers
 #define BCM2835_UART0_BASE			(BCM2835_PERI_BASE + 0x201000)

@@ -18,21 +18,26 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include <rsta_bt/btsubsystem.h>
-#include <rsta_bt/bttask.h>
-// #include <circle/sched/scheduler.h>
-#include <task.h>
+// #include <rsta_bt/bttask.h>
+
 #include <uspi/devicenameservice.h>
-// #include <circle/machineinfo.h>
 #include <uspi/util.h>
 #include <uspi/assert.h>
 
-#include <shared_resources.h>
+#include <FreeRTOS.h>
+#include <task.h>
+#include <queue.h>
 
-// void BTSubSystem (TBTSubSystem *pThis, CInterruptSystem *pInterruptSystem, u32 nClassOfDevice, const char *pLocalName)
+#include <stufa_Task.h>
+
+extern xTaskHandle	xHandleBltProc;
+extern xQueueHandle	xQueBltProc;
+
 void BTSubSystem (TBTSubSystem *pThis, u32 nClassOfDevice, const char *pLocalName)
 {
-	// m_pInterruptSystem (pInterruptSystem);		// TODO
 	pThis->m_pUARTTransport = 0;
+	pThis->m_pHCILayer = (TBTHCILayer *) malloc (sizeof(TBTHCILayer));
+	pThis->m_pLogicalLayer = (TBTLogicalLayer *) malloc (sizeof(TBTLogicalLayer));
 	if(nClassOfDevice != 0 && pLocalName != NULL) {
 		BTHCILayer(pThis->m_pHCILayer, nClassOfDevice, pLocalName);
 	}
@@ -55,8 +60,6 @@ boolean BTSubSystemInitialize (TBTSubSystem *pThis)
 	if (DeviceNameServiceGetDevice (DeviceNameServiceGet (), "ubt1", FALSE) == 0)
 	{
 		assert (pThis->m_pUARTTransport == 0);
-		// assert (pThis->m_pInterruptSystem != 0);
-		// pThis->m_pUARTTransport = new CBTUARTTransport (m_pInterruptSystem);	// TODO
 		pThis->m_pUARTTransport = (TBTUARTTransport *) malloc (sizeof(TBTUARTTransport));
 		BTUARTTransport(pThis->m_pUARTTransport);
 		assert (pThis->m_pUARTTransport != 0);
@@ -77,12 +80,15 @@ boolean BTSubSystemInitialize (TBTSubSystem *pThis)
 		return FALSE;
 	}
 
-	TBTTask *pTask = (TBTTask *) malloc (sizeof(TBTTask));
-	BTTask (pTask, pThis);
+	if(xQueueSend(xQueBltProc, &pThis, 0) == pdPASS) {
+		prvFunc_Print("%cSubSystem...\t\t    Sended", 0x3e);
+		// vTaskResume(xHandleBltProc);
+	}
 
 	while (!BTDeviceManagerDeviceIsRunning(BTHCILayerGetDeviceManager(pThis->m_pHCILayer)))
 	{
-		// CScheduler::Get ()->Yield ();
+		// prvFunc_Print("BTSUB");
+
 		taskYIELD();
 	}
 

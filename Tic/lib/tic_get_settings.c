@@ -313,7 +313,7 @@ tic_error * tic_get_settings(tic_handle * handle, tic_settings ** settings)
 
   // Allocate the new settings object.
   tic_settings * new_settings = NULL;
-  if(*settings == NULL) {
+  if(*settings == NULL) {   // TODO really investigate about content???
     if (error == NULL)
     {
       error = tic_settings_create(&new_settings);
@@ -330,7 +330,8 @@ tic_error * tic_get_settings(tic_handle * handle, tic_settings ** settings)
   }
 
   // Read all the settings from the device into a buffer.
-  uint8_t buf[TIC_SETTINGS_SIZE];
+  // uint8_t buf[TIC_SETTINGS_SIZE];        // used malloc to reduce stack usage
+  uint8_t * buf = (uint8_t *) malloc(sizeof(uint8_t) * TIC_SETTINGS_SIZE);
   {
     memset(buf, 0, sizeof(buf));
     size_t index = 0;
@@ -360,6 +361,7 @@ tic_error * tic_get_settings(tic_handle * handle, tic_settings ** settings)
   }
 
   tic_settings_free(new_settings);
+  free(buf);
 
   if (error != NULL)
   {

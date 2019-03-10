@@ -21,15 +21,15 @@
 #include <uspi/devicenameservice.h>
 #include <uspi/bcm2835.h>
 #include <uspi/synchronize.h>
-#include <uspi/util.h>
+#include <uspi/string.h>
 #include <uspi/assert.h>
 // #include <circle/memio.h>
 // #include <circle/machineinfo.h>
 // #include <circle/logger.h>
+#include <FreeRTOS.h>
 #include <task.h>
 #include <gpio.h>
 #include <uart0.h>
-#include <mailbox.h>
 
 enum TBTUARTRxState
 {
@@ -68,11 +68,11 @@ void BTUARTTransport (TBTUARTTransport *pThis) //, CInterruptSystem *pInterruptS
 
 void _BTUARTTransport (TBTUARTTransport *pThis)
 {
-	PeripheralEntry ();
+	DataSyncBarrier ();
 	// write32 (ARM_UART0_IMSC, 0);
 	// write32 (ARM_UART0_CR, 0);
 	BTUARTClose();
-	PeripheralExit ();
+	DataMemBarrier ();
 
 	pThis->m_pEventHandler = 0;
 
@@ -112,7 +112,7 @@ boolean BTUARTTransportInitialize (TBTUARTTransport *pThis, unsigned nBaudrate)
 	taskEXIT_CRITICAL();
 	pThis->m_bIRQConnected = TRUE;
 
-	PeripheralEntry ();
+	DataSyncBarrier ();
 
 	// write32 (ARM_UART0_IMSC, 0);
 	// write32 (ARM_UART0_ICR,  0x7FF);
@@ -125,7 +125,7 @@ boolean BTUARTTransportInitialize (TBTUARTTransport *pThis, unsigned nBaudrate)
 
 	BTUARTInit(nIntDiv, nFractDiv);
 
-	PeripheralExit ();
+	DataMemBarrier ();
 
 	// CDeviceNameService::Get ()->AddDevice ("ttyBT1", this, FALSE);
 	
@@ -144,7 +144,7 @@ boolean BTUARTTransportSendHCICommand (TBTUARTTransport *pThis, const void *pBuf
 {
 	(void) pThis;
 	
-	PeripheralEntry ();
+	DataSyncBarrier ();
 
 	BTUARTTransportWrite (HCI_PACKET_COMMAND);
 
@@ -156,7 +156,7 @@ boolean BTUARTTransportSendHCICommand (TBTUARTTransport *pThis, const void *pBuf
 		BTUARTTransportWrite (*pChar++);
 	}
 
-	PeripheralExit ();
+	DataMemBarrier ();
 
 	return TRUE;
 }
@@ -182,7 +182,7 @@ void BTUARTTransportWrite (u8 nChar)
 
 void BTUARTTransportIRQHandler (TBTUARTTransport *pThis)
 {
-	PeripheralEntry ();
+	DataSyncBarrier ();
 
 	u32 nMIS = BTUARTReadReg (UART0_MIS);
 	if (nMIS & INT_OE)
@@ -254,7 +254,7 @@ void BTUARTTransportIRQHandler (TBTUARTTransport *pThis)
 		}
 	}
 
-	PeripheralExit ();
+	DataMemBarrier ();
 }
 
 static void BTUARTTransportIRQStub (int nIRQ, void *pParam)

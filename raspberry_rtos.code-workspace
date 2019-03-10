@@ -82,7 +82,15 @@
 			"memio.h": "c",
 			"bluetooth.h": "c",
 			"shared_resources.h": "c",
-			"rpi_logger.h": "c"
+			"rpi_logger.h": "c",
+			"uspilibrary.h": "c",
+			"bthcilayer.h": "c",
+			"usbbluetooth.h": "c",
+			"portmacro.h": "c",
+			"uart0.h": "c",
+			"null.h": "c",
+			"time.h": "c",
+			"unistd.h": "c"
 		}
 	}
 }

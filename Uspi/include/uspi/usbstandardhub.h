@@ -33,13 +33,13 @@ extern "C" {
 
 typedef struct TUSBStandardHub
 {
-	TUSBDevice			m_USBDevice;
+	TUSBDevice m_USBDevice;
 
-	TUSBHubDescriptor	*m_pHubDesc;
+	TUSBHubDescriptor *m_pHubDesc;
 
-	unsigned			m_nPorts;
-	TUSBDevice			*m_pDevice[USB_HUB_MAX_PORTS];
-	TUSBPortStatus		*m_pStatus[USB_HUB_MAX_PORTS];
+	unsigned m_nPorts;
+	TUSBDevice *m_pDevice[USB_HUB_MAX_PORTS];
+	TUSBPortStatus *m_pStatus[USB_HUB_MAX_PORTS];
 }
 TUSBStandardHub;
 

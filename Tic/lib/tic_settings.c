@@ -180,7 +180,7 @@ tic_error * tic_settings_copy(const tic_settings * source, tic_settings ** dest)
 
   if (error == NULL)
   {
-    memcpy2(new_settings, source, sizeof(tic_settings));
+    memcpy(new_settings, source, sizeof(tic_settings));
   }
 
   if (error == NULL)

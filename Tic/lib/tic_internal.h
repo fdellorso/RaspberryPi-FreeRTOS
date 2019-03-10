@@ -2,25 +2,14 @@
 
 #include <tic.h>
 
-// TODO config.h disabled
-// #include <config.h>
+#include <uspi/assert.h>
+#include <uspi/stdarg.h>
+#include <uspi/types.h>
+#include <uspi/util.h>
+#include <prvlib/stdio.h>
+#include <prvlib/stdlib.h>
+#include <prvlib/null.h>
 
-// TODO libusbp.h disabled
-// #include <libusbp.h>
-
-// #include <yaml.h>
-#ifndef PRVLIB
-  #include <assert.h>
-  #include <errno.h>
-  #include <stdarg.h>
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <string.h>
-  #include <time.h>
-  #include <unistd.h>
-#else
-  #include <rpi_library.h>
-#endif
 #include <rpi_header.h>
 #include <uspi.h>
 
@@ -61,6 +50,7 @@ void tic_sprintf(tic_string *, const char * format, ...);
 
 uint8_t tic_string_to_i64(const char *, int64_t *);
 
+char *strdup(const char *pSrc);
 
 // Internal name lookup library.
 

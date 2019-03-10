@@ -17,13 +17,13 @@ void OnProjectLoad (void) {
   Project.SetTargetIF ("JTAG");
   Project.SetTIFSpeed ("1 MHz");
   Project.AddSvdFile ("$(InstallDir)/Config/CPU/ARM11.svd");
-  Project.SetOSPlugin("FreeRTOSPlugin");
-  Project.AddPathSubstitute ("/home/fra/RaspberryPi-FreeRTOS", "$(ProjectDir)");
-  Project.AddPathSubstitute ("/home/fra/raspberrypi-freertos", "$(ProjectDir)");
+  Project.AddPathSubstitute ("/home/fra/RaspberryPi-FreeRTOS/ozone", "$(ProjectDir)");
+  Project.AddPathSubstitute ("/home/fra/raspberrypi-freertos/ozone", "$(ProjectDir)");
+  Project.SetOSPlugin("FreeRTOSPlugin.so");
   //
   // User settings
   //
-  File.Open ("$(ProjectDir)/kernel.elf");
+  File.Open ("/home/fra/RaspberryPi-FreeRTOS/kernel.elf");
 }
 
 /*********************************************************************

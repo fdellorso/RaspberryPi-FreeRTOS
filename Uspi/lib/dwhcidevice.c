@@ -23,15 +23,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include <uspi/dwhcidevice.h>
+#include <uspios.h>
 #include <uspi/bcm2835.h>
 #include <uspi/synchronize.h>
 #include <uspi/assert.h>
-#include <uspios.h>
 
-// #include <FreeRTOS.h>
-// #include <task.h>
-
-#include <rpi_logger.h>
+#include <FreeRTOS.h>
+#include <task.h>
 
 #define ARM_IRQ_USB		9		// for ConnectInterrupt()
 
@@ -135,14 +133,14 @@ boolean DWHCIDeviceInitialize (TDWHCIDevice *pThis)
 		_DWHCIRegister (&VendorId);
 		return FALSE;
 	}
-
+	
 	// Disable all interrupts
 	TDWHCIRegister AHBConfig;
 	DWHCIRegister (&AHBConfig, DWHCI_CORE_AHB_CFG);
 	DWHCIRegisterRead (&AHBConfig);
 	DWHCIRegisterAnd (&AHBConfig, ~DWHCI_CORE_AHB_CFG_GLOBALINT_MASK);
 	DWHCIRegisterWrite (&AHBConfig);
-
+	
 	ConnectInterrupt (ARM_IRQ_USB, DWHCIDeviceInterruptHandler, pThis);
 
 	if (!DWHCIDeviceInitCore (pThis))
@@ -152,9 +150,9 @@ boolean DWHCIDeviceInitialize (TDWHCIDevice *pThis)
 		_DWHCIRegister (&VendorId);
 		return FALSE;
 	}
-
+	
 	DWHCIDeviceEnableGlobalInterrupts (pThis);
-
+	
 	if (!DWHCIDeviceInitHost (pThis))
 	{
 		LogWrite (FromDWHCI, LOG_ERROR, "Cannot initialize host");
@@ -181,7 +179,7 @@ boolean DWHCIDeviceInitialize (TDWHCIDevice *pThis)
 		_DWHCIRegister (&VendorId);
 		return TRUE;
 	}
-
+	
 	DataMemBarrier ();
 
 	_DWHCIRegister (&AHBConfig);
@@ -249,13 +247,13 @@ int DWHCIDeviceControlMessage (TDWHCIDevice *pThis, TUSBEndpoint *pEndpoint,
 	TUSBRequest URB;
 	USBRequest (&URB, pEndpoint, pData, usDataSize, pSetup);
 
-	int nResult = 0;
+	int nResult = -1;
 
 	if (DWHCIDeviceSubmitBlockingRequest (pThis, &URB))
 	{
 		nResult = USBRequestGetResultLength (&URB);
 	}
-
+	
 	free (pSetup);
 
 	_USBRequest (&URB);
@@ -290,7 +288,7 @@ boolean DWHCIDeviceSubmitBlockingRequest (TDWHCIDevice *pThis, TUSBRequest *pURB
 
 	assert (pURB != 0);
 	USBRequestSetStatus (pURB, 0);
-
+	
 	if (USBEndpointGetType (USBRequestGetEndpoint (pURB)) == EndpointTypeControl)
 	{
 		TSetupData *pSetup = USBRequestGetSetupData (pURB);
@@ -305,7 +303,7 @@ boolean DWHCIDeviceSubmitBlockingRequest (TDWHCIDevice *pThis, TUSBRequest *pURB
 			    || !DWHCIDeviceTransferStage (pThis, pURB, FALSE, TRUE))
 			{
 				return FALSE;
-			}			
+			}
 		}
 		else
 		{
@@ -333,13 +331,13 @@ boolean DWHCIDeviceSubmitBlockingRequest (TDWHCIDevice *pThis, TUSBRequest *pURB
 		assert (   USBEndpointGetType (USBRequestGetEndpoint (pURB)) == EndpointTypeBulk
 		        || USBEndpointGetType (USBRequestGetEndpoint (pURB)) == EndpointTypeInterrupt);
 		assert (USBRequestGetBufLen (pURB) > 0);
-
+		
 		if (!DWHCIDeviceTransferStage (pThis, pURB, USBEndpointIsDirectionIn (USBRequestGetEndpoint (pURB)), FALSE))
 		{
 			return FALSE;
 		}
 	}
-
+	
 	DataMemBarrier ();
 
 	return TRUE;
@@ -731,8 +729,7 @@ boolean DWHCIDeviceTransferStage (TDWHCIDevice *pThis, TUSBRequest *pURB, boolea
 	while (pThis->m_bWaiting)
 	{
 		// do nothing
-		//portYIELD();
-		portYIELD_WITHIN_API();
+		taskYIELD();
 	}
 
 	return USBRequestGetStatus (pURB);
@@ -740,26 +737,26 @@ boolean DWHCIDeviceTransferStage (TDWHCIDevice *pThis, TUSBRequest *pURB, boolea
 
 void DWHCIDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pContext)
 {
+	(void) pURB;
+	(void) pParam;
+
 	TDWHCIDevice *pThis = (TDWHCIDevice *) pContext;
 	assert (pThis != 0);
 
 	pThis->m_bWaiting = FALSE;
-
-	(void)pURB;		// FIXME Wunused
-	(void)pParam;	// FIXME Wunused
 }
 
 boolean DWHCIDeviceTransferStageAsync (TDWHCIDevice *pThis, TUSBRequest *pURB, boolean bIn, boolean bStatusStage)
 {
 	assert (pThis != 0);
 	assert (pURB != 0);
-
+	
 	unsigned nChannel = DWHCIDeviceAllocateChannel (pThis);
 	if (nChannel >= pThis->m_nChannels)
 	{
 		return FALSE;
 	}
-
+	
 	TDWHCITransferStageData *pStageData =
 		(TDWHCITransferStageData *) malloc (sizeof (TDWHCITransferStageData));
 	assert (pStageData != 0);
@@ -769,7 +766,7 @@ boolean DWHCIDeviceTransferStageAsync (TDWHCIDevice *pThis, TUSBRequest *pURB, b
 	pThis->m_pStageData[nChannel] = pStageData;
 
 	DWHCIDeviceEnableChannelInterrupt (pThis, nChannel);
-
+	
 	if (!DWHCITransferStageDataIsSplit (pStageData))
 	{
 		DWHCITransferStageDataSetState (pStageData, StageStateNoSplitTransfer);
@@ -800,7 +797,7 @@ boolean DWHCIDeviceTransferStageAsync (TDWHCIDevice *pThis, TUSBRequest *pURB, b
 	}
 
 	DWHCIDeviceStartTransaction (pThis, pStageData);
-
+	
 	return TRUE;
 }
 
@@ -811,7 +808,7 @@ void DWHCIDeviceStartTransaction (TDWHCIDevice *pThis, TDWHCITransferStageData *
 	assert (pStageData != 0);
 	unsigned nChannel = DWHCITransferStageDataGetChannelNumber (pStageData);
 	assert (nChannel < pThis->m_nChannels);
-
+	
 	// channel must be disabled, if not already done but controller
 	TDWHCIRegister Character;
 	DWHCIRegister (&Character, DWHCI_HOST_CHAN_CHARACTER (nChannel));
@@ -846,7 +843,7 @@ void DWHCIDeviceStartChannel (TDWHCIDevice *pThis, TDWHCITransferStageData *pSta
 	assert (pStageData != 0);
 	unsigned nChannel = DWHCITransferStageDataGetChannelNumber (pStageData);
 	assert (nChannel < pThis->m_nChannels);
-
+	
 	DWHCITransferStageDataSetSubState (pStageData, StageSubStateWaitForTransactionComplete);
 
 	// reset all pending channel interrupts
@@ -854,7 +851,7 @@ void DWHCIDeviceStartChannel (TDWHCIDevice *pThis, TDWHCITransferStageData *pSta
 	DWHCIRegister (&ChanInterrupt, DWHCI_HOST_CHAN_INT (nChannel));
 	DWHCIRegisterSetAll (&ChanInterrupt);
 	DWHCIRegisterWrite (&ChanInterrupt);
-
+	
 	// set transfer size, packet count and pid
 	TDWHCIRegister TransferSize;
 	DWHCIRegister2 (&TransferSize, DWHCI_HOST_CHAN_XFER_SIZ (nChannel), 0);
@@ -948,10 +945,9 @@ void DWHCIDeviceStartChannel (TDWHCIDevice *pThis, TDWHCITransferStageData *pSta
 	DWHCIRegister (&ChanInterruptMask, DWHCI_HOST_CHAN_INT_MASK (nChannel));
 	DWHCIRegisterSet (&ChanInterruptMask, DWHCITransferStageDataGetStatusMask (pStageData));
 	DWHCIRegisterWrite (&ChanInterruptMask);
-
+	
 	DWHCIRegisterOr (&Character, DWHCI_HOST_CHAN_CHARACTER_ENABLE);
 	DWHCIRegisterAnd (&Character, ~DWHCI_HOST_CHAN_CHARACTER_DISABLE);
-	// LogWrite(FromDWHCI, LOG_DEBUG, "DWHCIDeviceStartChannel");
 	DWHCIRegisterWrite (&Character);
 
 	_DWHCIRegister (&ChanInterruptMask);
@@ -1022,7 +1018,7 @@ void DWHCIDeviceChannelInterruptHandler (TDWHCIDevice *pThis, unsigned nChannel)
 		nStatus = DWHCITransferStageDataGetTransactionStatus (pStageData);
 		if (nStatus & DWHCI_HOST_CHAN_INT_ERROR_MASK)
 		{
-			LogWrite (FromDWHCI, LOG_ERROR, "Transaction failed 1 (status 0x%X)", nStatus);
+			LogWrite (FromDWHCI, LOG_ERROR, "Transaction failed (status 0x%X)", nStatus);
 
 			USBRequestSetStatus (pURB, 0);
 		}
@@ -1064,7 +1060,7 @@ void DWHCIDeviceChannelInterruptHandler (TDWHCIDevice *pThis, unsigned nChannel)
 		    || (nStatus & DWHCI_HOST_CHAN_INT_NAK)
 		    || (nStatus & DWHCI_HOST_CHAN_INT_NYET))
 		{
-			LogWrite (FromDWHCI, LOG_ERROR, "Transaction failed 2 (status 0x%X)", nStatus);
+			LogWrite (FromDWHCI, LOG_ERROR, "Transaction failed (status 0x%X)", nStatus);
 
 			USBRequestSetStatus (pURB, 0);
 
@@ -1097,7 +1093,7 @@ void DWHCIDeviceChannelInterruptHandler (TDWHCIDevice *pThis, unsigned nChannel)
 		nStatus = DWHCITransferStageDataGetTransactionStatus (pStageData);
 		if (nStatus & DWHCI_HOST_CHAN_INT_ERROR_MASK)
 		{
-			LogWrite (FromDWHCI, LOG_ERROR, "Transaction failed 3 (status 0x%X)", nStatus);
+			LogWrite (FromDWHCI, LOG_ERROR, "Transaction failed (status 0x%X)", nStatus);
 
 			USBRequestSetStatus (pURB, 0);
 
@@ -1183,10 +1179,9 @@ void DWHCIDeviceChannelInterruptHandler (TDWHCIDevice *pThis, unsigned nChannel)
 	}
 }
 
-__attribute__((no_instrument_function))
-void DWHCIDeviceInterruptHandler (int nIRQ, void *pParam){
-	char l = loaded;
-	if(l == 2) loaded = 1;
+void DWHCIDeviceInterruptHandler (int nIRQ, void *pParam)
+{
+	(void) nIRQ;
 
 	TDWHCIDevice *pThis = (TDWHCIDevice *) pParam;
 	assert (pThis != 0);
@@ -1245,13 +1240,12 @@ void DWHCIDeviceInterruptHandler (int nIRQ, void *pParam){
 	DataMemBarrier ();
 	
 	_DWHCIRegister (&IntStatus);
-	if(l == 2) loaded = 2;
-	
-	(void)nIRQ; // FIXME Wunused
 }
 
 void DWHCIDeviceTimerHandler (unsigned hTimer, void *pParam, void *pContext)
 {
+	(void) hTimer;
+	
 	TDWHCIDevice *pThis = (TDWHCIDevice *) pContext;
 	assert (pThis != 0);
 	
@@ -1281,8 +1275,6 @@ void DWHCIDeviceTimerHandler (unsigned hTimer, void *pParam, void *pContext)
 	DWHCIDeviceStartTransaction (pThis, pStageData);
 
 	DataMemBarrier ();
-
-	(void)hTimer;	// FIXME Wunused
 }
 
 unsigned DWHCIDeviceAllocateChannel (TDWHCIDevice *pThis)
@@ -1427,8 +1419,7 @@ void DWHCIDeviceDumpRegister (TDWHCIDevice *pThis, const char *pName, u32 nAddre
 
 	DataMemBarrier ();
 
-	//LogWrite (FromDWHCI, LOG_DEBUG, "0x%08X %s", DWHCIRegisterRead (&Register), pName);
-	printHex(pName, DWHCIRegisterRead (&Register));
+	LogWrite (FromDWHCI, LOG_DEBUG, "0x%08X %s", DWHCIRegisterRead (&Register), pName);
 
 	_DWHCIRegister (&Register);
 }

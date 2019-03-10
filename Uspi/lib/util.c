@@ -21,8 +21,6 @@
 
 #ifdef USPI_PROVIDE_MEM_FUNCTIONS
 
-// void *uspi_memcpy2 (void *pDest, const void *pSrc, size_t nLength);
-
 void *uspi_memset (void *pBuffer, int nValue, size_t nLength)
 {
 	char *p = (char *) pBuffer;
@@ -35,7 +33,7 @@ void *uspi_memset (void *pBuffer, int nValue, size_t nLength)
 	return pBuffer;
 }
 
-void *uspi_memcpy2 (void *pDest, const void *pSrc, size_t nLength)
+void *uspi_memcpy (void *pDest, const void *pSrc, size_t nLength)
 {
 	char *pd = (char *) pDest;
 	char *ps = (char *) pSrc;
@@ -171,20 +169,6 @@ char *uspi_strcat (char *pDest, const char *pSrc)
 	*p = '\0';
 
 	return pDest;
-}
-
-char *uspi_strdup(const char *pSrc)
-{
-    int len = strlen(pSrc) + 1;
-
-    char *s = malloc(len);
-
-    if (s == NULL)
-	{
-		return NULL;
-	}
-
-    return (char *)memcpy2(s, pSrc, len);
 }
 
 #endif

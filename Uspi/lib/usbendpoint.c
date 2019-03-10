@@ -62,11 +62,11 @@ void USBEndpoint2 (TUSBEndpoint *pThis, TUSBDevice *pDevice, const TUSBEndpointD
 		assert (0);	// endpoint configuration should be checked by function driver
 		return;
 	}
-
+	
 	pThis->m_ucNumber       = pDesc->bEndpointAddress & 0x0F;
 	pThis->m_bDirectionIn   = pDesc->bEndpointAddress & 0x80 ? TRUE : FALSE;
-	pThis->m_nMaxPacketSize = *(char*)((char*)pDesc + 5) * 256 + *(char*)((char*)pDesc + 4); //pDesc->wMaxPacketSize;
-
+	pThis->m_nMaxPacketSize = pDesc->wMaxPacketSize;
+	
 	if (pThis->m_Type == EndpointTypeInterrupt)
 	{
 		u8 ucInterval = pDesc->bInterval;

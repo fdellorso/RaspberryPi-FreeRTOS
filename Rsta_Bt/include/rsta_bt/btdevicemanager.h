@@ -41,18 +41,18 @@ typedef enum
 
 typedef struct TBTDeviceManager
 {
-	struct TBTHCILayer		*m_pHCILayer;
-	TBTQueue		*m_pEventQueue;
-	u32				m_nClassOfDevice;
-	u8				m_LocalName[BT_NAME_SIZE];
+	struct TBTHCILayer	*m_pHCILayer;
+	TBTQueue			*m_pEventQueue;
+	u32					m_nClassOfDevice;
+	u8					m_LocalName[BT_NAME_SIZE];
 
-	TBTDeviceState	m_State;
+	TBTDeviceState		m_State;
 
-	u8				m_LocalBDAddr[BT_BD_ADDR_SIZE];
+	u8					m_LocalBDAddr[BT_BD_ADDR_SIZE];
 
-	u8				*m_pBuffer;
+	u8					*m_pBuffer;
 
-	unsigned		m_nFirmwareOffset;
+	unsigned			m_nFirmwareOffset;
 }
 TBTDeviceManager;
 

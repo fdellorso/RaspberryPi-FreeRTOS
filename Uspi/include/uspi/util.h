@@ -29,8 +29,7 @@ extern "C" {
 
 #ifdef USPI_PROVIDE_MEM_FUNCTIONS
 	#define memset		uspi_memset
-	#define memcpy		uspi_memcpy2
-	#define memcpy2		uspi_memcpy2
+	#define memcpy		uspi_memcpy
 	#define memcmp		uspi_memcmp
 #endif
 
@@ -40,14 +39,11 @@ extern "C" {
 	#define strcpy		uspi_strcpy
 	#define strncpy		uspi_strncpy
 	#define strcat		uspi_strcat
-	#define strdup		uspi_strdup
 #endif
 
 void *memset (void *pBuffer, int nValue, size_t nLength);
 
 void *memcpy (void *pDest, const void *pSrc, size_t nLength);
-
-void *memcpy2 (void *pDest, const void *pSrc, size_t nLength);
 
 int memcmp (const void *pBuffer1, const void *pBuffer2, size_t nLength);
 
@@ -60,8 +56,6 @@ char *strcpy (char *pDest, const char *pSrc);
 char *strncpy (char *pDest, const char *pSrc, size_t nMaxLen);
 
 char *strcat (char *pDest, const char *pSrc);
-
-char *strdup(const char *pSrc);
 
 int uspi_char2int (char chValue);		// with sign extension
 

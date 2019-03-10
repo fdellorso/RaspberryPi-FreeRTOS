@@ -157,11 +157,12 @@ void DWHCIFrameSchedulerNonPeriodicTransactionComplete (TDWHCIFrameScheduler *pB
 
 void DWHCIFrameSchedulerNonPeriodicWaitForFrame (TDWHCIFrameScheduler *pBase)
 {
-	(void)pBase;	// FIXME Wunused
+	(void) pBase;
 }
 
 boolean DWHCIFrameSchedulerNonPeriodicIsOddFrame (TDWHCIFrameScheduler *pBase)
 {
+	(void) pBase;
+
 	return FALSE;
-	(void)pBase;	// FIXME Wunused
 }

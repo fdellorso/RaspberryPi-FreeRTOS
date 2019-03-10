@@ -53,7 +53,7 @@ void USBStringCopy (TUSBString *pThis, TUSBString *pParent)
 	{
 		pThis->m_pUSBString = (TUSBStringDescriptor *) malloc (pParent->m_pUSBString->bLength);
 		assert (pThis->m_pUSBString != 0);
-		memcpy2 (pThis->m_pUSBString, pParent->m_pUSBString, pParent->m_pUSBString->bLength);
+		memcpy (pThis->m_pUSBString, pParent->m_pUSBString, pParent->m_pUSBString->bLength);
 	}
 
 	assert (pParent->m_pString != 0);

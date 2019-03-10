@@ -37,14 +37,14 @@ extern "C" {
 
 typedef struct TDWHCIDevice
 {
-	unsigned				m_nChannels;
-	volatile unsigned		m_nChannelAllocated;		// one bit per channel, set if allocated
+	unsigned m_nChannels;
+	volatile unsigned m_nChannelAllocated;		// one bit per channel, set if allocated
 
-	TDWHCITransferStageData	*m_pStageData[DWHCI_MAX_CHANNELS];
+	TDWHCITransferStageData *m_pStageData[DWHCI_MAX_CHANNELS];
 
-	volatile boolean		m_bWaiting;
+	volatile boolean m_bWaiting;
 
-	TDWHCIRootPort			m_RootPort;
+	TDWHCIRootPort m_RootPort;
 }
 TDWHCIDevice;
 

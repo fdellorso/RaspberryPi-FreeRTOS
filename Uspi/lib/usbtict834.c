@@ -82,7 +82,7 @@ boolean USBTicT834DeviceConfigure (TUSBDevice *pUSBDevice)
 		return FALSE;
     }
 
-    char * new_string = malloc((buffer[0] - 2) /2 +1);
+    char * new_string = (char *) malloc(sizeof(char) * ((buffer[0] - 2) /2 +1));
     assert (new_string != 0);
 
     int i;
@@ -95,6 +95,8 @@ boolean USBTicT834DeviceConfigure (TUSBDevice *pUSBDevice)
     new_string[index] = 0;
 
     pThis->serial_number = new_string;
+
+    free(new_string);
 
     // USBDescriptorPrinter(&pThis->m_USBDevice, FromTicT834);
 

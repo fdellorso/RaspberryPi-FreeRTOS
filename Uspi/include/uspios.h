@@ -21,7 +21,11 @@
 //
 #ifndef _uspios_h
 #define _uspios_h
+
 #include <interrupts.h>
+#include <prvlib/null.h>
+#include <FreeRTOSConfig.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -33,7 +37,7 @@ extern "C" {
 //
 #define GPU_L2_CACHE_ENABLED		// normally enabled (can be disabled in config.txt)
 
-#define HZ	100			// timer ticks / second (set this to your timer interrupt frequency)
+#define HZ	configTICK_RATE_HZ		// timer ticks / second (set this to your timer interrupt frequency)
 
 // Default keyboard map (enable only one)
 #define USPI_DEFAULT_KEYMAP_UK
@@ -66,7 +70,13 @@ unsigned StartKernelTimer (unsigned	        nHzDelay,	// in HZ units (see "syste
 
 void CancelKernelTimer (unsigned hTimer);
 
+//
+// Interrupt handling
+//
+// typedef void TInterruptHandler (void *pParam);
+
 // USPi uses USB IRQ 9
+// void ConnectInterrupt (unsigned nIRQ, TInterruptHandler *pHandler, void *pParam);
 void ConnectInterrupt (unsigned nIRQ, FN_INTERRUPT_HANDLER pHandler, void *pParam);
 
 //
@@ -106,12 +116,6 @@ void uspi_assertion_failed (const char *pExpr, const char *pFile, unsigned nLine
 
 // display hex dump (pSource can be 0)
 void DebugHexdump (const void *pBuffer, unsigned nBufLen, const char *pSource /* = 0 */);
-
-//memory functions
-/*void *memset(void *s, int c, unsigned int n);
-int memcmp(const void* s1, const void* s2, unsigned int n);
-void *memcpy(void *dest, const void *src, unsigned int n);
-char *strncpy(char *dest, const char *src, unsigned int n);*/
 
 #endif
 

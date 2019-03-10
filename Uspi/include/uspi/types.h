@@ -20,22 +20,34 @@
 #ifndef _uspi_types_h
 #define _uspi_types_h
 
-#include <FreeRTOS.h>
+typedef unsigned char		    u8;
+typedef unsigned short		    u16;
+typedef unsigned int		    u32;
+typedef unsigned long long	    u64;
 
-typedef unsigned char		u8;
-typedef unsigned short		u16;
-typedef unsigned int		u32;
-typedef unsigned long long	u64;
+typedef char                    s8;
+typedef short                   s16;
+typedef int                     s32;
+typedef long long               s64;
 
-typedef char                s8;
-typedef short               s16;
-typedef int                 s32;
+typedef unsigned char           uint8_t;
+typedef unsigned short int      uint16_t;
+typedef unsigned int            uint32_t;
+typedef unsigned long long int  uint64_t;
 
-typedef int		    boolean;
-#define FALSE		0
-#define TRUE		1
+typedef char                    int8_t;
+typedef short int               int16_t;
+typedef int                     int32_t;
+typedef long long int           int64_t;
 
-//typedef unsigned long	size_t;
-typedef long		ssize_t;
+typedef int		                boolean;
+typedef int		                bool;
+#define FALSE		            0
+#define TRUE		            1
+#define false		            0
+#define true		            1
+
+typedef unsigned long	        size_t;
+typedef long		            ssize_t;
 
 #endif

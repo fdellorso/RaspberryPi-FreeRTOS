@@ -32,11 +32,11 @@ struct TUSBDevice;
 
 typedef struct TUSBString
 {
-	struct TUSBDevice		*m_pDevice;
+	struct TUSBDevice *m_pDevice;
 
-	TUSBStringDescriptor	*m_pUSBString;
+	TUSBStringDescriptor *m_pUSBString;
 
-	TString					*m_pString;
+	TString *m_pString;
 }
 TUSBString;
 

@@ -99,7 +99,7 @@ tic_error * tic_variables_copy(const tic_variables * source, tic_variables ** de
 
   if (error == NULL)
   {
-    memcpy2(new_variables, source, sizeof(tic_variables));
+    memcpy(new_variables, source, sizeof(tic_variables));
   }
 
   if (error == NULL)
@@ -215,8 +215,9 @@ tic_error * tic_get_variables(tic_handle * handle, tic_variables ** variables,
   }
 
   // Read all the variables from the device.
-  uint8_t buf[TIC_VARIABLES_SIZE];
-  // if (error == NULL)
+  // uint8_t buf[TIC_VARIABLES_SIZE];       // used malloc to reduce stack usage
+  uint8_t * buf = (uint8_t *) malloc(sizeof(uint8_t) * TIC_VARIABLES_SIZE);
+  if (error == NULL)
   {
     memset(buf, 0, sizeof(buf));
     size_t index = 0;
@@ -250,6 +251,7 @@ tic_error * tic_get_variables(tic_handle * handle, tic_variables ** variables,
   }
 
   tic_variables_free(new_variables);
+  free(buf);
 
   if (error != NULL)
   {

@@ -20,10 +20,9 @@
 #include <rsta_bt/btdevicemanager.h>
 #include <rsta_bt/bthcilayer.h>
 #include <rsta_bt/bcmvendor.h>
-// #include <circle/sched/scheduler.h>
+
 #include <sys_timer.h>
-// #include <circle/logger.h>
-// #include <uspios.h>
+
 #include <uspi/util.h>
 #include <uspi/assert.h>
 
@@ -32,11 +31,11 @@
 // 	#include "BCM43430A1.h"
 // };
 
-static const u8 *Firmware;
+#include "BCM43430A1.h"
 
 static const char FromDeviceManager[] = "btdev";
 
-void BTDeviceManager (TBTDeviceManager *pThis, TBTHCILayer *pHCILayer,
+void BTDeviceManager (TBTDeviceManager *pThis, struct TBTHCILayer *pHCILayer,
 					  TBTQueue *pEventQueue, u32 nClassOfDevice, const char *pLocalName)
 {
 	pThis->m_pHCILayer		= pHCILayer;

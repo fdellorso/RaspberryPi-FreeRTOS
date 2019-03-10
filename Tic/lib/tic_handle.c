@@ -302,7 +302,7 @@ tic_error * tic_set_target_position(tic_handle * handle, int32_t position)
 
   uint16_t wValue = (uint32_t)position & 0xFFFF;
   uint16_t wIndex = (uint32_t)position >> 16 & 0xFFFF;
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_SET_TARGET_POSITION, wValue, wIndex, NULL, 0, NULL));
 
   if (error != NULL)
@@ -325,7 +325,7 @@ tic_error * tic_set_target_velocity(tic_handle * handle, int32_t velocity)
 
   uint16_t wValue = (uint32_t)velocity & 0xFFFF;
   uint16_t wIndex = (uint32_t)velocity >> 16 & 0xFFFF;
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_SET_TARGET_VELOCITY, wValue, wIndex, NULL, 0, NULL));
 
   if (error != NULL)
@@ -348,7 +348,7 @@ tic_error * tic_halt_and_set_position(tic_handle * handle, int32_t position)
 
   uint16_t wValue = (uint32_t)position & 0xFFFF;
   uint16_t wIndex = (uint32_t)position >> 16 & 0xFFFF;
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_HALT_AND_SET_POSITION, wValue, wIndex, NULL, 0, NULL));
 
   if (error != NULL)
@@ -369,7 +369,7 @@ tic_error * tic_halt_and_hold(tic_handle * handle)
 
   tic_error * error = NULL;
 
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_HALT_AND_HOLD, 0, 0, NULL, 0, NULL));
 
   if (error != NULL)
@@ -390,7 +390,7 @@ tic_error * tic_reset_command_timeout(tic_handle * handle)
 
   tic_error * error = NULL;
 
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_RESET_COMMAND_TIMEOUT, 0, 0, NULL, 0, NULL));
 
   if (error != NULL)
@@ -411,7 +411,7 @@ tic_error * tic_deenergize(tic_handle * handle)
 
   tic_error * error = NULL;
 
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_DEENERGIZE, 0, 0, NULL, 0, NULL));
 
   if (error != NULL)
@@ -432,7 +432,7 @@ tic_error * tic_energize(tic_handle * handle)
 
   tic_error * error = NULL;
 
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_ENERGIZE, 0, 0, NULL, 0, NULL));
 
   if (error != NULL)
@@ -453,7 +453,7 @@ tic_error * tic_exit_safe_start(tic_handle * handle)
 
   tic_error * error = NULL;
 
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_EXIT_SAFE_START, 0, 0, NULL, 0, NULL));
 
   if (error != NULL)
@@ -474,7 +474,7 @@ tic_error * tic_enter_safe_start(tic_handle * handle)
 
   tic_error * error = NULL;
 
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_ENTER_SAFE_START, 0, 0, NULL, 0, NULL));
 
   if (error != NULL)
@@ -495,7 +495,7 @@ tic_error * tic_reset(tic_handle * handle)
 
   tic_error * error = NULL;
 
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_RESET, 0, 0, NULL, 0, NULL));
 
   if (error != NULL)
@@ -516,7 +516,7 @@ tic_error * tic_clear_driver_error(tic_handle * handle)
 
   tic_error * error = NULL;
 
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_CLEAR_DRIVER_ERROR, 0, 0, NULL, 0, NULL));
 
   if (error != NULL)
@@ -539,7 +539,7 @@ tic_error * tic_set_max_speed(tic_handle * handle, uint32_t max_speed)
 
   uint16_t wValue = (uint32_t)max_speed & 0xFFFF;
   uint16_t wIndex = (uint32_t)max_speed >> 16 & 0xFFFF;
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_SET_MAX_SPEED, wValue, wIndex, NULL, 0, NULL));
 
   if (error != NULL)
@@ -562,7 +562,7 @@ tic_error * tic_set_starting_speed(tic_handle * handle, uint32_t starting_speed)
 
   uint16_t wValue = (uint32_t)starting_speed & 0xFFFF;
   uint16_t wIndex = (uint32_t)starting_speed >> 16 & 0xFFFF;
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_SET_STARTING_SPEED, wValue, wIndex, NULL, 0, NULL));
 
   if (error != NULL)
@@ -585,7 +585,7 @@ tic_error * tic_set_max_accel(tic_handle * handle, uint32_t max_accel)
 
   uint16_t wValue = (uint32_t)max_accel & 0xFFFF;
   uint16_t wIndex = (uint32_t)max_accel >> 16 & 0xFFFF;
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_SET_MAX_ACCEL, wValue, wIndex, NULL, 0, NULL));
 
   if (error != NULL)
@@ -608,7 +608,7 @@ tic_error * tic_set_max_decel(tic_handle * handle, uint32_t max_decel)
 
   uint16_t wValue = (uint32_t)max_decel & 0xFFFF;
   uint16_t wIndex = (uint32_t)max_decel >> 16 & 0xFFFF;
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_SET_MAX_DECEL, wValue, wIndex, NULL, 0, NULL));
 
   if (error != NULL)
@@ -630,7 +630,7 @@ tic_error * tic_set_step_mode(tic_handle * handle, uint8_t step_mode)
   tic_error * error = NULL;
 
   uint16_t wValue = step_mode;
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_SET_STEP_MODE, wValue, 0, NULL, 0, NULL));
 
   if (error != NULL)
@@ -665,7 +665,7 @@ tic_error * tic_set_current_limit_code(tic_handle * handle, uint8_t code)
 
   tic_error * error = NULL;
 
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_SET_CURRENT_LIMIT, code, 0, NULL, 0, NULL));
 
   if (error != NULL)
@@ -687,7 +687,7 @@ tic_error * tic_set_decay_mode(tic_handle * handle, uint8_t decay_mode)
   tic_error * error = NULL;
 
   uint16_t wValue = decay_mode;
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_SET_DECAY_MODE, wValue, 0, NULL, 0, NULL));
 
   if (error != NULL)
@@ -706,7 +706,7 @@ tic_error * tic_set_setting_byte(tic_handle * handle,
 
   tic_error * error = NULL;
 
-    error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+    error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_SET_SETTING, byte, address, NULL, 0, NULL));
 
   if (error != NULL)
@@ -727,7 +727,7 @@ tic_error * tic_get_setting_segment(tic_handle * handle,
   tic_error * error = NULL;
 
   uint8_t transferred = 0;
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0xC0, TIC_CMD_GET_SETTING, 0, index, output, length, &transferred));
   if (error != NULL)
   {
@@ -761,7 +761,7 @@ tic_error * tic_get_variable_segment(tic_handle * handle,
   }
   
   uint8_t transferred = 0;
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0xC0, cmd, 0, index, output, length, &transferred));
   if (error != NULL)
   {
@@ -856,7 +856,7 @@ tic_error * tic_reinitialize(tic_handle * handle)
 
   tic_error * error = NULL;
 
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_REINITIALIZE, 0, 0, NULL, 0, NULL));
 
   if (error != NULL)
@@ -877,7 +877,7 @@ tic_error * tic_start_bootloader(tic_handle * handle)
 
   tic_error * error = NULL;
 
-  error = tic_usb_error(uspitic_control_transfer(handle->usb_handle,
+  error = tic_usb_error(USPiTicControlTransfer(handle->usb_handle,
     0x40, TIC_CMD_START_BOOTLOADER, 0, 0, NULL, 0, NULL));
 
   if (error != NULL)

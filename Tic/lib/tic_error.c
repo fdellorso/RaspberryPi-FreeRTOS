@@ -8,6 +8,8 @@
 #endif
 #endif
 
+#define SIZE_MAX  65535
+
 // struct tic_error
 // {
 //   bool do_not_free;
@@ -86,7 +88,7 @@ tic_error * tic_error_copy(const tic_error * src_error)
 
   if (code_count != 0)
   {
-    memcpy2(new_code_array, src_error->code_array, code_count * sizeof(uint32_t));
+    memcpy(new_code_array, src_error->code_array, code_count * sizeof(uint32_t));
   }
   strncpy(new_message, src_message, message_length + 1);
   new_error->do_not_free = false;

@@ -20,7 +20,7 @@
 #include <uspi/stdarg.h>
 #include <uspi/string.h>
 #include <uspi/synchronize.h>
-#include <prvlib/stdlib.h>
+// #include <prvlib/stdlib.h>
 #include <uspios.h>	
 
 #include <FreeRTOS.h>
@@ -51,22 +51,22 @@ void usDelay(unsigned nMicroSeconds) {
 unsigned StartKernelTimer(unsigned nDelay, TKernelTimerHandler *pHandler, void *pParam, void *pContext) {
 	//TimerStartKernelTimer (TimerGet (), nDelay, pHandler, pParam, pContext);
 
-	println("StartKernelTimer");
-
-	return 1;
-
 	(void)nDelay;	// FIXME Wunused
 	(void)pHandler;	// FIXME Wunused
 	(void)pParam;	// FIXME Wunused
 	(void)pContext;	// FIXME Wunused
+	
+	println("StartKernelTimer");
+
+	return 1;
 }
 
 void CancelKernelTimer(unsigned hTimer) {
 	//TimerCancelKernelTimer (TimerGet (), hTimer);
 
-	println("CancelKernelTimer");
-
 	(void)hTimer;	// FIXME Wunused
+
+	println("CancelKernelTimer");
 }
 
 //void ConnectInterrupt (unsigned nIRQ, TInterruptHandler *pfnHandler, void *pParam){
@@ -132,6 +132,9 @@ int GetMACAddress(unsigned char Buffer[6]) {
 
 __attribute__((no_instrument_function))
 void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...) {
+	(void)pSource;	// FIXME Wunused
+	(void)Severity;	// FIXME Wunused
+
 	va_list var;
 	va_start (var, pMessage);
 
@@ -143,9 +146,6 @@ void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...)
 	println(StringGet (&Message));
 
 	va_end (var);
-
-	(void)pSource;	// FIXME Wunused
-	(void)Severity;	// FIXME Wunused
 }
 
 #ifndef NDEBUG
@@ -162,18 +162,17 @@ void uspi_assertion_failed(const char *pExpr, const char *pFile, unsigned nLine)
 void DebugHexdump (const void *pBuffer, unsigned nBufLen, const char *pSource) {
 	//debug_hexdump (pBuffer, nBufLen, pSource);
 
-	println("DebugHexdump");
-
 	(void)pBuffer;	// FIXME Wunused
 	(void)nBufLen;	// FIXME Wunused
 	(void)pSource;	// FIXME Wunused
+
+	println("DebugHexdump");
 }
 
 #endif
 
 void* malloc(unsigned nSize) {
 	uspi_EnterCritical();
-	//if(loaded == 2) println("malloc", 0xFFFFFFFF);
 	void* temp = pvPortMalloc(nSize);
 	uspi_LeaveCritical();
 	return temp;

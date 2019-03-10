@@ -227,7 +227,7 @@ void USBBluetoothDeviceRegisterHCIEventHandler (TUSBBluetoothDevice *pThis, TBTH
 	USBBluetoothDeviceStartRequest (pThis);
 }
 
-boolean USBBluetoothDeviceStartRequest (TUSBBluetoothDevice *pThis)
+static boolean USBBluetoothDeviceStartRequest (TUSBBluetoothDevice *pThis)
 {
 	assert (pThis != 0);
 

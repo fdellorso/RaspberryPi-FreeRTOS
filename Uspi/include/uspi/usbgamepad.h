@@ -30,24 +30,24 @@
 
 typedef struct TUSBGamePadDevice
 {
-	TUSBDevice				m_USBDevice;
-	unsigned      			m_nDeviceIndex;
+	TUSBDevice m_USBDevice;
+	unsigned m_nDeviceIndex;
 
-	u8            			m_ucInterfaceNumber;
-	u8            			m_ucAlternateSetting;
+	u8 m_ucInterfaceNumber;
+	u8 m_ucAlternateSetting;
 
-	TUSBEndpoint  			*m_pEndpointIn;
-    TUSBEndpoint  			*m_pEndpointOut;
+	TUSBEndpoint *m_pEndpointIn;
+    TUSBEndpoint *m_pEndpointOut;
 
-	USPiGamePadState		m_State;
-	TGamePadStatusHandler	*m_pStatusHandler;
+	USPiGamePadState   m_State;
+	TGamePadStatusHandler *m_pStatusHandler;
 
-	u16           			m_usReportDescriptorLength;
-    u8            			*m_pHIDReportDescriptor;
+	u16 m_usReportDescriptorLength;
+    u8 *m_pHIDReportDescriptor;
 
-	TUSBRequest   			*m_pURB;
-	u8            			*m_pReportBuffer;
-	u16           			m_nReportSize;
+	TUSBRequest *m_pURB;
+	u8 *m_pReportBuffer;
+	u16 m_nReportSize;
 }
 TUSBGamePadDevice;
 

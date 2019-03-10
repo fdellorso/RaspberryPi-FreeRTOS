@@ -25,9 +25,9 @@
 typedef struct TDeviceInfo
 {
 	struct TDeviceInfo	*pNext;
-	char				*pName;
-	void				*pDevice;
-	boolean			 	bBlockDevice;
+	char			*pName;
+	void			*pDevice;
+	boolean			 bBlockDevice;
 }
 TDeviceInfo;
 

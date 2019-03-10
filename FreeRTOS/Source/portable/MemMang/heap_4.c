@@ -72,12 +72,7 @@
  * See heap_1.c, heap_2.c and heap_3.c for alternative implementations, and the 
  * memory management pages of http://www.FreeRTOS.org for more information.
  */
-
-#ifndef PRVLIB
-	#include <stdlib.h>
-#else
-	#include "prvlib/stdlib.h"
-#endif
+// #include <stdlib.h>
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
@@ -147,7 +142,7 @@ static size_t xFreeBytesRemaining = ( ( size_t ) configTOTAL_HEAP_SIZE ) & ( ( s
 /* STATIC FUNCTIONS ARE DEFINED AS MACROS TO MINIMIZE THE FUNCTION CALL DEPTH. */
 
 /*-----------------------------------------------------------*/
-size_t allocated = 0;
+
 __attribute__((no_instrument_function))
 void *pvPortMalloc( size_t xWantedSize )
 {
@@ -234,8 +229,6 @@ void *pvReturn = NULL;
 		}
 	}
 	#endif
-	
-	allocated += xWantedSize;
 
 	return pvReturn;
 }
@@ -262,7 +255,6 @@ xBlockLink *pxLink;
 			prvInsertBlockIntoFreeList( ( ( xBlockLink * ) pxLink ) );			
 		}
 		xTaskResumeAll();
-
 	}
 }
 /*-----------------------------------------------------------*/

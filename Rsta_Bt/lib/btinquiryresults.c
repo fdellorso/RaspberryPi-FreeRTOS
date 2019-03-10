@@ -23,7 +23,8 @@
 
 void BTInquiryResults (TBTInquiryResults *pThis)
 {
-	(void) pThis;		// FIXME Wunused
+	pThis->m_Responses = (TPtrArray *) malloc (sizeof(TPtrArray));
+	PtrArray(pThis->m_Responses, (unsigned) 100, (unsigned) 100);		// 100 From Circle Api
 }
 
 void _BTInquiryResults (TBTInquiryResults *pThis)

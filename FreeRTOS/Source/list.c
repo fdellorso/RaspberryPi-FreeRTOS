@@ -65,12 +65,7 @@
 */
 
 
-#ifndef PRVLIB
-	#include <stdlib.h>
-#else
-	#include "prvlib/stdlib.h"
-#endif
-
+// #include <stdlib.h>
 #include "FreeRTOS.h"
 #include "list.h"
 
@@ -83,7 +78,7 @@ void vListInitialise( xList *pxList )
 	/* The list structure contains a list item which is used to mark the
 	end of the list.  To initialise the list the list end is inserted
 	as the only list entry. */
-	pxList->pxIndex = ( xListItem * ) & ( pxList->xListEnd );
+	pxList->pxIndex = ( xListItem * ) &( pxList->xListEnd );
 
 	/* The list end value is the highest possible value in the list to
 	ensure it remains at the end of the list. */
@@ -91,8 +86,8 @@ void vListInitialise( xList *pxList )
 
 	/* The list end next and previous pointers point to itself so we know
 	when the list is empty. */
-	pxList->xListEnd.pxNext = ( xListItem * ) & ( pxList->xListEnd );
-	pxList->xListEnd.pxPrevious = ( xListItem * ) & ( pxList->xListEnd );
+	pxList->xListEnd.pxNext = ( xListItem * ) &( pxList->xListEnd );
+	pxList->xListEnd.pxPrevious = ( xListItem * ) &( pxList->xListEnd );
 
 	pxList->uxNumberOfItems = ( unsigned portBASE_TYPE ) 0U;
 }
@@ -117,9 +112,9 @@ volatile xListItem * pxIndex;
 
 	pxNewListItem->pxNext = pxIndex->pxNext;
 	pxNewListItem->pxPrevious = pxList->pxIndex;
-	pxIndex->pxNext->pxPrevious = ( xListItem * ) pxNewListItem;
-	pxIndex->pxNext = ( xListItem * ) pxNewListItem;
-	pxList->pxIndex = ( xListItem * ) pxNewListItem;
+	pxIndex->pxNext->pxPrevious = ( volatile xListItem * ) pxNewListItem;
+	pxIndex->pxNext = ( volatile xListItem * ) pxNewListItem;
+	pxList->pxIndex = ( volatile xListItem * ) pxNewListItem;
 
 	/* Remember which list the item is in. */
 	pxNewListItem->pvContainer = ( void * ) pxList;
@@ -130,7 +125,7 @@ volatile xListItem * pxIndex;
 
 void vListInsert( xList *pxList, xListItem *pxNewListItem )
 {
-xListItem *pxIterator;
+volatile xListItem *pxIterator;
 portTickType xValueOfInsertion;
 
 	/* Insert the new list item into the list, sorted in ulListItem order. */
@@ -165,7 +160,7 @@ portTickType xValueOfInsertion;
 		See http://www.freertos.org/FAQHelp.html for more tips.
 		**********************************************************************/
 		
-		for( pxIterator = ( xListItem * ) & ( pxList->xListEnd ); pxIterator->pxNext->xItemValue <= xValueOfInsertion; pxIterator = pxIterator->pxNext )
+		for( pxIterator = ( xListItem * ) &( pxList->xListEnd ); pxIterator->pxNext->xItemValue <= xValueOfInsertion; pxIterator = pxIterator->pxNext )
 		{
 			/* There is nothing to do here, we are just iterating to the
 			wanted insertion position. */
@@ -173,9 +168,9 @@ portTickType xValueOfInsertion;
 	}
 
 	pxNewListItem->pxNext = pxIterator->pxNext;
-	pxNewListItem->pxNext->pxPrevious = ( xListItem * ) pxNewListItem;
+	pxNewListItem->pxNext->pxPrevious = ( volatile xListItem * ) pxNewListItem;
 	pxNewListItem->pxPrevious = pxIterator;
-	pxIterator->pxNext = ( xListItem * ) pxNewListItem;
+	pxIterator->pxNext = ( volatile xListItem * ) pxNewListItem;
 
 	/* Remember which list the item is in.  This allows fast removal of the
 	item later. */
@@ -185,7 +180,7 @@ portTickType xValueOfInsertion;
 }
 /*-----------------------------------------------------------*/
 
-unsigned portBASE_TYPE vListRemove( xListItem *pxItemToRemove )
+void vListRemove( xListItem *pxItemToRemove )
 {
 xList * pxList;
 
@@ -204,8 +199,6 @@ xList * pxList;
 
 	pxItemToRemove->pvContainer = NULL;
 	( pxList->uxNumberOfItems )--;
-
-	return pxList->uxNumberOfItems;
 }
 /*-----------------------------------------------------------*/
 

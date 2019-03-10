@@ -1,28 +1,22 @@
--include dbuild.option.mk
-
 # GCC 4.9.3 (Ubuntu Repo)
-# TOOLCHAIN=arm-none-eabi-
+# TOOLCHAIN = arm-none-eabi-
 
 # GCC 7.3.1 (ARM Toolchain)
-TOOLCHAIN=$(BASE)../gcc-arm-none-eabi/bin/arm-none-eabi-
+TOOLCHAIN = $(BASE)../gcc-arm-none-eabi/bin/arm-none-eabi-
 
 # GCC 8.2.0 (Crosstool-NG)
-# TOOLCHAIN=/home/fra/x-tools/arm-unknown-eabi/bin/arm-unknown-eabi-
+# TOOLCHAIN = /home/fra/x-tools/arm-unknown-eabi/bin/arm-unknown-eabi-
 
 # Header Include
+CFLAGS += -I $(BASE)
 CFLAGS += -I $(BASE)Main/
+CFLAGS += -I $(BASE)Task/
 CFLAGS += -I $(BASE)Drivers/
-ifdef $(LIBUSE)
-CFLAGS += -I $(BASE)Drivers/prvlib
-endif
 CFLAGS += -I $(BASE)Uspi/include/
-# CFLAGS += -I $(BASE)Uspi2/include/
 CFLAGS += -I $(BASE)Tic/include/
 CFLAGS += -I $(BASE)Rsta_Bt/include/
-# CFLAGS += -I $(BASE)Tic/lib/libyaml
 CFLAGS += -I $(BASE)FreeRTOS/Source/include/
 CFLAGS += -I $(BASE)FreeRTOS/Source/portable/GCC/RaspberryPi/
-# CFLAGS += -I $(BASE)FreeRTOS-Plus-TCP/include/
 
 # C Language Options
 CFLAGS += -std=gnu99 -fsigned-char
@@ -34,8 +28,8 @@ CFLAGS += -std=gnu99 -fsigned-char
 # CFLAGS += -Werror
 CFLAGS +=	-Wall -Wextra
 CFLAGS +=	-Wpedantic
-# CFLAGS += -Wno-psabi
-# CFLAGS += -Wno-implicit
+CFLAGS += 	-Wno-psabi
+CFLAGS += 	-Wno-implicit
 # CFLAGS +=	-Wnull-dereference # Newer GCC
 # CFLAGS +=	-Wcast-qual
 # CFLAGS +=	-Wconversion
@@ -68,36 +62,32 @@ CFLAGS +=	-Wbad-function-cast		\
 			-Wunreachable-code		\
 			-Wwrite-strings
 
-
 # Debug Options
 CFLAGS += -g
 
 # Optimization Options
-CFLAGS += -Og # -fdelete-null-pointer-checks
+# CFLAGS += -fno-zero-initialized-in-bss
+# CFLAGS += -Og # -fdelete-null-pointer-checks
+# CFLAGS += -fno-keep-static-consts
 # CFLAGS += -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing
 
 # Linker Options
 CFLAGS += -nostdlib
 
 # ARM Options
-ifeq ($(strip $(RASPPI)),1)
-ARCH ?= -march=armv6zk -mtune=arm1176jzf-s #-mfloat-abi=hard 
-else
-ARCH ?= -march=armv7-a -mtune=cortex-a7 #-mfloat-abi=hard
-endif
-ARCH += -mfloat-abi=softfp -mno-unaligned-access
+ARCH ?= -march=armv6zk -mtune=arm1176jzf-s -mcpu=arm1176jzf-s
+ARCH += -mfloat-abi=hard -mfpu=vfp
+ARCH += -mno-unaligned-access
 CFLAGS += $(ARCH)
 
-# Code Generation Options
+# Trace Options
 # CFLAGS += -finstrument-functions
+
+# Developer Options
+CFLAGS += -fstack-usage -Wstack-usage=128
 
 # Define Flags
 CFLAGS +=	-DRASPPI=$(RASPPI)							\
-			-DconfigBLUETHUNDER=$(configBLUETHUNDER)	\
-			$(LIBUSE)									\
 			$(LOGGER)									\
-			$(USBDEV)									\
 			-DVIDEO_WIDTH=$(VIDEO_WIDTH)				\
 			-DVIDEO_HEIGHT=$(VIDEO_HEIGHT)
-
-# AFLAGS ?= $(ARCH) -DRASPPI=$(RASPPI)

@@ -43,30 +43,30 @@ void DWHCIFrameSchedulerNoSplit (TDWHCIFrameSchedulerNoSplit *pThis, boolean bIs
 
 void _DWHCIFrameSchedulerNoSplit (TDWHCIFrameScheduler *pBase)
 {
-	(void)pBase;	// FIXME Wunused
+	(void) pBase;
 }
 
 void DWHCIFrameSchedulerNoSplitStartSplit (TDWHCIFrameScheduler *pBase)
 {
-	assert (0);
+	(void) pBase;
 
-	(void)pBase;	// FIXME Wunused
+	assert (0);
 }
 
 boolean DWHCIFrameSchedulerNoSplitCompleteSplit (TDWHCIFrameScheduler *pBase)
 {
+	(void) pBase;
+
 	assert (0);
 	return FALSE;
-
-	(void)pBase;	// FIXME Wunused
 }
 
 void DWHCIFrameSchedulerNoSplitTransactionComplete (TDWHCIFrameScheduler *pBase, u32 nStatus)
 {
-	assert (0);
+	(void) pBase;
+	(void) nStatus;
 
-	(void)pBase;	// FIXME Wunused
-	(void)nStatus;	// FIXME Wunused
+	assert (0);
 }
 
 void DWHCIFrameSchedulerNoSplitWaitForFrame (TDWHCIFrameScheduler *pBase)

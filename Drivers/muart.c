@@ -5,6 +5,9 @@
 
 #include "muart.h"
 
+#include <prvlib/stdlib.h>
+#include <uspi/string.h>
+
 typedef struct {
 	unsigned long	AUXIRQ;	  
 	unsigned long	AUXENB;
@@ -68,6 +71,7 @@ void muart_puts(const char *str) {
 }
 
 void muart_println(const char *message) {
+	if(loaded == 0) return; //if video isn't loaded don't bother
 	muart_puts(message);
 	muart_puts("\r\n");
 	muart_flush();
@@ -83,7 +87,8 @@ void muart_printHex(const char *message, unsigned int hexi) {
 	// char *hex;
 	// memcpy(hex, "0123456789ABCDEF", sizeof("0123456789ABCDEF"));
 	
-	char m[200];
+	// char m[200];			// used malloc to reduce stack usage
+	char * m = (char *) malloc(sizeof(char) * 200);
 	int i = 0;
 	while (*message){
 		m[i] = *message++;
@@ -101,6 +106,8 @@ void muart_printHex(const char *message, unsigned int hexi) {
 	m[i + 8] = 0; //null termination
 
 	muart_println(m);
+
+	free(m);
 }
 
 void muart_printf(const char *pMessage, ...) {

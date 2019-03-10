@@ -6,15 +6,19 @@
 #include "video.h"
 #include "font_5x5.h"
 
+#include <uspi/string.h>
+
+
 #define CHAR_WIDTH		6
 #define CHAR_HEIGHT 	8
 
 #ifndef VIDEO_WIDTH
-#define VIDEO_WIDTH	1680
+#define VIDEO_WIDTH		1680
 #endif
 #ifndef VIDEO_HEIGHT
 #define VIDEO_HEIGHT	1050
 #endif
+
 
 char loaded = 0;
 int position_x = 0;
@@ -187,7 +191,8 @@ if(loaded == 0) return; //if video isn't loaded don't bother
 	// char *hex;
 	// memcpy(hex,"0123456789ABCDEF",sizeof("0123456789ABCDEF"));
 	
-	char m[200];
+	// char m[200];			// used malloc to reduce stack usage
+	char * m = (char *) malloc(sizeof(char) * 200);
 	int i = 0;
 	while (*message) {
 		m[i] = *message++;
@@ -205,6 +210,8 @@ if(loaded == 0) return; //if video isn't loaded don't bother
 	m[i + 8] = 0; //null termination
 
 	video_println(m, colour);
+
+	free(m);
 }
 
 void video_printf(const char *pMessage, unsigned int colour, ...) {

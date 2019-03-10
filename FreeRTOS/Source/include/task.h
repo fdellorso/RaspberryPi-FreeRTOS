@@ -1292,11 +1292,11 @@ unsigned portBASE_TYPE uxTaskGetTaskNumber( xTaskHandle xTask );
  */
 void vTaskSetTaskNumber( xTaskHandle xTask, unsigned portBASE_TYPE uxHandle );
 
-void vTaskPlaceOnUnorderedEventList( xList * pxEventList, const portTickType xItemValue, const portTickType xTicksToWait );
-portBASE_TYPE xTaskRemoveFromUnorderedEventList( xListItem * pxEventListItem, const portTickType xItemValue );
-portTickType uxTaskResetEventItemValue( void );
 
 #ifdef __cplusplus
 }
 #endif
 #endif /* TASK_H */
+
+
+

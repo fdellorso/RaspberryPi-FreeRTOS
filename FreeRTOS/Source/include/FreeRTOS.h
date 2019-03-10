@@ -67,14 +67,14 @@
 #ifndef INC_FREERTOS_H
 #define INC_FREERTOS_H
 
+
 /*
  * Include the generic headers required for the FreeRTOS port being used.
  */
-#ifndef PRVLIB
-	#include <stddef.h>
-#else
-	#include "prvlib/stddef.h"
-#endif
+#include <uspi/types.h>
+#include <uspi/util.h>
+#include <prvlib/null.h>
+#include <prvlib/stdio.h>
 
 /* Basic FreeRTOS definitions. */
 #include "projdefs.h"
@@ -84,6 +84,7 @@
 
 /* Definitions specific to the port being used. */
 #include "portable.h"
+
 
 /* Defines the prototype to which the application task hook function must
 conform. */

@@ -18,8 +18,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include <uspi/dwhciregister.h>
-#include <uspi/assert.h>
 #include <uspios.h>
+#include <uspi/assert.h>
 
 void DWHCIRegister (TDWHCIRegister *pThis, u32 nAddress)
 {

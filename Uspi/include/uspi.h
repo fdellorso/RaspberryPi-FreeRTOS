@@ -36,32 +36,20 @@ int USPiInitialize (void);
 //
 // Pololu TicT834 Device
 //
-#ifdef USBTIC
-
 int USPiTicAvailable (void);
-int USPiTicQuick (unsigned char nCommand);
-int USPiTic7BitWrite (unsigned char nCommand, unsigned short nValue);
-int USPiTic32BitWrite (unsigned char nCommand, unsigned short nValue, unsigned int nIndex);
-int USPiTicBlockRead (unsigned char nCommand, unsigned int nIndex, unsigned short nLength, unsigned int *nData);
-int uspitic_control_transfer(void * handle, unsigned char bmRequestType, unsigned char bRequest, unsigned short wValue, unsigned short wIndex, unsigned char * data, unsigned short wLength, unsigned char * transferred);
+int USPiTicControlTransfer (void * handle, unsigned char bmRequestType, unsigned char bRequest, unsigned short wValue, unsigned short wIndex, unsigned char * data, unsigned short wLength, unsigned char * transferred);
 int USPiTicStringRead (unsigned char nString, unsigned char *nData);
-char * USPiTicGetSerialNumber(void);
-
-#endif
+char *USPiTicGetSerialNumber (void);
 
 //
 // Bluetooth Device
 //
-#ifdef USBBLT
 
-int USPiBTAvailable (void);
-
-#endif
+int USPiBltAvailable (void);
 
 //
 // Keyboard device
 //
-#ifdef USBKBD
 
 // returns != 0 if available
 int USPiKeyboardAvailable (void);
@@ -77,33 +65,30 @@ void USPiKeyboardRegisterShutdownHandler (TUSPiShutdownHandler *pShutdownHandler
 // "raw mode" (if this handler is registered the others are ignored)
 // The raw handler is called when the keyboard sends a status report (on status change and/or continously).
 typedef void TUSPiKeyStatusHandlerRaw (unsigned char	     ucModifiers,
-				       				   const unsigned char   RawKeys[6]);  // key code or 0 in each byte
+				       const unsigned char   RawKeys[6]);  // key code or 0 in each byte
 void USPiKeyboardRegisterKeyStatusHandlerRaw (TUSPiKeyStatusHandlerRaw *pKeyStatusHandlerRaw);
 
 // ucModifiers (bit is set if modifier key is pressed)
 #define LCTRL		(1 << 0)
 #define LSHIFT		(1 << 1)
-#define ALT			(1 << 2)
+#define ALT		(1 << 2)
 #define LWIN		(1 << 3)
 #define RCTRL		(1 << 4)
 #define RSHIFT		(1 << 5)
 #define ALTGR		(1 << 6)
 #define RWIN		(1 << 7)
 
-#endif
-
 //
 // Mouse device
 //
-#ifdef USBMOU
 
 // returns != 0 if available
 int USPiMouseAvailable (void);
 
 // The status handler is called when the mouse sends a status report.
 typedef void TUSPiMouseStatusHandler (unsigned nButtons,
-				      				  int nDisplacementX,		// -127..127
-				      				  int nDisplacementY);		// -127..127
+				      int nDisplacementX,		// -127..127
+				      int nDisplacementY);		// -127..127
 void USPiMouseRegisterStatusHandler (TUSPiMouseStatusHandler *pStatusHandler);
 
 // nButtons (bit is set if button is pressed)
@@ -114,19 +99,16 @@ void USPiMouseRegisterStatusHandler (TUSPiMouseStatusHandler *pStatusHandler);
 // ucModifiers (bit is set if modifier key is pressed)
 #define LCTRL		(1 << 0)
 #define LSHIFT		(1 << 1)
-#define ALT			(1 << 2)
+#define ALT		(1 << 2)
 #define LWIN		(1 << 3)
 #define RCTRL		(1 << 4)
 #define RSHIFT		(1 << 5)
 #define ALTGR		(1 << 6)
 #define RWIN		(1 << 7)
 
-#endif
-
 //
 // Mass storage device
 //
-#ifdef USBMEM
 
 // returns number of available devices
 int USPiMassStorageDeviceAvailable (void);
@@ -145,8 +127,6 @@ int USPiMassStorageDeviceWrite (unsigned long long ullOffset, const void *pBuffe
 
 // returns the number of available blocks of USPI_BLOCK_SIZE or 0 on failure
 unsigned USPiMassStorageDeviceGetCapacity (unsigned nDeviceIndex);
-
-#endif
 
 //
 // Ethernet services
@@ -171,6 +151,10 @@ int USPiReceiveFrame (void *pBuffer, unsigned *pResultLength);
 //
 // GamePad device
 //
+
+// returns number of available devices
+int USPiGamePadAvailable (void);
+
 #define MAX_AXIS    6
 #define MAX_HATS    6
 
@@ -189,26 +173,21 @@ typedef struct USPiGamePadState
 
     int nbuttons;
     unsigned int buttons;
-} USPiGamePadState;
-
-typedef void TGamePadStatusHandler (unsigned nDeviceIndex, const USPiGamePadState *pGamePadState);
-
-#ifdef USBPAD
-// returns number of available devices
-int USPiGamePadAvailable (void);
+}
+USPiGamePadState;
 
 // returns 0 on failure
 const USPiGamePadState *USPiGamePadGetStatus (unsigned nDeviceIndex);		// nDeviceIndex is 0-based
 
+typedef void TGamePadStatusHandler (unsigned nDeviceIndex, const USPiGamePadState *pGamePadState);
 void USPiGamePadRegisterStatusHandler (TGamePadStatusHandler *pStatusHandler);
-#endif
 
 //
 // USB device information
 //
 
 #define KEYBOARD_CLASS	1
-#define MOUSE_CLASS		2
+#define MOUSE_CLASS	2
 #define STORAGE_CLASS	3
 #define ETHERNET_CLASS	4
 #define GAMEPAD_CLASS	5
@@ -223,15 +202,15 @@ typedef struct TUSPiDeviceInformation
 	unsigned short	bcdDevice;
 
 	// points to a buffer in the USPi library, empty string if not available
-	const char		*pManufacturer;
-	const char		*pProduct;
+	const char	*pManufacturer;
+	const char	*pProduct;
 }
 TUSPiDeviceInformation;
 
 // returns 0 on failure
-int USPiDeviceGetInformation (unsigned nClass,					// see above
-			      			  unsigned nDeviceIndex,			// 0-based index
-			      			  TUSPiDeviceInformation *pInfo);	// provided buffer is filled
+int USPiDeviceGetInformation (unsigned nClass,			// see above
+			      unsigned nDeviceIndex,		// 0-based index
+			      TUSPiDeviceInformation *pInfo);	// provided buffer is filled
 
 #ifdef __cplusplus
 }

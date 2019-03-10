@@ -20,9 +20,9 @@
 #include <uspi/usbdevice.h>
 #include <uspi/dwhcidevice.h>
 #include <uspi/usbendpoint.h>
+#include <uspios.h>
 #include <uspi/util.h>
 #include <uspi/assert.h>
-#include <uspios.h>
 
 #define MAX_CONFIG_DESC_SIZE		512		// best guess
 
@@ -99,7 +99,7 @@ void USBDeviceCopy (TUSBDevice *pThis, TUSBDevice *pDevice)
 		pThis->m_pDeviceDesc = (TUSBDeviceDescriptor *) malloc (sizeof (TUSBDeviceDescriptor));
 		assert (pThis->m_pDeviceDesc != 0);
 
-		memcpy2 (pThis->m_pDeviceDesc, pDevice->m_pDeviceDesc, sizeof (TUSBDeviceDescriptor));
+		memcpy (pThis->m_pDeviceDesc, pDevice->m_pDeviceDesc, sizeof (TUSBDeviceDescriptor));
 	}
 
 	if (pDevice->m_pConfigDesc != 0)
@@ -110,7 +110,7 @@ void USBDeviceCopy (TUSBDevice *pThis, TUSBDevice *pDevice)
 		pThis->m_pConfigDesc = (TUSBConfigurationDescriptor *) malloc (nTotalLength);
 		assert (pThis->m_pConfigDesc != 0);
 
-		memcpy2 (pThis->m_pConfigDesc, pDevice->m_pConfigDesc, nTotalLength);
+		memcpy (pThis->m_pConfigDesc, pDevice->m_pConfigDesc, nTotalLength);
 
 		if (pDevice->m_pConfigParser != 0)
 		{
@@ -169,7 +169,7 @@ boolean USBDeviceInitialize (TUSBDevice *pThis)
 
 	assert (pThis->m_pHost != 0);
 	assert (pThis->m_pEndpoint0 != 0);
-
+	
 	assert (sizeof *pThis->m_pDeviceDesc >= USB_DEFAULT_MAX_PACKET_SIZE);
 	if (DWHCIDeviceGetDescriptor (pThis->m_pHost, pThis->m_pEndpoint0,
 				    DESCRIPTOR_DEVICE, DESCRIPTOR_INDEX_DEFAULT,
@@ -229,7 +229,7 @@ boolean USBDeviceInitialize (TUSBDevice *pThis)
 
 		return FALSE;
 	}
-
+	
 	USBDeviceSetAddress (pThis, ucAddress);
 
 	if (   pThis->m_pDeviceDesc->iManufacturer != 0

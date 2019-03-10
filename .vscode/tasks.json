@@ -96,6 +96,21 @@
                 "panel": "new",
                 "focus": true
             }
+        },
+        {
+            "label": "Raspbootin",
+            "type": "shell",
+            "command": "../raspbootin/raspbootcom/raspbootcom",
+            "args": [
+                "/dev/ttyUSB0",
+                "kernel.img"
+            ],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "focus": true
+            }
         }
     ]
 }

@@ -39,13 +39,13 @@ TEndpointType;
 
 typedef struct TUSBEndpoint
 {
-	TUSBDevice		*m_pDevice;
-	u8		 		m_ucNumber;
-	TEndpointType	m_Type;
-	boolean		 	m_bDirectionIn;
-	u32		 		m_nMaxPacketSize;
-	unsigned	 	m_nInterval;			// Milliseconds
-	TUSBPID		 	m_NextPID;
+	TUSBDevice	*m_pDevice;
+	u8		 m_ucNumber;
+	TEndpointType	 m_Type;
+	boolean		 m_bDirectionIn;
+	u32		 m_nMaxPacketSize;
+	unsigned	 m_nInterval;			// Milliseconds
+	TUSBPID		 m_NextPID;
 }
 TUSBEndpoint;
 

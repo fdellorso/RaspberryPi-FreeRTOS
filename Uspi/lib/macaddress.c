@@ -20,7 +20,6 @@
 #include <uspi/macaddress.h>
 #include <uspi/util.h>
 #include <uspi/assert.h>
-// #include <uspios.h>
 
 void MACAddress (TMACAddress *pThis)
 {
@@ -56,7 +55,7 @@ void MACAddressSet (TMACAddress *pThis, const u8 *pAddress)
 	assert (pThis != 0);
 	assert (pAddress != 0);
 
-	memcpy2 (pThis->m_Address, pAddress, MAC_ADDRESS_SIZE);
+	memcpy (pThis->m_Address, pAddress, MAC_ADDRESS_SIZE);
 	pThis->m_bValid = TRUE;
 }
 
@@ -82,7 +81,7 @@ void MACAddressCopyTo (TMACAddress *pThis, u8 *pBuffer)
 	assert (pThis->m_bValid);
 	assert (pBuffer != 0);
 
-	memcpy2 (pBuffer, pThis->m_Address, MAC_ADDRESS_SIZE);
+	memcpy (pBuffer, pThis->m_Address, MAC_ADDRESS_SIZE);
 }
 
 boolean MACAddressIsBroadcast (TMACAddress *pThis)
@@ -103,8 +102,9 @@ boolean MACAddressIsBroadcast (TMACAddress *pThis)
 
 unsigned MACAddressGetSize (TMACAddress *pThis)
 {
+	(void) pThis;
+
 	return MAC_ADDRESS_SIZE;
-	(void)pThis;	// FIXME Wunused
 }
 
 void MACAddressFormat (TMACAddress *pThis, TString *pString)

@@ -26,15 +26,22 @@
 
 static const char FromHCILayer[] = "bthci";
 
-TBTHCILayer *s_pThis = 0;
+static TBTHCILayer *s_pThisHCI = 0;
 
 void BTHCILayerEventHandler (TBTHCILayer *pThis, const void *pBuffer, unsigned nLength);
 static void BTHCILayerEventStub (const void *pBuffer, unsigned nLength);
 
 void BTHCILayer (TBTHCILayer *pThis, u32 nClassOfDevice, const char *pLocalName)
 {
+	pThis->m_pCommandQueue = (TBTQueue *) malloc (sizeof(TBTQueue));
+	pThis->m_pDeviceEventQueue = (TBTQueue *) malloc (sizeof(TBTQueue));
+	pThis->m_pLinkEventQueue = (TBTQueue *) malloc (sizeof(TBTQueue));
+	BTQueue(pThis->m_pCommandQueue);
+	BTQueue(pThis->m_pDeviceEventQueue);
+	BTQueue(pThis->m_pLinkEventQueue);
 	pThis->m_pHCITransportUSB		= 0;
 	pThis->m_pHCITransportUART		= 0;
+	pThis->m_pDeviceManager = (TBTDeviceManager *) malloc (sizeof(TBTDeviceManager));
 	BTDeviceManager(pThis->m_pDeviceManager, pThis, pThis->m_pDeviceEventQueue, nClassOfDevice, pLocalName);
 	pThis->m_pEventBuffer			= 0;
 	pThis->m_nEventLength			= 0;
@@ -42,8 +49,8 @@ void BTHCILayer (TBTHCILayer *pThis, u32 nClassOfDevice, const char *pLocalName)
 	pThis->m_pBuffer				= 0;
 	pThis->m_nCommandPackets		= 1;
 
-	assert (s_pThis == 0);
-	s_pThis = pThis;
+	assert (s_pThisHCI == 0);
+	s_pThisHCI = pThis;
 }
 
 void _BTHCILayer (TBTHCILayer *pThis)
@@ -57,7 +64,7 @@ void _BTHCILayer (TBTHCILayer *pThis)
 	free (pThis->m_pEventBuffer);
 	pThis->m_pEventBuffer = 0;
 
-	s_pThis = 0;
+	s_pThisHCI = 0;
 }
 
 boolean BTHCILayerInitialize (TBTHCILayer *pThis)
@@ -209,6 +216,6 @@ void BTHCILayerEventHandler (TBTHCILayer *pThis, const void *pBuffer, unsigned n
 
 void BTHCILayerEventStub (const void *pBuffer, unsigned nLength)
 {
-	assert (s_pThis != 0);
-	BTHCILayerEventHandler(s_pThis, pBuffer, nLength);
+	assert (s_pThisHCI != 0);
+	BTHCILayerEventHandler(s_pThisHCI, pBuffer, nLength);
 }

@@ -2,7 +2,8 @@
 #define _VIDEO_H_
 
 #include <rpi_header.h>
-#include <uspi/string.h>
+
+#include <uspi/stdarg.h>
 
 #define VIDEO_AQUA      0xFF00FFFF
 #define VIDEO_BLUE      0xFF0088FF

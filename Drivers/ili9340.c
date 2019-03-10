@@ -1,6 +1,9 @@
 #include "ili9340.h"
 #include "font_5x5.h"
 
+#include <stdlib.h>
+#include <uspi/string.h>
+
 #define CHAR_WIDTH 	6
 #define CHAR_HEIGHT 8
 
@@ -165,7 +168,8 @@ void ili9340_printHex(const char* message, unsigned int hexi, unsigned short col
 	// char *hex;
 	// memcpy(hex, "0123456789ABCDEF", sizeof("0123456789ABCDEF"));
 	
-	char m[200];
+	// char m[200];			// used malloc to reduce stack usage
+	char * m = (char *) malloc(sizeof(char) * 200);
 	int i = 0;
 	while (*message){
 		m[i] = *message++;
@@ -183,6 +187,8 @@ void ili9340_printHex(const char* message, unsigned int hexi, unsigned short col
 	m[i + 8] = 0; //null termination
 
 	ili9340_println(m, colour);
+
+	free(m);
 }
 
 void ili3940_printf(const char *pMessage, unsigned short colour, ...) {

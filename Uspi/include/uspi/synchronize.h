@@ -57,12 +57,6 @@ void uspi_CleanAndInvalidateDataCacheRange (u32 nAddress, u32 nLength) MAXOPT;
 #define InstructionSyncBarrier() FlushPrefetchBuffer()
 #define InstructionMemBarrier()	FlushPrefetchBuffer()
 
-// According to the "BCM2835 ARM Peripherals" document pg. 7 the BCM2835
-// requires to insert barriers before writing and after reading to/from
-// a peripheral for in-order processing of data transferred on the AXI bus.
-#define PeripheralEntry()	DataSyncBarrier()
-#define PeripheralExit()	DataMemBarrier()
-
 #else
 
 //

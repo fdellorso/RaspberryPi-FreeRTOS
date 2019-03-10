@@ -1,20 +1,21 @@
-Breakpoint=stufa_task.c:151, State=BP_STATE_ON
-OpenDocument="tic_handle.c", FilePath="/home/fra/RaspberryPi-FreeRTOS/Drivers/tic/lib/tic_handle.c", Line=0
-OpenDocument="stufa_task.c", FilePath="/home/fra/RaspberryPi-FreeRTOS/Demo/stufa_task.c", Line=133
-OpenDocument="main.c", FilePath="/home/fra/RaspberryPi-FreeRTOS/Demo/main.c", Line=0
+Breakpoint=btsubsystem.c:63, State=BP_STATE_DISABLED
+Breakpoint=btsubsystem.c:106, State=BP_STATE_DISABLED
+OpenDocument="main.c", FilePath="/home/fra/RaspberryPi-FreeRTOS/Main/main.c", Line=0
 OpenToolbar="Debug", Floating=0, x=0, y=0
-OpenWindow="Registers 1", DockArea=RIGHT, x=0, y=2, w=330, h=430, FilterBarShown=0, FilteredItems=[]
-OpenWindow="Source Files", DockArea=LEFT, x=0, y=1, w=216, h=490, FilterBarShown=1
-OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=0, w=330, h=332, FilterBarShown=0, ExecCountersShown=0
+OpenWindow="Registers 1", DockArea=RIGHT, x=0, y=3, w=622, h=95, FilterBarShown=0, FilteredItems=[]
+OpenWindow="Source Files", DockArea=LEFT, x=0, y=1, w=265, h=314, FilterBarShown=1
+OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=0, w=622, h=211, FilterBarShown=0, ExecCountersShown=0
 OpenWindow="Source", x=0, y=0, w=0, h=0, FilterBarShown=0, ExecCountersShown=0
-OpenWindow="Break & Tracepoints", DockArea=LEFT, x=0, y=0, w=216, h=160, FilterBarShown=0
-OpenWindow="Memory 1", DockArea=BOTTOM, x=1, y=0, w=488, h=552, FilterBarShown=0, EditorAddress=0x7FD0
-OpenWindow="Local Data", DockArea=RIGHT, x=0, y=1, w=330, h=254, FilterBarShown=0
-OpenWindow="Functions", DockArea=LEFT, x=0, y=2, w=216, h=366, FilterBarShown=1
-OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=489, h=552, FilterBarShown=0
-TableHeader="Break & Tracepoints", SortCol="None", SortOrder="ASCENDING", VisibleCols=["";"Type";"Location";"Extras"], ColWidths=[55;60;126;560]
-TableHeader="Local Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[122;87;100;48;100;100]
-TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Source"], ColWidths=[57;69;48;57;100]
+OpenWindow="Break & Tracepoints", DockArea=LEFT, x=0, y=0, w=265, h=213, FilterBarShown=0
+OpenWindow="Memory 1", DockArea=BOTTOM, x=1, y=0, w=787, h=153, FilterBarShown=0, EditorAddress=0x8000
+OpenWindow="Global Data", DockArea=RIGHT, x=0, y=1, w=622, h=374, FilterBarShown=1
+OpenWindow="Local Data", DockArea=RIGHT, x=0, y=2, w=622, h=99, FilterBarShown=0
+OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=822, h=153, FilterBarShown=0
+OpenWindow="Tasks", DockArea=LEFT, x=0, y=2, w=265, h=258, FilterBarShown=0
+TableHeader="Global Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[140;87;82;53;166;100]
+TableHeader="Break & Tracepoints", SortCol="None", SortOrder="ASCENDING", VisibleCols=["";"Type";"Location";"Extras"], ColWidths=[55;60;126;59]
+TableHeader="Local Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[122;130;100;48;100;122]
 TableHeader="Source Files", SortCol="File", SortOrder="ASCENDING", VisibleCols=["File";"Status";"Size";"#Insts";"Path"], ColWidths=[158;59;48;57;50]
 TableHeader="tableWidgetSamples", SortCol="Index", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Channel 0"], ColWidths=[84;119;126]
-TableHeader="Registers 1", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Description"], ColWidths=[125;85;120]
+TableHeader="Registers 1", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Description"], ColWidths=[174;85;348]
+TableHeader="Tasks", SortCol="None", SortOrder="ASCENDING", VisibleCols=["ID";"Priority";"Name";"Status";"Timeout";"Notify Value";"Notify State";"Stack Info (Free / Size)";"Run Count";"Mutex Count"], ColWidths=[85;85;110;85;50;50;50;160;70;60]

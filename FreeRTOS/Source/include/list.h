@@ -105,8 +105,8 @@ extern "C" {
 struct xLIST_ITEM
 {
 	portTickType xItemValue;				/*< The value being listed.  In most cases this is used to sort the list in descending order. */
-	struct xLIST_ITEM * pxNext;	/*< Pointer to the next xListItem in the list. */
-	struct xLIST_ITEM * pxPrevious;/*< Pointer to the previous xListItem in the list. */
+	volatile struct xLIST_ITEM * pxNext;	/*< Pointer to the next xListItem in the list. */
+	volatile struct xLIST_ITEM * pxPrevious;/*< Pointer to the previous xListItem in the list. */
 	void * pvOwner;							/*< Pointer to the object (normally a TCB) that contains the list item.  There is therefore a two way link between the object containing the list item and the list item itself. */
 	void * pvContainer;						/*< Pointer to the list in which this list item is placed (if any). */
 };
@@ -115,8 +115,8 @@ typedef struct xLIST_ITEM xListItem;		/* For some reason lint wants this as two 
 struct xMINI_LIST_ITEM
 {
 	portTickType xItemValue;
-	struct xLIST_ITEM *pxNext;
-	struct xLIST_ITEM *pxPrevious;
+	volatile struct xLIST_ITEM *pxNext;
+	volatile struct xLIST_ITEM *pxPrevious;
 };
 typedef struct xMINI_LIST_ITEM xMiniListItem;
 
@@ -125,9 +125,9 @@ typedef struct xMINI_LIST_ITEM xMiniListItem;
  */
 typedef struct xLIST
 {
-	unsigned portBASE_TYPE uxNumberOfItems;
-	xListItem * pxIndex;			/*< Used to walk through the list.  Points to the last item returned by a call to pvListGetOwnerOfNextEntry (). */
-	xMiniListItem xListEnd;		/*< List item that contains the maximum possible item value meaning it is always at the end of the list and is therefore used as a marker. */
+	volatile unsigned portBASE_TYPE uxNumberOfItems;
+	volatile xListItem * pxIndex;			/*< Used to walk through the list.  Points to the last item returned by a call to pvListGetOwnerOfNextEntry (). */
+	volatile xMiniListItem xListEnd;		/*< List item that contains the maximum possible item value meaning it is always at the end of the list and is therefore used as a marker. */
 } xList;
 
 /*
@@ -215,7 +215,7 @@ xList * const pxConstList = ( pxList );													\
 	/* Increment the index to the next item and return the item, ensuring */			\
 	/* we don't return the marker used at the end of the list.  */						\
 	( pxConstList )->pxIndex = ( pxConstList )->pxIndex->pxNext;						\
-	if( ( pxConstList )->pxIndex == ( xListItem * ) & ( ( pxConstList )->xListEnd ) )	\
+	if( ( pxConstList )->pxIndex == ( xListItem * ) &( ( pxConstList )->xListEnd ) )	\
 	{																					\
 		( pxConstList )->pxIndex = ( pxConstList )->pxIndex->pxNext;					\
 	}																					\
@@ -259,38 +259,6 @@ xList * const pxConstList = ( pxList );													\
  * function.
  */
 #define listLIST_IS_INITIALISED( pxList ) ( ( pxList )->xListEnd.xItemValue == portMAX_DELAY )
-
-/*
- * Return the list item at the head of the list.
- *
- * \page listGET_HEAD_ENTRY listGET_HEAD_ENTRY
- * \ingroup LinkedList
- */
-#define listGET_HEAD_ENTRY( pxList )	( ( ( pxList )->xListEnd ).pxNext )
-
-/*
- * Return the list item at the head of the list.
- *
- * \page listGET_NEXT listGET_NEXT
- * \ingroup LinkedList
- */
-#define listGET_NEXT( pxListItem )	( ( pxListItem )->pxNext )
-
-/*
- * Return the list item that marks the end of the list
- *
- * \page listGET_END_MARKER listGET_END_MARKER
- * \ingroup LinkedList
- */
-#define listGET_END_MARKER( pxList )	( ( xListItem const * ) ( & ( ( pxList )->xListEnd ) ) )
-
-/*
- * Return the list a list item is contained within (referenced from).
- *
- * @param pxListItem The list item being queried.
- * @return A pointer to the List_t object that references the pxListItem
- */
-#define listLIST_ITEM_CONTAINER( pxListItem ) ( ( pxListItem )->pvContainer )
 
 /*
  * Must be called before a list is used!  This initialises all the members
@@ -359,7 +327,7 @@ void vListInsertEnd( xList *pxList, xListItem *pxNewListItem );
  * \page vListRemove vListRemove
  * \ingroup LinkedList
  */
-unsigned portBASE_TYPE vListRemove( xListItem *pxItemToRemove );
+void vListRemove( xListItem *pxItemToRemove );
 
 #ifdef __cplusplus
 }

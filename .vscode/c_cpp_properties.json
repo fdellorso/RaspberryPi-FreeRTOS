@@ -4,18 +4,19 @@
             "name": "ARM",
             "includePath": [
                 "${workspaceFolder}/Main",
+                "${workspaceFolder}/Task",
                 "${workspaceFolder}/Drivers",
                 "${workspaceFolder}/Tic/include",
                 "${workspaceFolder}/Uspi/include",
                 "${workspaceFolder}/Rsta_Bt/include",
                 "${workspaceFolder}/FreeRTOS/Source/include",
-                "${workspaceFolder}/FreeRTOS/Source/portable/GCC/RaspberryPi"
+                "${workspaceFolder}/FreeRTOS/Source/portable/GCC/RaspberryPi",
+                "${workspaceFolder}"
             ],
             "defines": [
                 "RASPPI=1",
                 "MUART",
                 "PRVLIB",
-                "configBLUETHUNDER=0",
                 "USBTIC",
                 "USBBLT"
             ],

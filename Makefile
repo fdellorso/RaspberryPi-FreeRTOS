@@ -31,8 +31,10 @@ kernel.syms: kernel.elf
 # kernel.elf: LDFLAGS += -L "/usr/lib/arm-none-eabi/lib" -lc
 
 # GCC 7.3.1 (ARM Toolchain)
-kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi/lib/gcc/arm-none-eabi/7.3.1" -lgcc
-kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi/arm-none-eabi/lib" -lc
+# kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi/lib/gcc/arm-none-eabi/7.3.1" -lgcc
+# kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi/arm-none-eabi/lib" -lc
+kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi/lib/gcc/arm-none-eabi/7.3.1/hard" -lgcc
+kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi/arm-none-eabi/lib/hard" -lc
 
 # GCC 8.2.0 (Crosstool-NG)
 # kernel.elf: LDFLAGS += -L "/home/fra/x-tools/arm-unknown-eabi/lib/gcc/arm-unknown-eabi/8.2.0" -lgcc

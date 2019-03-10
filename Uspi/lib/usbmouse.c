@@ -188,6 +188,8 @@ boolean USBMouseDeviceStartRequest (TUSBMouseDevice *pThis)
 
 void USBMouseDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pContext)
 {
+    (void) pParam;
+
 	TUSBMouseDevice *pThis = (TUSBMouseDevice *) pContext;
 	assert (pThis != 0);
 	
@@ -209,6 +211,4 @@ void USBMouseDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pCo
 	pThis->m_pURB = 0;
 	
 	USBMouseDeviceStartRequest (pThis);
-
-	(void)pParam;	// FIXME Wunused
 }

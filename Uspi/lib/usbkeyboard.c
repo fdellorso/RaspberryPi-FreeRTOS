@@ -287,6 +287,8 @@ boolean USBKeyboardDeviceStartRequest (TUSBKeyboardDevice *pThis)
 
 void USBKeyboardDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pContext)
 {
+    (void) pParam;
+
 	TUSBKeyboardDevice *pThis = (TUSBKeyboardDevice *) pContext;
 	assert (pThis != 0);
 	
@@ -339,8 +341,6 @@ void USBKeyboardDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *
 	pThis->m_pURB = 0;
 	
 	USBKeyboardDeviceStartRequest (pThis);
-
-	(void)pParam;	// FIXME Wunused
 }
 
 u8 USBKeyboardDeviceGetModifiers (TUSBKeyboardDevice *pThis)

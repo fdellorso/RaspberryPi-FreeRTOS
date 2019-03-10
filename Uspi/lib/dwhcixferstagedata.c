@@ -22,8 +22,8 @@
 #include <uspi/dwhciframeschednper.h>
 #include <uspi/dwhciframeschednsplit.h>
 #include <uspi/dwhci.h>
-#include <uspi/assert.h>
 #include <uspios.h>
+#include <uspi/assert.h>
 
 void DWHCITransferStageData (TDWHCITransferStageData *pThis, unsigned nChannel, TUSBRequest *pURB, boolean bIn, boolean bStatusStage)
 {
@@ -243,8 +243,9 @@ unsigned DWHCITransferStageDataGetSubState (TDWHCITransferStageData *pThis)
 
 boolean DWHCITransferStageDataBeginSplitCycle (TDWHCITransferStageData *pThis)
 {
+	(void) pThis;
+	
 	return TRUE;
-	(void)pThis;	// FIXME Wunused
 }
 
 unsigned DWHCITransferStageDataGetChannelNumber (TDWHCITransferStageData *pThis)

@@ -2,8 +2,9 @@
 #define _ILI9340_H_
 
 #include <rpi_header.h>
-#include <prvlib/stdint.h>
-#include <uspi/string.h>
+
+#include <uspi/types.h>
+#include <uspi/stdarg.h>
 
 #define  ILI9340_TFTWIDTH    240
 #define  ILI9340_TFTHEIGHT   320

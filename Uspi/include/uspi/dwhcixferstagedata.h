@@ -32,34 +32,34 @@ extern "C" {
 #endif
 
 typedef struct TDWHCITransferStageData
-{		
-	unsigned	 			m_nChannel;			// parameters
-	TUSBRequest				*m_pURB;
-	boolean		 			m_bIn;
-	boolean		 			m_bStatusStage;
-		
-	boolean		 			m_bSplitTransaction;
-	boolean		 			m_bSplitComplete;
-		
-	TUSBDevice				*m_pDevice;			// cached from *pURB
-	TUSBEndpoint			*m_pEndpoint;
-	TUSBSpeed	 			m_Speed;
-	u32		 				m_nMaxPacketSize;
-			
-	u32		 				m_nTransferSize;
-	unsigned	 			m_nPackets;
-	u32		 				m_nBytesPerTransaction;
-	unsigned	 			m_nPacketsPerTransaction;
-	u32		 				m_nTotalBytesTransfered;
-		
-	unsigned	 			m_nState;
-	unsigned	 			m_nSubState;
-	u32		 				m_nTransactionStatus;
-		
-	u32						*m_pTempBuffer;
-	void					*m_pBufferPointer;
-		
-	TDWHCIFrameScheduler	*m_pFrameScheduler;
+{
+	unsigned	 m_nChannel;			// parameters
+	TUSBRequest	*m_pURB;
+	boolean		 m_bIn;
+	boolean		 m_bStatusStage;
+
+	boolean		 m_bSplitTransaction;
+	boolean		 m_bSplitComplete;
+
+	TUSBDevice	*m_pDevice;			// cached from *pURB
+	TUSBEndpoint	*m_pEndpoint;
+	TUSBSpeed	 m_Speed;
+	u32		 m_nMaxPacketSize;
+	
+	u32		 m_nTransferSize;
+	unsigned	 m_nPackets;
+	u32		 m_nBytesPerTransaction;
+	unsigned	 m_nPacketsPerTransaction;
+	u32		 m_nTotalBytesTransfered;
+
+	unsigned	 m_nState;
+	unsigned	 m_nSubState;
+	u32		 m_nTransactionStatus;
+
+	u32		*m_pTempBuffer;
+	void		*m_pBufferPointer;
+
+	TDWHCIFrameScheduler *m_pFrameScheduler;
 }
 TDWHCITransferStageData;
 

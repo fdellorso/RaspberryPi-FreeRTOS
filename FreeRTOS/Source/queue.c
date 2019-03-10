@@ -64,14 +64,8 @@
     the SafeRTOS brand: http://www.SafeRTOS.com.
 */
 
-#ifndef PRVLIB
-	#include <stdlib.h>
-	#include <string.h>
-#else
-	#include "prvlib/stdlib.h"
-	// #include "prvlib/string.h"
-    #include <uspi/util.h>
-#endif
+// #include <stdlib.h>
+// #include <string.h>
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
@@ -1254,7 +1248,7 @@ static void prvCopyDataToQueue( xQUEUE *pxQueue, const void *pvItemToQueue, port
 	}
 	else if( xPosition == queueSEND_TO_BACK )
 	{
-		memcpy2( ( void * ) pxQueue->pcWriteTo, pvItemToQueue, ( unsigned ) pxQueue->uxItemSize );
+		memcpy( ( void * ) pxQueue->pcWriteTo, pvItemToQueue, ( unsigned ) pxQueue->uxItemSize );
 		pxQueue->pcWriteTo += pxQueue->uxItemSize;
 		if( pxQueue->pcWriteTo >= pxQueue->pcTail )
 		{
@@ -1263,7 +1257,7 @@ static void prvCopyDataToQueue( xQUEUE *pxQueue, const void *pvItemToQueue, port
 	}
 	else
 	{
-		memcpy2( ( void * ) pxQueue->pcReadFrom, pvItemToQueue, ( unsigned ) pxQueue->uxItemSize );
+		memcpy( ( void * ) pxQueue->pcReadFrom, pvItemToQueue, ( unsigned ) pxQueue->uxItemSize );
 		pxQueue->pcReadFrom -= pxQueue->uxItemSize;
 		if( pxQueue->pcReadFrom < pxQueue->pcHead )
 		{
@@ -1284,7 +1278,7 @@ static void prvCopyDataFromQueue( xQUEUE * const pxQueue, const void *pvBuffer )
 		{
 			pxQueue->pcReadFrom = pxQueue->pcHead;
 		}
-		memcpy2( ( void * ) pvBuffer, ( void * ) pxQueue->pcReadFrom, ( unsigned ) pxQueue->uxItemSize );
+		memcpy( ( void * ) pvBuffer, ( void * ) pxQueue->pcReadFrom, ( unsigned ) pxQueue->uxItemSize );
 	}
 }
 /*-----------------------------------------------------------*/
@@ -1511,7 +1505,7 @@ signed portBASE_TYPE xReturn;
 				pxQueue->pcReadFrom = pxQueue->pcHead;
 			}
 			--( pxQueue->uxMessagesWaiting );
-			memcpy2( ( void * ) pvBuffer, ( void * ) pxQueue->pcReadFrom, ( unsigned ) pxQueue->uxItemSize );
+			memcpy( ( void * ) pvBuffer, ( void * ) pxQueue->pcReadFrom, ( unsigned ) pxQueue->uxItemSize );
 
 			xReturn = pdPASS;
 
@@ -1586,7 +1580,7 @@ signed portBASE_TYPE xReturn;
 			pxQueue->pcReadFrom = pxQueue->pcHead;
 		}
 		--( pxQueue->uxMessagesWaiting );
-		memcpy2( ( void * ) pvBuffer, ( void * ) pxQueue->pcReadFrom, ( unsigned ) pxQueue->uxItemSize );
+		memcpy( ( void * ) pvBuffer, ( void * ) pxQueue->pcReadFrom, ( unsigned ) pxQueue->uxItemSize );
 
 		if( ( *pxCoRoutineWoken ) == pdFALSE )
 		{

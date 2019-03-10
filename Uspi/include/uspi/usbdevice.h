@@ -44,24 +44,24 @@ struct TUSBEndpoint;
 
 typedef struct TUSBDevice
 {
-	boolean						(*Configure) (struct TUSBDevice *pThis);
+	boolean (*Configure) (struct TUSBDevice *pThis);
 
-	struct TDWHCIDevice			*m_pHost;
+	struct TDWHCIDevice *m_pHost;
 
-	u8							m_ucAddress;
-	TUSBSpeed					m_Speed;
-	struct TUSBEndpoint			*m_pEndpoint0;
+	u8		    m_ucAddress;
+	TUSBSpeed	    m_Speed;
+	struct TUSBEndpoint *m_pEndpoint0;
 
-	u8							m_ucHubAddress;
-	u8							m_ucHubPortNumber;
+	u8		    m_ucHubAddress;
+	u8		    m_ucHubPortNumber;
 	
 	TUSBDeviceDescriptor	    *m_pDeviceDesc;
-	TUSBConfigurationDescriptor	*m_pConfigDesc;
+	TUSBConfigurationDescriptor *m_pConfigDesc;
 
-	TUSBConfigurationParser		*m_pConfigParser;
+	TUSBConfigurationParser *m_pConfigParser;
 
-	TUSBString					m_ManufacturerString;
-	TUSBString					m_ProductString;
+	TUSBString m_ManufacturerString;
+	TUSBString m_ProductString;
 }
 TUSBDevice;
 

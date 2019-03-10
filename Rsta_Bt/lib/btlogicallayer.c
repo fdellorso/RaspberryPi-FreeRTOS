@@ -24,9 +24,11 @@
 
 void BTLogicalLayer (TBTLogicalLayer *pThis, TBTHCILayer *pHCILayer)
 {
-	pThis->m_pHCILayer 			= pHCILayer;
-	pThis->m_pInquiryResults	= 0;
-	pThis->m_pBuffer			= 0;
+	pThis->m_pHCILayer 				= pHCILayer;
+	pThis->m_nNameRequestsPending	= 0;
+	pThis->m_pBuffer				= 0;
+	pThis->m_pInquiryResults = (TBTInquiryResults *) malloc (sizeof(TBTInquiryResults));
+	BTInquiryResults(pThis->m_pInquiryResults);
 }
 
 void _BTLogicalLayer (TBTLogicalLayer *pThis)

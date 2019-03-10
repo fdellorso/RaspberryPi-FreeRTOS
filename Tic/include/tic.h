@@ -53,15 +53,7 @@
 extern "C" {
 #endif
 
-#ifndef PRVLIB
-  #include <stdbool.h>
-  #include <stddef.h>
-  #include <stdint.h>
-#else
-  #include "prvlib/stdbool.h"
-  #include "prvlib/stddef.h"
-  #include "prvlib/stdint.h"
-#endif
+#include <uspi/types.h>
 
 #include "tic_protocol.h"
 

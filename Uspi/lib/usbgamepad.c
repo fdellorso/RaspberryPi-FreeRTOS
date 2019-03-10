@@ -505,6 +505,8 @@ boolean USBGamePadDeviceStartRequest (TUSBGamePadDevice *pThis)
 
 void USBGamePadDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pContext)
 {
+    (void) pParam;
+    
 	TUSBGamePadDevice *pThis = (TUSBGamePadDevice *) pContext;
 	assert (pThis != 0);
 
@@ -527,8 +529,6 @@ void USBGamePadDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *p
 	pThis->m_pURB = 0;
 
 	USBGamePadDeviceStartRequest (pThis);
-
-    (void)pParam;   // FIXME Wunused
 }
 
 void USBGamePadDeviceGetReport (TUSBGamePadDevice *pThis)

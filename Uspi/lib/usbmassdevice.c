@@ -598,7 +598,7 @@ int USBBulkOnlyMassStorageDeviceCommand (TUSBBulkOnlyMassStorageDevice *pThis,
 	CBW.bCBWLUN		   = CBWLUN;
 	CBW.bCBWCBLength	   = (u8) nCmdBlkLen;
 
-	memcpy2 (CBW.CBWCB, pCmdBlk, nCmdBlkLen);
+	memcpy (CBW.CBWCB, pCmdBlk, nCmdBlkLen);
 
 	TUSBHostController *pHost = USBDeviceGetHost (&pThis->m_USBDevice);
 	assert (pHost != 0);

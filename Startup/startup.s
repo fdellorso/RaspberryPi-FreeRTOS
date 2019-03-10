@@ -1,6 +1,8 @@
 .extern	system_init
 .extern __bss_start
 .extern __bss_end
+.extern __NULL_PTR_START
+.extern __NULL_PTR_END
 .extern vFreeRTOS_ISR
 .extern vFreeRTOS_ISR_KLUDGE
 .extern vPortYieldProcessor
@@ -86,19 +88,17 @@ continueBoot:
     msr cpsr_c,r0
 	mov sp,#0x8000000
 
+	;@ Clear BSS memory
 	ldr r0, =__bss_start
 	ldr r1, =__bss_end
-
 	mov r2, #0
-
-zero_loop:
+zero_loop_bss:
 	cmp 	r0,r1
 	it		lt
 	strlt	r2,[r0], #4
-	blt		zero_loop
+	blt		zero_loop_bss
 
 	bl 		DisableInterrupts
-	
 	
 	;@ 	mov	sp,#0x1000000
 	b main									;@ We're ready?? Lets start main execution!

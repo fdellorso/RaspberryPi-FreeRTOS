@@ -2,7 +2,8 @@
 #define _PWM_H_
 
 #include <rpi_header.h>
-#include <prvlib/stdint.h>
+
+#include <uspi/types.h>
 
 // Base Physical Address of the PWM registers
 #define BCM2835_PWM_BASE    			(BCM2835_PERI_BASE + 0x20C000)

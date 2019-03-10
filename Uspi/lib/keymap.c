@@ -102,12 +102,12 @@ void KeyMap (TKeyMap *pThis)
 	pThis->m_bScrollLock = FALSE;
 
 	assert (sizeof pThis->m_KeyMap == sizeof s_DefaultMap);
-	memcpy2 (pThis->m_KeyMap, s_DefaultMap, sizeof pThis->m_KeyMap);
+	memcpy (pThis->m_KeyMap, s_DefaultMap, sizeof pThis->m_KeyMap);
 }
 
 void _KeyMap (TKeyMap *pThis)
 {
-	(void)pThis;	// FIXME Wunused
+	(void) pThis;
 }
 
 boolean KeyMapClearTable (TKeyMap *pThis, u8 nTable)
