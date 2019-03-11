@@ -2,7 +2,7 @@
 // synchronize.h
 //
 // USPi - An USB driver for Raspberry Pi written in C
-// Copyright (C) 2014-2015  R. Stange <rsta2@o2online.de>
+// Copyright (C) 2014-2018  R. Stange <rsta2@o2online.de>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,55 +33,78 @@ extern "C" {
 void uspi_EnterCritical (void);		// disable interrupts (nested calls possible)
 void uspi_LeaveCritical (void);		// enable interrupts (nested calls possible)
 
+#ifndef AARCH64
+
 #if RASPPI == 1
 
 //
 // Cache control
 //
 #define InvalidateInstructionCache()	\
-				__asm volatile ("mcr p15, 0, %0, c7, c5,  0" : : "r" (0) : "memory")
-#define FlushPrefetchBuffer()	__asm volatile ("mcr p15, 0, %0, c7, c5,  4" : : "r" (0) : "memory")
-#define FlushBranchTargetCache()	\
-				__asm volatile ("mcr p15, 0, %0, c7, c5,  6" : : "r" (0) : "memory")
-#define InvalidateDataCache()	__asm volatile ("mcr p15, 0, %0, c7, c6,  0" : : "r" (0) : "memory")
-#define CleanDataCache()	__asm volatile ("mcr p15, 0, %0, c7, c10, 0" : : "r" (0) : "memory")
+	__asm volatile ("mcr p15, 0, %0, c7, c5,  0" : : "r" (0) : "memory")
+#define FlushPrefetchBuffer()			\
+	__asm volatile ("mcr p15, 0, %0, c7, c5,  4" : : "r" (0) : "memory")
+#define FlushBranchTargetCache()		\
+	__asm volatile ("mcr p15, 0, %0, c7, c5,  6" : : "r" (0) : "memory")
+#define InvalidateDataCache()			\
+	__asm volatile ("mcr p15, 0, %0, c7, c6,  0" : : "r" (0) : "memory")
+#define CleanDataCache()				\
+	__asm volatile ("mcr p15, 0, %0, c7, c10, 0" : : "r" (0) : "memory")
 
 void uspi_CleanAndInvalidateDataCacheRange (u32 nAddress, u32 nLength) MAXOPT;
 
 //
 // Barriers
 //
-#define DataSyncBarrier()	__asm volatile ("mcr p15, 0, %0, c7, c10, 4" : : "r" (0) : "memory")
-#define DataMemBarrier() 	__asm volatile ("mcr p15, 0, %0, c7, c10, 5" : : "r" (0) : "memory")
+#define DataSyncBarrier()				\
+	__asm volatile ("mcr p15, 0, %0, c7, c10, 4" : : "r" (0) : "memory")
+#define DataMemBarrier() 				\
+	__asm volatile ("mcr p15, 0, %0, c7, c10, 5" : : "r" (0) : "memory")
 
 #define InstructionSyncBarrier() FlushPrefetchBuffer()
 #define InstructionMemBarrier()	FlushPrefetchBuffer()
 
-#else
+#else	// #if RASPPI == 1
 
 //
 // Cache control
 //
 #define InvalidateInstructionCache()	\
-				__asm volatile ("mcr p15, 0, %0, c7, c5,  0" : : "r" (0) : "memory")
-#define FlushPrefetchBuffer()	__asm volatile ("isb" ::: "memory")
-#define FlushBranchTargetCache()	\
-				__asm volatile ("mcr p15, 0, %0, c7, c5,  6" : : "r" (0) : "memory")
+	__asm volatile ("mcr p15, 0, %0, c7, c5,  0" : : "r" (0) : "memory")
+#define FlushPrefetchBuffer()			\
+	__asm volatile ("isb" ::: "memory")
+#define FlushBranchTargetCache()		\
+	__asm volatile ("mcr p15, 0, %0, c7, c5,  6" : : "r" (0) : "memory")
 
 void uspi_CleanAndInvalidateDataCacheRange (u32 nAddress, u32 nLength) MAXOPT;
 
 //
 // Barriers
 //
-#define DataSyncBarrier()	__asm volatile ("dsb" ::: "memory")
-#define DataMemBarrier() 	__asm volatile ("dmb" ::: "memory")
+#define DataSyncBarrier()				__asm volatile ("dsb" ::: "memory")
+#define DataMemBarrier() 				__asm volatile ("dmb" ::: "memory")
 
-#define InstructionSyncBarrier() __asm volatile ("isb" ::: "memory")
-#define InstructionMemBarrier()	__asm volatile ("isb" ::: "memory")
+#define InstructionSyncBarrier() 		__asm volatile ("isb" ::: "memory")
+#define InstructionMemBarrier()			__asm volatile ("isb" ::: "memory")
 
-#endif
+#endif	// #if RASPPI == 1
 
-#define CompilerBarrier()	__asm volatile ("" ::: "memory")
+#else	// #ifdef AARCH64
+
+//
+// Cache control
+//
+void uspi_CleanAndInvalidateDataCacheRange (u64 nAddress, u64 nLength) MAXOPT;
+
+//
+// Barriers
+//
+#define DataSyncBarrier()				__asm volatile ("dsb sy" ::: "memory")
+#define DataMemBarrier() 				__asm volatile ("dmb sy" ::: "memory")
+
+#endif	// #ifdef AARCH64
+
+#define CompilerBarrier()				__asm volatile ("" ::: "memory")
 
 #ifdef __cplusplus
 }

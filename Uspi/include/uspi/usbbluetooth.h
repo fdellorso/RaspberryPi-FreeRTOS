@@ -20,21 +20,17 @@
 #ifndef _uspi_usbbluetooth_h
 #define _uspi_usbbluetooth_h
 
-#include <uspi/usbdevice.h>
-#include <rsta_bt/bttransportlayer.h>
+#include <uspi/usbfunction.h>
 #include <uspi/usbendpoint.h>
 #include <uspi/usbrequest.h>
 #include <uspi/types.h>
 #include <uspi.h>
+#include <rsta_bt/bttransportlayer.h>
 
 
 typedef struct TUSBBluetoothDevice
 {
-	TUSBDevice			m_USBDevice;
-	unsigned      		m_nDeviceIndex;
-
-	u8              	m_ucInterfaceNumber;
-	u8              	m_ucAlternateSetting;
+	TUSBFunction 		m_USBFunction;
 
 	TUSBEndpoint 		*m_pEndpointInterrupt;
 	TUSBEndpoint 		*m_pEndpointBulkIn;
@@ -45,15 +41,15 @@ typedef struct TUSBBluetoothDevice
 
 	TBTHCIEventHandler	*m_pEventHandler;
 
-	u8					*m_pBd_addr;
+	// unsigned      		s_nDeviceNumber;
 }
 TUSBBluetoothDevice;
 
 
-void USBBluetoothDevice (TUSBBluetoothDevice *pThis, TUSBDevice *pDevice);
+void USBBluetoothDevice (TUSBBluetoothDevice *pThis, TUSBFunction *pFunction);
 void _USBBluetoothDevice (TUSBBluetoothDevice *pThis);
 
-boolean USBBluetoothDeviceConfigure (TUSBDevice *pDevice);
+boolean USBBluetoothDeviceConfigure (TUSBFunction *pUSBFunction);
 
 boolean USBBluetoothDeviceSendHCICommand (TUSBBluetoothDevice *pThis, const void *pBuffer, unsigned nLength);
 

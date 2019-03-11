@@ -28,27 +28,22 @@ static const char FromBluetooth[] = "btusb";
 
 static unsigned s_nDeviceNumber = 1;
 
-
 static boolean USBBluetoothDeviceStartRequest (TUSBBluetoothDevice *pThis);
 static void USBBluetoothDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pContext);
 
-
-void USBBluetoothDevice (TUSBBluetoothDevice *pThis, TUSBDevice *pDevice)
+void USBBluetoothDevice (TUSBBluetoothDevice *pThis, TUSBFunction *pFunction)
 {
 	assert (pThis != 0);
 
-	USBDeviceCopy (&pThis->m_USBDevice, pDevice);
-	pThis->m_USBDevice.Configure = USBBluetoothDeviceConfigure;
+	USBFunctionCopy (&pThis->m_USBFunction, pFunction);
+	pThis->m_USBFunction.Configure = USBBluetoothDeviceConfigure;
 
-	pThis->m_ucAlternateSetting	= 0;
-	pThis->m_ucInterfaceNumber	= 0;
 	pThis->m_pEndpointInterrupt	= 0;
 	pThis->m_pEndpointBulkIn	= 0;
 	pThis->m_pEndpointBulkOut	= 0;
 	pThis->m_pURB				= 0;
 	pThis->m_pEventBuffer		= 0;
 	pThis->m_pEventHandler		= 0;
-	pThis->m_pBd_addr			= 0;
 }
 
 void _USBBluetoothDevice (TUSBBluetoothDevice *pThis)
@@ -87,80 +82,72 @@ void _USBBluetoothDevice (TUSBBluetoothDevice *pThis)
         pThis->m_pEndpointInterrupt = 0;
     }	
 
-	_USBDevice (&pThis->m_USBDevice);
+	_USBFunction (&pThis->m_USBFunction);
 }
 
-boolean USBBluetoothDeviceConfigure (TUSBDevice *pDevice)
+boolean USBBluetoothDeviceConfigure (TUSBFunction *pUSBFunction)
 {
-	TUSBBluetoothDevice *pThis = (TUSBBluetoothDevice *) pDevice;
+	TUSBBluetoothDevice *pThis = (TUSBBluetoothDevice *) pUSBFunction;
 	assert (pThis != 0);
 
-	TUSBConfigurationDescriptor *pConfDesc =
-		(TUSBConfigurationDescriptor *) USBDeviceGetDescriptor (&pThis->m_USBDevice, DESCRIPTOR_CONFIGURATION);
-	if (pConfDesc == 0 ||
-		pConfDesc->bNumInterfaces <  1)
+	if(USBFunctionGetInterfaceNumber(&pThis->m_USBFunction) != 0)
 	{
-		USBDeviceConfigurationError (&pThis->m_USBDevice, FromBluetooth);
+		LogWrite (FromBluetooth, LOG_WARNING, "Voice channels are not supported");
 
 		return FALSE;
 	}
 
-	TUSBInterfaceDescriptor *pInterfaceDesc;
-	while ((pInterfaceDesc = (TUSBInterfaceDescriptor *) USBDeviceGetDescriptor (&pThis->m_USBDevice, DESCRIPTOR_INTERFACE)) != 0)
+	if(USBFunctionGetNumEndpoints(&pThis->m_USBFunction) != 3)
 	{
-		if (pInterfaceDesc->bInterfaceNumber > 0)
+		USBFunctionConfigurationError (&pThis->m_USBFunction, FromBluetooth);
+
+		return FALSE;
+	}
+
+	const TUSBEndpointDescriptor *pEndpointDesc;
+	while ((pEndpointDesc = (TUSBEndpointDescriptor *) USBFunctionGetDescriptor (&pThis->m_USBFunction, DESCRIPTOR_ENDPOINT)) != 0)
+	{
+		if ((pEndpointDesc->bmAttributes & 0x3F) == 0x02)			// Bulk
 		{
-			break;
-		}
-
-		pThis->m_ucInterfaceNumber  = pInterfaceDesc->bInterfaceNumber;
-		pThis->m_ucAlternateSetting = pInterfaceDesc->bAlternateSetting;
-
-		const TUSBEndpointDescriptor *pEndpointDesc;
-		while ((pEndpointDesc = (TUSBEndpointDescriptor *) USBDeviceGetDescriptor (&pThis->m_USBDevice, DESCRIPTOR_ENDPOINT)) != 0)
-		{
-			if ((pEndpointDesc->bmAttributes & 0x3F) == 0x02)			// Bulk
+			if ((pEndpointDesc->bEndpointAddress & 0x80) == 0x80)	// Input
 			{
-				if ((pEndpointDesc->bEndpointAddress & 0x80) == 0x80)	// Input
+				if (pThis->m_pEndpointBulkIn != 0)
 				{
-					if (pThis->m_pEndpointBulkIn != 0)
-					{
-						USBDeviceConfigurationError (&pThis->m_USBDevice, FromBluetooth);
-
-						return FALSE;
-					}
-
-					pThis->m_pEndpointBulkIn = (TUSBEndpoint *) malloc (sizeof (TUSBEndpoint));
-					assert (pThis->m_pEndpointBulkIn != 0);
-					USBEndpoint2 (pThis->m_pEndpointBulkIn, &pThis->m_USBDevice, pEndpointDesc);
-				}
-				else													// Output
-				{
-					if (pThis->m_pEndpointBulkOut != 0)
-					{
-						USBDeviceConfigurationError (&pThis->m_USBDevice, FromBluetooth);
-
-						return FALSE;
-					}
-
-					pThis->m_pEndpointBulkOut = (TUSBEndpoint *) malloc (sizeof (TUSBEndpoint));
-					assert (pThis->m_pEndpointBulkOut != 0);
-					USBEndpoint2 (pThis->m_pEndpointBulkOut, &pThis->m_USBDevice, pEndpointDesc);
-				}
-			}
-			else if ((pEndpointDesc->bmAttributes & 0x3F) == 0x03)		// Interrupt
-			{
-				if (pThis->m_pEndpointInterrupt != 0)
-				{
-					USBDeviceConfigurationError (&pThis->m_USBDevice, FromBluetooth);
+					USBFunctionConfigurationError (&pThis->m_USBFunction, FromBluetooth);
 
 					return FALSE;
 				}
 
-				pThis->m_pEndpointInterrupt = (TUSBEndpoint *) malloc (sizeof (TUSBEndpoint));
-				assert (pThis->m_pEndpointInterrupt != 0);
-				USBEndpoint2 (pThis->m_pEndpointInterrupt, &pThis->m_USBDevice, pEndpointDesc);
+				pThis->m_pEndpointBulkIn = (TUSBEndpoint *) malloc (sizeof (TUSBEndpoint));
+				assert (pThis->m_pEndpointBulkIn != 0);
+				USBEndpoint2 (pThis->m_pEndpointBulkIn, USBFunctionGetDevice (&pThis->m_USBFunction), pEndpointDesc);
 			}
+			else													// Output
+			{
+				if (pThis->m_pEndpointBulkOut != 0)
+				{
+					USBFunctionConfigurationError (&pThis->m_USBFunction, FromBluetooth);
+
+					return FALSE;
+				}
+
+				pThis->m_pEndpointBulkOut = (TUSBEndpoint *) malloc (sizeof (TUSBEndpoint));
+				assert (pThis->m_pEndpointBulkOut != 0);
+				USBEndpoint2 (pThis->m_pEndpointBulkOut, USBFunctionGetDevice (&pThis->m_USBFunction), pEndpointDesc);
+			}
+		}
+		else if ((pEndpointDesc->bmAttributes & 0x3F) == 0x03)		// Interrupt
+		{
+			if (pThis->m_pEndpointInterrupt != 0)
+			{
+				USBFunctionConfigurationError (&pThis->m_USBFunction, FromBluetooth);
+
+				return FALSE;
+			}
+
+			pThis->m_pEndpointInterrupt = (TUSBEndpoint *) malloc (sizeof (TUSBEndpoint));
+			assert (pThis->m_pEndpointInterrupt != 0);
+			USBEndpoint2 (pThis->m_pEndpointInterrupt, USBFunctionGetDevice (&pThis->m_USBFunction), pEndpointDesc);
 		}
 	}
 
@@ -168,30 +155,30 @@ boolean USBBluetoothDeviceConfigure (TUSBDevice *pDevice)
 	    || pThis->m_pEndpointBulkOut   == 0
 	    || pThis->m_pEndpointInterrupt == 0)
 	{
-		USBDeviceConfigurationError (&pThis->m_USBDevice, FromBluetooth);
+		USBFunctionConfigurationError (&pThis->m_USBFunction, FromBluetooth);
 
 		return FALSE;
 	}
 
 	// Configuration Check
-    if (!USBDeviceConfigure (&pThis->m_USBDevice))
+    if (!USBFunctionConfigure (&pThis->m_USBFunction))
     {
         LogWrite (FromBluetooth, LOG_ERROR, "Cannot set configuration");
 
         return FALSE;
     }
 
-	if (pThis->m_ucAlternateSetting != 0)
-	{
-		if (DWHCIDeviceControlMessage (USBDeviceGetHost (&pThis->m_USBDevice),
-			USBDeviceGetEndpoint0 (&pThis->m_USBDevice), REQUEST_OUT | REQUEST_TO_INTERFACE, SET_INTERFACE,
-			pThis->m_ucAlternateSetting, pThis->m_ucInterfaceNumber, 0, 0) < 0)
-		{
-			LogWrite (FromBluetooth, LOG_ERROR, "Cannot set interface");
+	// if (pThis->m_ucAlternateSetting != 0)
+	// {
+	// 	if (DWHCIDeviceControlMessage (USBFunctionGetHost (&pThis->m_USBFunction),
+	// 		USBFunctionGetEndpoint0 (&pThis->m_USBFunction), REQUEST_OUT | REQUEST_TO_INTERFACE, SET_INTERFACE,
+	// 		pThis->m_ucAlternateSetting, pThis->m_ucInterfaceNumber, 0, 0) < 0)
+	// 	{
+	// 		LogWrite (FromBluetooth, LOG_ERROR, "Cannot set interface");
 
-			return FALSE;
-		}
-	}
+	// 		return FALSE;
+	// 	}
+	// }
 
 	pThis->m_pEventBuffer = (u8 *) malloc (pThis->m_pEndpointInterrupt->m_nMaxPacketSize);
 	assert (pThis->m_pEventBuffer != 0);
@@ -209,8 +196,8 @@ boolean USBBluetoothDeviceConfigure (TUSBDevice *pDevice)
 
 boolean USBBluetoothDeviceSendHCICommand (TUSBBluetoothDevice *pThis, const void *pBuffer, unsigned nLength)
 {
-	if (DWHCIDeviceControlMessage (USBDeviceGetHost (&pThis->m_USBDevice),
-		USBDeviceGetEndpoint0 (&pThis->m_USBDevice), REQUEST_OUT | REQUEST_CLASS | REQUEST_TO_DEVICE,
+	if (DWHCIDeviceControlMessage (USBFunctionGetHost (&pThis->m_USBFunction),
+		USBFunctionGetEndpoint0 (&pThis->m_USBFunction), REQUEST_OUT | REQUEST_CLASS | REQUEST_TO_DEVICE,
 		0, 0, 0, (void *) pBuffer, nLength) < 0)
 	{
 		return FALSE;
@@ -242,7 +229,7 @@ static boolean USBBluetoothDeviceStartRequest (TUSBBluetoothDevice *pThis)
 	USBRequest (pThis->m_pURB, pThis->m_pEndpointInterrupt, pThis->m_pEventBuffer, sizeof (pThis->m_pEventBuffer), 0);
 	USBRequestSetCompletionRoutine (pThis->m_pURB, USBBluetoothDeviceCompletionRoutine, 0, pThis);
 
-	return DWHCIDeviceSubmitAsyncRequest (USBDeviceGetHost (&pThis->m_USBDevice), pThis->m_pURB);
+	return DWHCIDeviceSubmitAsyncRequest (USBFunctionGetHost (&pThis->m_USBFunction), pThis->m_pURB);
 }
 
 static void USBBluetoothDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pContext)

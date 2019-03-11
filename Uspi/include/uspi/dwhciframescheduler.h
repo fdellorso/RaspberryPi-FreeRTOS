@@ -28,15 +28,15 @@ extern "C" {
 
 typedef struct TDWHCIFrameScheduler
 {
-	void (*_DWHCIFrameScheduler) (struct TDWHCIFrameScheduler *pThis);
+	void	(*_DWHCIFrameScheduler)	(struct TDWHCIFrameScheduler *pThis);
 
-	void (*StartSplit) (struct TDWHCIFrameScheduler *pThis);
-	boolean (*CompleteSplit) (struct TDWHCIFrameScheduler *pThis);
-	void (*TransactionComplete) (struct TDWHCIFrameScheduler *pThis, u32 nStatus);
+	void	(*StartSplit)			(struct TDWHCIFrameScheduler *pThis);
+	boolean (*CompleteSplit) 		(struct TDWHCIFrameScheduler *pThis);
+	void 	(*TransactionComplete) 	(struct TDWHCIFrameScheduler *pThis, u32 nStatus);
 	
-	void (*WaitForFrame) (struct TDWHCIFrameScheduler *pThis);
+	void 	(*WaitForFrame) 		(struct TDWHCIFrameScheduler *pThis);
 	
-	boolean (*IsOddFrame) (struct TDWHCIFrameScheduler *pThis);
+	boolean (*IsOddFrame) 			(struct TDWHCIFrameScheduler *pThis);
 }
 TDWHCIFrameScheduler;
 

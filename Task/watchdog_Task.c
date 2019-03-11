@@ -33,7 +33,7 @@ void prvTask_WatchDog(void *pParam) {
 	/* Stop warnings. */
 	( void ) pParam;
 
-	static signed char taskListNew[200];
+	// char taskListNew[200];
 
 	tic_handle * ticHandle = NULL;
 
@@ -53,8 +53,8 @@ void prvTask_WatchDog(void *pParam) {
 		// WhatcDog Activity Led
 		SetGpio(47, i%2);
 
-		vTaskList(taskListNew);
-		prvFunc_Print("%s", taskListNew);
+		// vTaskList(taskListNew);
+		// prvFunc_Print("%s", taskListNew);
 
 		// IF Tic is energized send Reset Timeout
 		if(ticHandle != NULL && xMutexEnergize != NULL) {
@@ -69,7 +69,8 @@ void prvTask_WatchDog(void *pParam) {
 		}
 
 		// IF USPi is initialized start TicControl
-		if(xTaskIsTaskSuspended(xHandleUSPi) == pdFALSE && xSemUSPiInit != NULL) {
+		// if(xTaskIsTaskSuspended(xHandleUSPi) == pdFALSE && xSemUSPiInit != NULL) {
+		if(eTaskGetState(xHandleUSPi) == eBlocked && xSemUSPiInit != NULL) {
 			if(xSemaphoreTake(xSemUSPiInit, xBlockTime) == pdPASS) {
 				vSemaphoreDelete(xSemUSPiInit);
 				xSemUSPiInit = NULL;
@@ -101,7 +102,8 @@ void prvTask_WatchDog(void *pParam) {
 		}
 
 		// IF TicControl is initialized start TicConsole
-		if(xTaskIsTaskSuspended(xHandleTicCnsl) == pdTRUE && xSemTicInit != NULL) {
+		// if(xTaskIsTaskSuspended(xHandleTicCnsl) == pdTRUE && xSemTicInit != NULL) {
+		if(eTaskGetState(xHandleTicCnsl) == eBlocked && xSemTicInit != NULL) {
 			if(xSemaphoreTake(xSemTicInit, xBlockTime) == pdPASS) {
 				vSemaphoreDelete(xSemTicInit);
 				vTaskResume(xHandleTicCnsl);

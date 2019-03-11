@@ -93,9 +93,16 @@ OBJECTS += $(BUILD_DIR)Uspi/lib/usbmassdevice.o
 OBJECTS += $(BUILD_DIR)Uspi/lib/usbmouse.o
 OBJECTS += $(BUILD_DIR)Uspi/lib/usbgamepad.o
 
-# #
-# #	StuFA Peripherals Drivers
-# #
+#
+#	USPi Library Release 2.0
+#
+OBJECTS += $(BUILD_DIR)Uspi/lib/usbfunction.o
+OBJECTS += $(BUILD_DIR)Uspi/lib/lan7800.o
+OBJECTS += $(BUILD_DIR)Uspi/lib/usbmidi.o
+
+#
+#	StuFA Peripherals Drivers
+#
 OBJECTS += $(BUILD_DIR)Uspi/lib/usbtict834.o
 OBJECTS += $(BUILD_DIR)Uspi/lib/usbbluetooth.o
 
@@ -144,6 +151,7 @@ OBJECTS += $(BUILD_DIR)FreeRTOS/Source/portable/MemMang/heap_4.o
 #	FreeRTOS Core
 #
 OBJECTS += $(BUILD_DIR)FreeRTOS/Source/croutine.o
+OBJECTS += $(BUILD_DIR)FreeRTOS/Source/event_groups.o
 OBJECTS += $(BUILD_DIR)FreeRTOS/Source/list.o
 OBJECTS += $(BUILD_DIR)FreeRTOS/Source/queue.o
 OBJECTS += $(BUILD_DIR)FreeRTOS/Source/tasks.o

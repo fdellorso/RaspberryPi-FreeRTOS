@@ -29,7 +29,7 @@ typedef struct TMACAddress
 {
 	boolean m_bValid;
 
-	u8 m_Address[MAC_ADDRESS_SIZE];
+	u8 		m_Address[MAC_ADDRESS_SIZE];
 }
 TMACAddress;
 

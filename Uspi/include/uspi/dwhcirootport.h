@@ -33,7 +33,7 @@ typedef struct TDWHCIRootPort
 {
 	struct TDWHCIDevice *m_pHost;
 
-	TUSBDevice *m_pDevice;
+	TUSBDevice 			*m_pDevice;
 }
 TDWHCIRootPort;
 

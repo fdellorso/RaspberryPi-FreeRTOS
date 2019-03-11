@@ -34,18 +34,18 @@ typedef void TURBCompletionRoutine (struct TUSBRequest *pURB, void *pParam, void
 
 typedef struct TUSBRequest		// URB
 {
-	TUSBEndpoint *m_pEndpoint;
+	TUSBEndpoint			*m_pEndpoint;
 	
-	TSetupData *m_pSetupData;
-	void	   *m_pBuffer;
-	u32	    m_nBufLen;
+	TSetupData 				*m_pSetupData;
+	void	   				*m_pBuffer;
+	u32	    				m_nBufLen;
 	
-	int	    m_bStatus;
-	u32	    m_nResultLen;
+	int	    				m_bStatus;
+	u32	    				m_nResultLen;
 	
-	TURBCompletionRoutine *m_pCompletionRoutine;
-	void *m_pCompletionParam;
-	void *m_pCompletionContext;
+	TURBCompletionRoutine	*m_pCompletionRoutine;
+	void 					*m_pCompletionParam;
+	void 					*m_pCompletionContext;
 }
 TUSBRequest;
 

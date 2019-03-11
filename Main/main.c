@@ -19,16 +19,6 @@
 #include <rpi_logger.h>
 #include <prvlib/null.h>
 
-
-// Tasks
-xTaskHandle			xHandleWDog		= NULL;
-xTaskHandle			xHandleUSPi		= NULL;
-xTaskHandle			xHandleTicCtrl	= NULL;
-xTaskHandle			xHandleTicCnsl	= NULL;
-xTaskHandle			xHandle8825Ctrl	= NULL;
-xTaskHandle			xHandleBltInit	= NULL;
-xTaskHandle			xHandleBltProc	= NULL;
-
 // Semaphores
 xSemaphoreHandle	xSemUSPiInit	= NULL;
 xSemaphoreHandle	xSemTicInit		= NULL;
@@ -46,8 +36,16 @@ xQueueHandle		xQueTicSet		= NULL;
 xQueueHandle		xQueTicCmd		= NULL;
 xQueueHandle		xQueBltProc		= NULL;
 
-const portTickType xBlockTime = 100 / portTICK_RATE_MS;
+// Tasks
+xTaskHandle			xHandleWDog		= NULL;
+xTaskHandle			xHandleUSPi		= NULL;
+xTaskHandle			xHandleTicCtrl	= NULL;
+xTaskHandle			xHandleTicCnsl	= NULL;
+xTaskHandle			xHandle8825Ctrl	= NULL;
+xTaskHandle			xHandleBltInit	= NULL;
+xTaskHandle			xHandleBltProc	= NULL;
 
+const portTickType xBlockTime = 100 / portTICK_RATE_MS;
 
 int main(void) {
 
@@ -124,12 +122,6 @@ int main(void) {
 			vTaskSuspend(xHandleBltProc);
 		}
 	}
-
-	// if(USPiInitialize()) {
-	// 	// Give Semaphore back when USPi is initialized
-	// 	printf("--------------------------------------------");
-	// 	printf("USPi Initialize...\t\t    Finished");
-	// }
 
 	vTaskStartScheduler();
 

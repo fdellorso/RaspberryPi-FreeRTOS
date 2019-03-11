@@ -2,7 +2,7 @@
 // usbkeyboard.h
 //
 // USPi - An USB driver for Raspberry Pi written in C
-// Copyright (C) 2014  R. Stange <rsta2@o2online.de>
+// Copyright (C) 2014-2018  R. Stange <rsta2@o2online.de>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #ifndef _uspi_usbkeyboard_h
 #define _uspi_usbkeyboard_h
 
-#include <uspi/usbdevice.h>
+#include <uspi/usbfunction.h>
 #include <uspi/usbendpoint.h>
 #include <uspi/usbrequest.h>
 #include <uspi/keymap.h>
@@ -38,39 +38,42 @@ typedef void TKeyStatusHandlerRaw (unsigned char	ucModifiers,	// see usbhid.h
 
 typedef struct TUSBKeyboardDevice
 {
-	TUSBDevice m_USBDevice;
+	TUSBFunction 			m_USBFunction;
 
-	u8 m_ucInterfaceNumber;
-	u8 m_ucAlternateSetting;
+	TUSBEndpoint 			*m_pReportEndpoint;
 
-	TUSBEndpoint *m_pReportEndpoint;
-
-	TKeyPressedHandler	*m_pKeyPressedHandler;
+	TKeyPressedHandler		*m_pKeyPressedHandler;
 	TSelectConsoleHandler	*m_pSelectConsoleHandler;
-	TShutdownHandler	*m_pShutdownHandler;
+	TShutdownHandler		*m_pShutdownHandler;
 	TKeyStatusHandlerRaw	*m_pKeyStatusHandlerRaw;
 
-	TUSBRequest *m_pURB;
-	u8 *m_pReportBuffer;
+	TUSBRequest 			m_URB;
+	u8 						*m_pReportBuffer;
 
-	u8 m_ucLastPhyCode;
-	unsigned m_hTimer;
+	u8 						m_ucLastPhyCode;
+	unsigned 				m_hTimer;
 
-	TKeyMap m_KeyMap;
+	TKeyMap 				m_KeyMap;
+
+	u8 						m_ucLastLEDStatus;
 }
 TUSBKeyboardDevice;
 
-void USBKeyboardDevice (TUSBKeyboardDevice *pThis, TUSBDevice *pDevice);
+void USBKeyboardDevice (TUSBKeyboardDevice *pThis, TUSBFunction *pFunction);
 void _CUSBKeyboardDevice (TUSBKeyboardDevice *pThis);
 
-boolean USBKeyboardDeviceConfigure (TUSBDevice *pUSBDevice);
+boolean USBKeyboardDeviceConfigure (TUSBFunction *pUSBFunction);
 
 // cooked mode
 void USBKeyboardDeviceRegisterKeyPressedHandler (TUSBKeyboardDevice *pThis, TKeyPressedHandler *pKeyPressedHandler);
 void USBKeyboardDeviceRegisterSelectConsoleHandler (TUSBKeyboardDevice *pThis, TSelectConsoleHandler *pSelectConsoleHandler);
 void USBKeyboardDeviceRegisterShutdownHandler (TUSBKeyboardDevice *pThis, TShutdownHandler *pShutdownHandler);
 
+void USBKeyboardDeviceUpdateLEDs (TUSBKeyboardDevice *pThis);
+
 // raw mode (if this handler is registered the others are ignored)
 void USBKeyboardDeviceRegisterKeyStatusHandlerRaw (TUSBKeyboardDevice *pThis, TKeyStatusHandlerRaw *pKeyStatusHandlerRaw);
+
+void USBKeyboardDeviceSetLEDs (TUSBKeyboardDevice *pThis, u8 ucLEDMask);
 
 #endif

@@ -81,13 +81,13 @@ boolean BTSubSystemInitialize (TBTSubSystem *pThis)
 	}
 
 	if(xQueueSend(xQueBltProc, &pThis, 0) == pdPASS) {
-		prvFunc_Print("%cSubSystem...\t\t    Sended", 0x3e);
+		prvFunc_Print("%cSubSystem...\t\t\tSended", 0x3e);
 		// vTaskResume(xHandleBltProc);
 	}
 
 	while (!BTDeviceManagerDeviceIsRunning(BTHCILayerGetDeviceManager(pThis->m_pHCILayer)))
 	{
-		// prvFunc_Print("BTSUB");
+		prvFunc_Print("BTSUB");
 
 		taskYIELD();
 	}

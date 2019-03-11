@@ -2,7 +2,7 @@
 // usbstandardhub.h
 //
 // USPi - An USB driver for Raspberry Pi written in C
-// Copyright (C) 2014  R. Stange <rsta2@o2online.de>
+// Copyright (C) 2014-2018  R. Stange <rsta2@o2online.de>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include <uspi/usb.h>
 #include <uspi/usbhub.h>
-#include <uspi/usbdevice.h>
+#include <uspi/usbfunction.h>
 #include <uspi/usbhostcontroller.h>
 #include <uspi/string.h>
 #include <uspi/types.h>
@@ -33,23 +33,21 @@ extern "C" {
 
 typedef struct TUSBStandardHub
 {
-	TUSBDevice m_USBDevice;
+	TUSBFunction		m_USBFunction;
 
-	TUSBHubDescriptor *m_pHubDesc;
+	TUSBHubDescriptor	*m_pHubDesc;
 
-	unsigned m_nPorts;
-	TUSBDevice *m_pDevice[USB_HUB_MAX_PORTS];
-	TUSBPortStatus *m_pStatus[USB_HUB_MAX_PORTS];
+	unsigned			m_nPorts;
+	TUSBDevice			*m_pDevice[USB_HUB_MAX_PORTS];
+	TUSBPortStatus		*m_pStatus[USB_HUB_MAX_PORTS];
 }
 TUSBStandardHub;
 
-void USBStandardHub (TUSBStandardHub *pThis, TUSBDevice *pDevice);
+void USBStandardHub (TUSBStandardHub *pThis, TUSBFunction *pFunction);
 void _USBStandardHub (TUSBStandardHub *pThis);
 
 boolean USBStandardHubInitialize (TUSBStandardHub *pThis);
-boolean USBStandardHubConfigure (TUSBDevice *pUSBDevice);
-
-TString *USBStandardHubGetDeviceNames (TUSBDevice *pDevice);
+boolean USBStandardHubConfigure (TUSBFunction *pUSBFunction);
 
 #ifdef __cplusplus
 }

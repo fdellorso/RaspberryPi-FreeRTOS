@@ -2,7 +2,7 @@
 // bcm2835.h
 //
 // USPi - An USB driver for Raspberry Pi written in C
-// Copyright (C) 2014-2015  R. Stange <rsta2@o2online.de>
+// Copyright (C) 2014-2017  R. Stange <rsta2@o2online.de>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,12 +23,12 @@
 #include <uspios.h>
 
 #if RASPPI == 1
-#define ARM_IO_BASE		0x20000000
+#define ARM_IO_BASE			0x20000000
 #else
-#define ARM_IO_BASE		0x3F000000
+#define ARM_IO_BASE			0x3F000000
 #endif
 
-#define GPU_IO_BASE		0x7E000000
+#define GPU_IO_BASE			0x7E000000
 
 #define GPU_CACHED_BASE		0x40000000
 #define GPU_UNCACHED_BASE	0xC0000000
@@ -42,6 +42,10 @@
 #else
 	#define GPU_MEM_BASE	GPU_UNCACHED_BASE
 #endif
+
+// Convert physical ARM address into bus address
+// (does even work, if a bus address is provided already)
+#define BUS_ADDRESS(phys)	(((phys) & ~0xC0000000) | GPU_MEM_BASE)
 
 //
 // USB Host Controller

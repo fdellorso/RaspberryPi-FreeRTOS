@@ -2,7 +2,7 @@
 // dwhcixferstagedata.h
 //
 // USPi - An USB driver for Raspberry Pi written in C
-// Copyright (C) 2014  R. Stange <rsta2@o2online.de>
+// Copyright (C) 2014-2018  R. Stange <rsta2@o2online.de>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,6 +25,10 @@
 #include <uspi/usbdevice.h>
 #include <uspi/usbendpoint.h>
 #include <uspi/dwhciframescheduler.h>
+#include <uspi/dwhciframeschedper.h>
+#include <uspi/dwhciframeschednper.h>
+#include <uspi/dwhciframeschednsplit.h>
+#include <uspi/macros.h>
 #include <uspi/types.h>
 
 #ifdef __cplusplus
@@ -33,33 +37,41 @@ extern "C" {
 
 typedef struct TDWHCITransferStageData
 {
-	unsigned	 m_nChannel;			// parameters
-	TUSBRequest	*m_pURB;
-	boolean		 m_bIn;
-	boolean		 m_bStatusStage;
+	unsigned		m_nChannel;			// parameters
+	TUSBRequest		*m_pURB;
+	boolean			m_bIn;
+	boolean			m_bStatusStage;
 
-	boolean		 m_bSplitTransaction;
-	boolean		 m_bSplitComplete;
+	boolean		 	m_bSplitTransaction;
+	boolean		 	m_bSplitComplete;
 
-	TUSBDevice	*m_pDevice;			// cached from *pURB
+	TUSBDevice		*m_pDevice;			// cached from *pURB
 	TUSBEndpoint	*m_pEndpoint;
-	TUSBSpeed	 m_Speed;
-	u32		 m_nMaxPacketSize;
+	TUSBSpeed	 	m_Speed;
+	u32				m_nMaxPacketSize;
 	
-	u32		 m_nTransferSize;
-	unsigned	 m_nPackets;
-	u32		 m_nBytesPerTransaction;
-	unsigned	 m_nPacketsPerTransaction;
-	u32		 m_nTotalBytesTransfered;
+	u32		 		m_nTransferSize;
+	unsigned	 	m_nPackets;
+	u32		 		m_nBytesPerTransaction;
+	unsigned	 	m_nPacketsPerTransaction;
+	u32		 		m_nTotalBytesTransfered;
 
-	unsigned	 m_nState;
-	unsigned	 m_nSubState;
-	u32		 m_nTransactionStatus;
+	unsigned	 	m_nState;
+	unsigned	 	m_nSubState;
+	u32		 		m_nTransactionStatus;
 
-	u32		*m_pTempBuffer;
-	void		*m_pBufferPointer;
+	u32		 		m_TempBuffer ALIGN (4);	// DMA buffer
+	void			*m_pBufferPointer;
 
-	TDWHCIFrameScheduler *m_pFrameScheduler;
+	boolean		 	m_bFrameSchedulerUsed;
+	union
+	{
+		TDWHCIFrameScheduler			Base;
+		TDWHCIFrameSchedulerPeriodic	Periodic;
+		TDWHCIFrameSchedulerNonPeriodic	NonPeriodic;
+		TDWHCIFrameSchedulerNoSplit		NoSplit;
+	}
+	m_FrameScheduler;
 }
 TDWHCITransferStageData;
 

@@ -30,14 +30,17 @@ static const char FromTicT834[] = "tict834";
 
 static unsigned s_nDeviceNumber = 0;
 
-// void USBDescriptorPrinter(TUSBTicT834Device *pThis);
-
-void USBTicT834Device (TUSBTicT834Device *pThis, TUSBDevice *pDevice)
+void USBTicT834Device (TUSBTicT834Device *pThis, TUSBFunction *pFunction)
 {
 	assert (pThis != 0);
 
-	USBDeviceCopy (&pThis->m_USBDevice, pDevice);
-	pThis->m_USBDevice.Configure = USBTicT834DeviceConfigure;
+	USBFunctionCopy (&pThis->m_USBFunction, pFunction);
+	pThis->m_USBFunction.Configure = USBTicT834DeviceConfigure;
+
+    pThis->serial_number = NULL;
+    pThis->firmware_version = 0;
+    pThis->vendor = 0;
+    pThis->product = 0;
 }
 
 void _USBTicT834Device (TUSBTicT834Device *pThis)
@@ -50,16 +53,16 @@ void _USBTicT834Device (TUSBTicT834Device *pThis)
 		pThis->serial_number = 0;
 	}
 
-	_USBDevice (&pThis->m_USBDevice);
+	_USBFunction (&pThis->m_USBFunction);
 }
 
-boolean USBTicT834DeviceConfigure (TUSBDevice *pUSBDevice)
+boolean USBTicT834DeviceConfigure (TUSBFunction *pUSBFunction)
 {
-	TUSBTicT834Device *pThis = (TUSBTicT834Device *) pUSBDevice;
+	TUSBTicT834Device *pThis = (TUSBTicT834Device *) pUSBFunction;
 	assert (pThis != 0);
 
     const TUSBDeviceDescriptor *pDeviceDesc = 
-        USBDeviceGetDeviceDescriptor (&pThis->m_USBDevice);
+        USBDeviceGetDeviceDescriptor (USBFunctionGetDevice (&pThis->m_USBFunction));
 	assert (pDeviceDesc != 0);
 
     pThis->firmware_version = pDeviceDesc->bcdDevice;
@@ -69,8 +72,8 @@ boolean USBTicT834DeviceConfigure (TUSBDevice *pUSBDevice)
     // Get Serial Number from String Descriptor
     unsigned char buffer[pDeviceDesc->bMaxPacketSize0];
 
-    if(!DWHCIDeviceGetDescriptor (USBDeviceGetHost (&pThis->m_USBDevice),
-                                  USBDeviceGetEndpoint0 (&pThis->m_USBDevice),
+    if(!DWHCIDeviceGetDescriptor (USBFunctionGetHost (&pThis->m_USBFunction),
+                                  USBFunctionGetEndpoint0 (&pThis->m_USBFunction),
                                   DESCRIPTOR_STRING,
                                   3,
                                   buffer,
@@ -82,7 +85,7 @@ boolean USBTicT834DeviceConfigure (TUSBDevice *pUSBDevice)
 		return FALSE;
     }
 
-    char * new_string = (char *) malloc(sizeof(char) * ((buffer[0] - 2) /2 +1));
+    s8 * new_string = (s8*) malloc(sizeof(s8) * ((buffer[0] - 2) /2 +1));
     assert (new_string != 0);
 
     int i;
@@ -98,10 +101,10 @@ boolean USBTicT834DeviceConfigure (TUSBDevice *pUSBDevice)
 
     free(new_string);
 
-    // USBDescriptorPrinter(&pThis->m_USBDevice, FromTicT834);
+    USBDescriptorPrinter(USBFunctionGetDevice (&pThis->m_USBFunction), FromTicT834);
 
     // Configuration Check
-    if (!USBDeviceConfigure (&pThis->m_USBDevice))
+    if (!USBFunctionConfigure (&pThis->m_USBFunction))
     {
         LogWrite (FromTicT834, LOG_ERROR, "Cannot set configuration");
 
@@ -127,8 +130,8 @@ boolean USBTicT834DeviceWriteReg (TUSBTicT834Device *pThis, u8 nCommand, u16 nVa
 {
 	assert (pThis != 0);
 
-	return DWHCIDeviceControlMessage (USBDeviceGetHost (&pThis->m_USBDevice),
-			USBDeviceGetEndpoint0 (&pThis->m_USBDevice),
+	return DWHCIDeviceControlMessage (USBFunctionGetHost (&pThis->m_USBFunction),
+			USBFunctionGetEndpoint0 (&pThis->m_USBFunction),
             REQUEST_OUT | REQUEST_VENDOR, nCommand,
             nValue, nIndex, nData, nLength) >= 0;
 }
@@ -137,8 +140,8 @@ boolean USBTicT834DeviceReadReg (TUSBTicT834Device *pThis, u8 nCommand, u16 nVal
 {
 	assert (pThis != 0);
 
-	return DWHCIDeviceControlMessage (USBDeviceGetHost (&pThis->m_USBDevice),
-            USBDeviceGetEndpoint0 (&pThis->m_USBDevice),
+	return DWHCIDeviceControlMessage (USBFunctionGetHost (&pThis->m_USBFunction),
+            USBFunctionGetEndpoint0 (&pThis->m_USBFunction),
             REQUEST_IN | REQUEST_VENDOR, nCommand,
             nValue, nIndex, nData, nLength) >= 0;
 }
@@ -147,8 +150,8 @@ int USBTicT834DeviceControl (TUSBTicT834Device *pThis, u8 nReqType, u8 nCommand,
 {
 	assert (pThis != 0);
 
-	return DWHCIDeviceControlMessage (USBDeviceGetHost (&pThis->m_USBDevice),
-            USBDeviceGetEndpoint0 (&pThis->m_USBDevice),
+	return DWHCIDeviceControlMessage (USBFunctionGetHost (&pThis->m_USBFunction),
+            USBFunctionGetEndpoint0 (&pThis->m_USBFunction),
             nReqType, nCommand, nValue, nIndex, nData, nLength);
 }
 
@@ -156,13 +159,13 @@ boolean USBTicT834DeviceReadString (TUSBTicT834Device *pThis, u8 nString, u8 *nD
 {
 	assert (pThis != 0);
 
-	return DWHCIDeviceGetDescriptor (USBDeviceGetHost (&pThis->m_USBDevice),
-            USBDeviceGetEndpoint0 (&pThis->m_USBDevice),
+	return DWHCIDeviceGetDescriptor (USBFunctionGetHost (&pThis->m_USBFunction),
+            USBFunctionGetEndpoint0 (&pThis->m_USBFunction),
             DESCRIPTOR_STRING, nString, nData, sizeof(nData),
             REQUEST_IN) >= 0;
 }
 
-char * USBTicT834DeviceGetSerialNumber(TUSBTicT834Device *pThis)
+s8 * USBTicT834DeviceGetSerialNumber(TUSBTicT834Device *pThis)
 {
   assert (pThis != 0);
 

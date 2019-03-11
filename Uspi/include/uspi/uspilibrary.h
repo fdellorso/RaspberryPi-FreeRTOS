@@ -2,7 +2,7 @@
 // uspilibrary.h
 //
 // USPi - An USB driver for Raspberry Pi written in C
-// Copyright (C) 2014  R. Stange <rsta2@o2online.de>
+// Copyright (C) 2014-2018  R. Stange <rsta2@o2online.de>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,10 +26,11 @@
 #include <uspi/usbmouse.h>
 #include <uspi/usbgamepad.h>
 #include <uspi/usbmassdevice.h>
+#include <uspi/usbmidi.h>
 #include <uspi/smsc951x.h>
+#include <uspi/lan7800.h>
 #include <uspi/usbtict834.h>
 #include <uspi/usbbluetooth.h>
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,7 +46,9 @@ typedef struct TUSPiLibrary
 	TUSBMouseDevice					*pUMouse1;
 	TUSBBulkOnlyMassStorageDevice	*pUMSD[MAX_DEVICES];
 	TSMSC951xDevice					*pEth0;
+	TLAN7800Device					*pEth10;
 	TUSBGamePadDevice       		*pUPAD[MAX_DEVICES];
+	TUSBMIDIDevice					*pMIDI1;
 	TUSBTicT834Device				*pTic1;
 	TUSBBluetoothDevice				*pUbt1;
 }

@@ -83,7 +83,7 @@ void prvTask_BluetoothProcess(void *pParam) {
 
 	if(xQueueReceive(xQueBltProc, &m_pBTSubSystem, portMAX_DELAY) == pdPASS) {
 		vQueueDelete(xQueBltProc);
-		prvFunc_Print("%cSubSystem...\t\t    Received", 0x3e);
+		prvFunc_Print("%cSubSystem...\t\t\tReceived", 0x3e);
 	}
 
 	while(1) {

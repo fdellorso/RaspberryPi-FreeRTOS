@@ -25,10 +25,10 @@
 
 typedef struct TDWHCIFrameSchedulerNoSplit
 {
-	TDWHCIFrameScheduler m_DWHCIFrameScheduler;
+	TDWHCIFrameScheduler	m_DWHCIFrameScheduler;
 	
-	boolean m_bIsPeriodic;
-	unsigned m_nNextFrame;
+	boolean 				m_bIsPeriodic;
+	unsigned 				m_nNextFrame;
 }
 TDWHCIFrameSchedulerNoSplit;
 

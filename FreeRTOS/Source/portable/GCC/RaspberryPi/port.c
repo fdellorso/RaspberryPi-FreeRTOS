@@ -158,7 +158,10 @@ void vPortEndScheduler( void ) {
  */
 __attribute__((no_instrument_function))
 void vTickISR(int nIRQ, void *pParam) {
-	vTaskIncrementTick();
+	(void)nIRQ;		// FIXME Wunused
+	(void)pParam;	// FIXME Wunused
+
+	xTaskIncrementTick();
 
 	#if ( configUSE_PREEMPTION == 1 )
 	{
@@ -169,9 +172,6 @@ void vTickISR(int nIRQ, void *pParam) {
 	// pRegs->CLI = 0;			// Acknowledge the timer interrupt.
 	// prvArmTimerIrqClear();
 	prvSystemTimerTickClear();
-
-	(void)nIRQ;		// FIXME Wunused
-	(void)pParam;	// FIXME Wunused
 }
 
 /*

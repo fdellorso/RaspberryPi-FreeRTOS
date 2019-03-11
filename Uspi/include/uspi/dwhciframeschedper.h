@@ -25,12 +25,12 @@
 
 typedef struct TDWHCIFrameSchedulerPeriodic
 {
-	TDWHCIFrameScheduler m_DWHCIFrameScheduler;
+	TDWHCIFrameScheduler	m_DWHCIFrameScheduler;
 
-	unsigned m_nState;
-	unsigned m_nTries;
+	unsigned 				m_nState;
+	unsigned 				m_nTries;
 
-	unsigned m_nNextFrame;
+	unsigned 				m_nNextFrame;
 }
 TDWHCIFrameSchedulerPeriodic;
 
