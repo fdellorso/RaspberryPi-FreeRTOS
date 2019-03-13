@@ -14,9 +14,6 @@
 		},
 		{
 			"path": "/media/stufa_sw"
-		},
-		{
-			"path": "/home/fra/FreeRTOS/FreeRTOSv10.2.0/FreeRTOS/Source"
 		}
 	],
 	"settings": {

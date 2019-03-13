@@ -26,14 +26,15 @@ extern xSemaphoreHandle	xMutexEnergize;
 
 extern const portTickType xBlockTime;
 
+extern xTaskHandle	xHandleWDog;
+extern TaskStatus_t xTaskDetails;
+
 // WatchDog boot other tasks and 
 void prvTask_WatchDog(void *pParam) {
 	int i = 0;
 
 	/* Stop warnings. */
 	( void ) pParam;
-
-	// char taskListNew[200];
 
 	tic_handle * ticHandle = NULL;
 
@@ -53,8 +54,8 @@ void prvTask_WatchDog(void *pParam) {
 		// WhatcDog Activity Led
 		SetGpio(47, i%2);
 
-		// vTaskList(taskListNew);
-		// prvFunc_Print("%s", taskListNew);
+		vTaskGetTaskInfo(xHandleWDog, &xTaskDetails, pdTRUE, eInvalid);
+		prvFunc_Print("WTCDOG Stack: %d", xTaskDetails.usStackHighWaterMark);
 
 		// IF Tic is energized send Reset Timeout
 		if(ticHandle != NULL && xMutexEnergize != NULL) {

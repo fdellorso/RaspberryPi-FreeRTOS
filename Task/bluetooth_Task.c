@@ -9,6 +9,9 @@
 
 extern xQueueHandle xQueBltProc;
 
+extern xTaskHandle	xHandleBltProc;
+extern TaskStatus_t xTaskDetails;
+
 #define INQUIRY_SECONDS		20
 
 void prvTask_BluetoothInitialize(void *pParam) {
@@ -83,16 +86,18 @@ void prvTask_BluetoothProcess(void *pParam) {
 
 	if(xQueueReceive(xQueBltProc, &m_pBTSubSystem, portMAX_DELAY) == pdPASS) {
 		vQueueDelete(xQueBltProc);
-		prvFunc_Print("%cSubSystem...\t\t\tReceived", 0x3e);
+		prvFunc_Print("%cSubSystem...\t\t\t    Received", 0x3e);
 	}
 
 	while(1) {
 		i++;
 
-		prvFunc_Print("BTPROC");
-
 		BTSubSystemProcess(m_pBTSubSystem);
 
+		vTaskGetTaskInfo(xHandleBltProc, &xTaskDetails, pdTRUE, eInvalid);
+		prvFunc_Print("BTPROC Stack: %d", xTaskDetails.usStackHighWaterMark);
+
+		// taskYIELD();
 		vTaskDelay(100);
 	}
 }

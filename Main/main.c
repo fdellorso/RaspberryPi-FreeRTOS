@@ -13,7 +13,7 @@
 // TODO Investigate benefit of Cache
 // TODO Investigate benefit of Newlib implementation (Syscalls.c)
 
-#include "stufa_Task.h"
+#include <stufa_Task.h>
 
 #include <rpi_header.h>
 #include <rpi_logger.h>
@@ -47,7 +47,13 @@ xTaskHandle			xHandleBltProc	= NULL;
 
 const portTickType xBlockTime = 100 / portTICK_RATE_MS;
 
+TaskStatus_t xTaskDetails;
+
+// void vTimerInitializeFunction (void *pvParameter1, uint32_t ulParameter2);
+
 int main(void) {
+
+	DelayMilliSysTimer(100);
 
 	DisableInterrupts();
 	InitInterruptController();
@@ -57,6 +63,8 @@ int main(void) {
 		bcm2835_init();
 		ili9340_set_rotation(1);
 	#endif
+
+	printf("StuFA Start");
 
 	vSemaphoreCreateBinary(xSemUSPiInit);
 	vSemaphoreCreateBinary(xSemTicInit);
@@ -72,22 +80,28 @@ int main(void) {
 	xQueTicCmd = xQueueCreate(1, sizeof(tic_command *));
 	xQueBltProc = xQueueCreate(1, sizeof(TBTSubSystem *));
 
+	// BaseType_t timerInitialize = 0;
+	// timerInitialize = xTimerPendFunctionCall((PendedFunction_t) vTimerInitializeFunction, NULL, (uint32_t) 0, pdMS_TO_TICKS(1000));
+	// if(timerInitialize != pdPASS) {
+	// 	printf("Timer Initialize error: %d", timerInitialize);
+	// }
 
-	if(xTaskCreate(prvTask_WatchDog, (signed char *) "WatchDog",
+	if(xTaskCreate(prvTask_WatchDog, (const char *) "WatchDog",
 		configMINIMAL_STACK_SIZE, NULL, 1, &xHandleWDog) == pdPASS) {
 		// if(uxTaskPriorityGet(xHandleWDog) < configMAX_CO_ROUTINE_PRIORITIES) {
 		// 	vTaskSuspend(xHandleWDog);
 		// }
 	}
 
-	if(xTaskCreate(prvTask_UspiInitialize, (signed char *) "UspiInit",
+	if(xTaskCreate(prvTask_UspiInitialize, (const char *) "UspiInit",
 		2 * configMINIMAL_STACK_SIZE, NULL, 0, &xHandleUSPi) == pdPASS) {
-		if(uxTaskPriorityGet(xHandleUSPi) < configMAX_CO_ROUTINE_PRIORITIES) {
+		// if(uxTaskPriorityGet(xHandleUSPi) < configMAX_CO_ROUTINE_PRIORITIES)
+		{
 			vTaskSuspend(xHandleUSPi);
 		}
 	}
 
-	// if(xTaskCreate(prvTask_TicControl, (signed char *) "TicControl",
+	// if(xTaskCreate(prvTask_TicControl, (const char *) "TicControl",
 	// 	configMINIMAL_STACK_SIZE, NULL, configMAX_CO_ROUTINE_PRIORITIES,
 	// 	&xHandleTicCtrl) == pdPASS) {
 	// 	if(uxTaskPriorityGet(xHandleTicCtrl) <= configMAX_CO_ROUTINE_PRIORITIES) {
@@ -95,30 +109,32 @@ int main(void) {
 	// 	}
 	// }
 
-	// if(xTaskCreate(prvTask_TicConsole, (signed char *) "TicConsole",
+	// if(xTaskCreate(prvTask_TicConsole, (const char *) "TicConsole",
 	// 	configMINIMAL_STACK_SIZE, NULL, 0, &xHandleTicCnsl) == pdPASS) {
 	// 	if(uxTaskPriorityGet(xHandleTicCnsl) <= configMAX_CO_ROUTINE_PRIORITIES) {
 	// 		vTaskSuspend(xHandleTicCnsl);
 	// 	}
 	// }
 
-	// if(xTaskCreate(prvTask_Drv8825Control, (signed char *) "8825Control",
+	// if(xTaskCreate(prvTask_Drv8825Control, (const char *) "8825Control",
 	// 	configMINIMAL_STACK_SIZE, NULL, 0, &xHandle8825Ctrl) == pdPASS) {
 	// 	if(uxTaskPriorityGet(xHandle8825Ctrl) <= configMAX_CO_ROUTINE_PRIORITIES) {
 	// 		vTaskSuspend(xHandle8825Ctrl);
 	// 	}
 	// }
 
-	if(xTaskCreate(prvTask_BluetoothInitialize, (signed char *) "BluetoothInitialize",
+	if(xTaskCreate(prvTask_BluetoothInitialize, (const char *) "BluetoothInitialize",
 		configMINIMAL_STACK_SIZE, NULL, 0, &xHandleBltInit) == pdPASS) {
-		if(uxTaskPriorityGet(xHandleBltInit) < configMAX_CO_ROUTINE_PRIORITIES) {
+		// if(uxTaskPriorityGet(xHandleBltInit) < configMAX_CO_ROUTINE_PRIORITIES)
+		{
 			vTaskSuspend(xHandleBltInit);
 		}
 	}
 
-	if(xTaskCreate(prvTask_BluetoothProcess, (signed char *) "BluetoothProcess",
-		configMINIMAL_STACK_SIZE, NULL, 0, &xHandleBltProc) == pdPASS) {
-		if(uxTaskPriorityGet(xHandleBltProc) < configMAX_CO_ROUTINE_PRIORITIES) {
+	if(xTaskCreate(prvTask_BluetoothProcess, (const char *) "BluetoothProcess",
+		2 * configMINIMAL_STACK_SIZE, NULL, 1, &xHandleBltProc) == pdPASS) {
+		// if(uxTaskPriorityGet(xHandleBltProc) < configMAX_CO_ROUTINE_PRIORITIES)
+		{
 			vTaskSuspend(xHandleBltProc);
 		}
 	}
@@ -133,3 +149,10 @@ int main(void) {
 		;
 	}
 }
+
+// void vTimerInitializeFunction (void *pvParameter1, uint32_t ulParameter2) {
+// 	(void) pvParameter1;
+// 	(void) ulParameter2;
+
+// 	portNOP();
+// }

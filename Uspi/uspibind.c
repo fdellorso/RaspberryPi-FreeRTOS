@@ -20,14 +20,16 @@
 #include <uspi/stdarg.h>
 #include <uspi/string.h>
 #include <uspi/synchronize.h>
-// #include <prvlib/stdlib.h>
+#include <prvlib/stdlib.h>
 #include <uspios.h>	
-
-#include <FreeRTOS.h>
-#include <task.h>
 
 #include <rpi_header.h>
 #include <rpi_logger.h>
+
+#include <FreeRTOS.h>
+#include <timers.h>
+
+#include <stufa_Task.h>
 
 __attribute__((no_instrument_function))
 void MsDelay(unsigned nMilliSeconds) {
@@ -48,17 +50,30 @@ void usDelay(unsigned nMicroSeconds) {
 	DelaySysTimer(nMicroSeconds);
 }
 
-unsigned StartKernelTimer(unsigned nDelay, TKernelTimerHandler *pHandler, void *pParam, void *pContext) {
+unsigned StartKernelTimer(unsigned nDelay, PendedFunction_t pHandler, void *pContext, unsigned int nChannel) {
 	//TimerStartKernelTimer (TimerGet (), nDelay, pHandler, pParam, pContext);
 
-	(void)nDelay;	// FIXME Wunused
-	(void)pHandler;	// FIXME Wunused
-	(void)pParam;	// FIXME Wunused
-	(void)pContext;	// FIXME Wunused
-	
-	println("StartKernelTimer");
+	(void) nDelay;
 
-	return 1;
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+	if(xTimerPendFunctionCallFromISR(pHandler, pContext, nChannel, &xHigherPriorityTaskWoken) == pdPASS) {
+	// if(xTimerPendFunctionCall(pHandler, pContext, nChannel, pdMS_TO_TICKS(nDelay)) == pdPASS) {
+		prvFunc_Print("StartKernelTimer");
+		return 1;
+	}
+	else {
+		return 0;
+	}
+
+	// (void)nDelay;	// FIXME Wunused
+	// (void)pHandler;	// FIXME Wunused
+	// (void)pContext;	// FIXME Wunused
+	// (void)nChannel;	// FIXME Wunused
+
+	// println("StartKernelTimer");
+
+	// return 1;
 }
 
 void CancelKernelTimer(unsigned hTimer) {

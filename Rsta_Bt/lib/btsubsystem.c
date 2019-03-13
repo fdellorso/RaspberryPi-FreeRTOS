@@ -33,6 +33,9 @@
 extern xTaskHandle	xHandleBltProc;
 extern xQueueHandle	xQueBltProc;
 
+extern xTaskHandle	xHandleBltInit;
+extern TaskStatus_t xTaskDetails;
+
 void BTSubSystem (TBTSubSystem *pThis, u32 nClassOfDevice, const char *pLocalName)
 {
 	pThis->m_pUARTTransport = 0;
@@ -81,13 +84,14 @@ boolean BTSubSystemInitialize (TBTSubSystem *pThis)
 	}
 
 	if(xQueueSend(xQueBltProc, &pThis, 0) == pdPASS) {
-		prvFunc_Print("%cSubSystem...\t\t\tSended", 0x3e);
-		// vTaskResume(xHandleBltProc);
+		prvFunc_Print("%cSubSystem...\t\t\t      Sended", 0x3e);
+		vTaskResume(xHandleBltProc);
 	}
 
 	while (!BTDeviceManagerDeviceIsRunning(BTHCILayerGetDeviceManager(pThis->m_pHCILayer)))
 	{
-		prvFunc_Print("BTSUB");
+		vTaskGetTaskInfo(xHandleBltInit, &xTaskDetails, pdTRUE, eInvalid);
+		prvFunc_Print("BTINIT Stack: %d", xTaskDetails.usStackHighWaterMark);
 
 		taskYIELD();
 	}

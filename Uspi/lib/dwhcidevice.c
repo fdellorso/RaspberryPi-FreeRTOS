@@ -84,7 +84,8 @@ void DWHCIDeviceStartTransaction (TDWHCIDevice *pThis, TDWHCITransferStageData *
 void DWHCIDeviceStartChannel (TDWHCIDevice *pThis, TDWHCITransferStageData *pStageData);
 void DWHCIDeviceChannelInterruptHandler (TDWHCIDevice *pThis, unsigned nChannel);
 void DWHCIDeviceInterruptHandler (int nIRQ, void *pParam);
-void DWHCIDeviceTimerHandler (TKernelTimerHandle hTimer, void *pParam, void *pContext);
+// void DWHCIDeviceTimerHandler (TKernelTimerHandle hTimer, void *pParam, void *pContext)
+void DWHCIDeviceTimerHandler (void *pContext, unsigned int nChannel);
 unsigned DWHCIDeviceAllocateChannel (TDWHCIDevice *pThis);
 void DWHCIDeviceFreeChannel (TDWHCIDevice *pThis, unsigned nChannel);
 boolean DWHCIDeviceWaitForBit (TDWHCIDevice *pThis, TDWHCIRegister *pRegister, u32 nMask,boolean bWaitUntilSet, unsigned nMsTimeout);
@@ -1014,7 +1015,8 @@ void DWHCIDeviceChannelInterruptHandler (TDWHCIDevice *pThis, unsigned nChannel)
 
 			unsigned nInterval = USBEndpointGetInterval (USBRequestGetEndpoint (pURB));
 
-			StartKernelTimer (MSEC2HZ (nInterval), DWHCIDeviceTimerHandler, pStageData, pThis);
+			// StartKernelTimer (MSEC2HZ (nInterval), DWHCIDeviceTimerHandler, pStageData, pThis);
+			StartKernelTimer (MSEC2HZ (nInterval), DWHCIDeviceTimerHandler, pThis, nChannel);
 
 			break;
 		}
@@ -1128,7 +1130,8 @@ void DWHCIDeviceChannelInterruptHandler (TDWHCIDevice *pThis, unsigned nChannel)
 
 				unsigned nInterval = USBEndpointGetInterval (USBRequestGetEndpoint (pURB));
 
-				StartKernelTimer (MSEC2HZ (nInterval), DWHCIDeviceTimerHandler, pStageData, pThis);
+				// StartKernelTimer (MSEC2HZ (nInterval), DWHCIDeviceTimerHandler, pStageData, pThis);
+				StartKernelTimer (MSEC2HZ (nInterval), DWHCIDeviceTimerHandler, pThis, nChannel);
 			}
 			break;
 		}
@@ -1217,14 +1220,16 @@ void DWHCIDeviceInterruptHandler (int nIRQ, void *pParam)
 	_DWHCIRegister (&IntStatus);
 }
 
-void DWHCIDeviceTimerHandler (TKernelTimerHandle hTimer, void *pParam, void *pContext)
+// void DWHCIDeviceTimerHandler (TKernelTimerHandle hTimer, void *pParam, void *pContext)
+void DWHCIDeviceTimerHandler (void *pContext, unsigned int nChannel)
 {
-	(void) hTimer;
+	// (void) hTimer;
 
 	TDWHCIDevice *pThis = (TDWHCIDevice *) pContext;
 	assert (pThis != 0);
 	
-	TDWHCITransferStageData *pStageData = (TDWHCITransferStageData *) pParam;
+	// TDWHCITransferStageData *pStageData = (TDWHCITransferStageData *) pParam;
+	TDWHCITransferStageData *pStageData = (TDWHCITransferStageData *) &pThis->m_StageData[nChannel];
 	assert (pStageData != 0);
 	
 	DataMemBarrier ();

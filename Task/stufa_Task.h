@@ -7,11 +7,11 @@
 #include <task.h>
 #include <queue.h>
 #include <semphr.h>
+#include <timers.h>
 
 #include <uspi.h>
 #include <tic.h>
 #include <rsta_bt/btsubsystem.h>
-
 
 tic_error * prvFunc_TicMotorInit(tic_handle * ticHandle);
 

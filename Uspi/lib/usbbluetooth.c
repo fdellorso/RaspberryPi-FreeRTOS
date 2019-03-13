@@ -236,7 +236,6 @@ static void USBBluetoothDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam
 {
 	(void)pParam;   // FIXME Wunused
 
-
 	TUSBBluetoothDevice *pThis = (TUSBBluetoothDevice *) pContext;
 	assert (pThis != 0);
 
@@ -249,6 +248,7 @@ static void USBBluetoothDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam
 	{
 		assert (pThis->m_pEventHandler != 0);
 		// (*m_pEventHandler) (m_pEventBuffer, pURB->GetResultLength ());		// TODO Translate in C
+		(*pThis->m_pEventHandler) (pThis->m_pEventBuffer, USBRequestGetResultLength(pURB));
 	}
 	else
 	{

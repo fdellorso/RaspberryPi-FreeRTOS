@@ -22,6 +22,8 @@
 #ifndef _uspios_h
 #define _uspios_h
 
+#include <uspi/stdarg.h>
+
 #include <interrupts.h>
 #include <prvlib/null.h>
 #include <FreeRTOSConfig.h>
@@ -65,18 +67,21 @@ void free (void *pBlock);
 void MsDelay (unsigned nMilliSeconds);	
 void usDelay (unsigned nMicroSeconds);
 
-#ifndef AARCH64
-	typedef unsigned TKernelTimerHandle;
-#else
-	typedef unsigned long TKernelTimerHandle;
-#endif
+// #ifndef AARCH64
+// 	typedef unsigned TKernelTimerHandle;
+// #else
+// 	typedef unsigned long TKernelTimerHandle;
+// #endif
 
-typedef void TKernelTimerHandler (TKernelTimerHandle hTimer, void *pParam, void *pContext);
+// typedef void TKernelTimerHandler (TKernelTimerHandle hTimer, void *pParam, void *pContext);
+
+typedef void (*PendedFunction_t)( void *, uint32_t );
 
 // returns the timer handle (hTimer)
-unsigned StartKernelTimer (unsigned	        nHzDelay,	// in HZ units (see "system configuration" above)
-			   TKernelTimerHandler *pHandler,
-			   void *pParam, void *pContext);	// handed over to the timer handler
+unsigned StartKernelTimer (unsigned nDelay,				// in HZ units (see "system configuration" above)
+			   			   PendedFunction_t pHandler,
+			   			   void *pContext,
+						   unsigned int nChannel);				// handed over to the timer handler
 
 void CancelKernelTimer (unsigned hTimer);
 

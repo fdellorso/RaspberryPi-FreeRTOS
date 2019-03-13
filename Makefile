@@ -4,7 +4,7 @@
 BASE=$(shell pwd)/
 BUILD_DIR=$(shell pwd)/build/
 
-MODULE_NAME="RaspberryPi BSP"
+MODULE_NAME="RaspberryPi StuFA"
 
 TARGETS=kernel.img kernel.list kernel.syms kernel.elf kernel.map
 LINKER_SCRIPT=Linker/raspberrypi.ld
