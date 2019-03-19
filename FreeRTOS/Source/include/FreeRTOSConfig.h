@@ -59,7 +59,7 @@ your application. */
 /* Memory allocation related definitions. */
 #define configSUPPORT_STATIC_ALLOCATION         0
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
-#define configTOTAL_HEAP_SIZE                   ( 98304 - 20 )
+#define configTOTAL_HEAP_SIZE                   ( 131072 )
 #define configAPPLICATION_ALLOCATED_HEAP        0
 
 /* Hook function related definitions. */
@@ -71,8 +71,8 @@ your application. */
 
 /* Run time and task stats gathering related definitions. */
 #define configGENERATE_RUN_TIME_STATS           0
-#define configUSE_TRACE_FACILITY                1
-#define configUSE_STATS_FORMATTING_FUNCTIONS    1
+#define configUSE_TRACE_FACILITY                0
+#define configUSE_STATS_FORMATTING_FUNCTIONS    0
 
 /* Co-routine related definitions. */
 #define configUSE_CO_ROUTINES                   0

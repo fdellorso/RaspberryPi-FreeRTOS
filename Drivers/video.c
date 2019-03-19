@@ -30,10 +30,8 @@ void enablelogging(void) { loaded = 1; }
 unsigned int mailbuffer[22] __attribute__((aligned (16)));
 unsigned int* framebuffer;
 
-__attribute__((no_instrument_function))
 void drawPixel(unsigned int x, unsigned int y, unsigned int colour);
 
-__attribute__((no_instrument_function))
 void drawRect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, unsigned int colour);
 
 void video_init(void) {
@@ -115,7 +113,6 @@ void video_init(void) {
 //	1	1	1	1	1	0
 //	1				1	0
 //	1				1	0
-__attribute__((no_instrument_function))
 void video_putc(unsigned char c, int x, int y, unsigned int colour) {
 	int i, j;
 
@@ -139,7 +136,6 @@ void video_putc(unsigned char c, int x, int y, unsigned int colour) {
 	}
 }
 
-__attribute__((no_instrument_function))
 void video_puts(const char* str, int x, int y, unsigned int colour) {
 	while (*str) {
 		video_putc(*str++, x, y, colour);
@@ -147,7 +143,6 @@ void video_puts(const char* str, int x, int y, unsigned int colour) {
 	}
 }
 
-__attribute__((no_instrument_function))
 void video_println(const char* message, unsigned int colour) {
 	if(loaded == 0) return; //if video isn't loaded don't bother
 
@@ -180,7 +175,6 @@ void video_println(const char* message, unsigned int colour) {
 	if(s_bWereEnabled) __asm volatile ("cpsie i" : : : "memory");
 }
 
-__attribute__((no_instrument_function))
 void video_printHex(const char* message, unsigned int hexi, unsigned int colour) {
 if(loaded == 0) return; //if video isn't loaded don't bother
 
@@ -250,12 +244,10 @@ void videotest(void) {
 	video_puts("Forty-Two", VIDEO_WIDTH / 2 - 4.5 * CHAR_WIDTH, VIDEO_HEIGHT / 2 + CHAR_HEIGHT / 2, 0xFF00FF00);
 }
 
-__attribute__((no_instrument_function))
 void drawPixel(unsigned int x, unsigned int y, unsigned int colour) {
     framebuffer[y * VIDEO_WIDTH + x] = colour;
 }
 
-__attribute__((no_instrument_function))
 void drawRect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, unsigned int colour) {
     unsigned int i, j = 0;
     for(i = x1; i < x2; i++) {

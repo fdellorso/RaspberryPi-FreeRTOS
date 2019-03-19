@@ -59,7 +59,7 @@ tic_error * tic_variables_create(tic_variables ** variables)
   tic_variables * new_variables = NULL;
   if (error == NULL)
   {
-    new_variables = (tic_variables *)calloc(1, sizeof(tic_variables));
+    new_variables = (tic_variables *) calloc(1, sizeof(tic_variables));
     if (new_variables == NULL) { error = &tic_error_no_memory; }
   }
 
@@ -93,7 +93,7 @@ tic_error * tic_variables_copy(const tic_variables * source, tic_variables ** de
   tic_variables * new_variables = NULL;
   if (error == NULL)
   {
-    new_variables = (tic_variables *)calloc(1, sizeof(tic_variables));
+    new_variables = (tic_variables *) calloc(1, sizeof(tic_variables));
     if (new_variables == NULL) { error = &tic_error_no_memory; }
   }
 

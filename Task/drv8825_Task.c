@@ -30,15 +30,11 @@ void prvTask_Drv8825Control(void *pParam) {
 	SetGpio(16, 0);
 	SetGpio(19, step%2);
 
-
-	taskENTER_CRITICAL();
-
-	prvSystemTimerStepSetup();
-	RegisterInterrupt(BCM2835_IRQ_ID_ST_C3, vStepISR, NULL);
-	EnableInterrupt(BCM2835_IRQ_ID_ST_C3);
-
-	taskEXIT_CRITICAL();
-
+	// taskENTER_CRITICAL();
+	// prvSystemTimerStepSetup();
+	// RegisterInterrupt(BCM2835_IRQ_ID_ST_C3, vStepISR, NULL);
+	// EnableInterrupt(BCM2835_IRQ_ID_ST_C3);
+	// taskEXIT_CRITICAL();
 
 	prvFunc_Print("\nDrv8825 Control...\t\t     Started");
 

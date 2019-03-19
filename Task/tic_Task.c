@@ -7,18 +7,17 @@
 
 #include <uspi/types.h>
 
-extern xSemaphoreHandle	xSemTicInit;
+extern SemaphoreHandle_t	xSemTicInit;
 
-extern xQueueHandle		xQueTicHdl;
-extern xQueueHandle		xQueTicVar;
-extern xQueueHandle		xQueTicSet;
-extern xQueueHandle		xQueTicCmd;
+extern QueueHandle_t		xQueTicHdl;
+extern QueueHandle_t		xQueTicVar;
+extern QueueHandle_t		xQueTicSet;
+extern QueueHandle_t		xQueTicCmd;
 
-extern xSemaphoreHandle	xMutexTicVar;
-extern xSemaphoreHandle	xMutexEnergize;
-extern xSemaphoreHandle	xMutexRunning;
-
-extern const portTickType xBlockTime;
+extern const TickType_t 	xBlockTime;
+extern SemaphoreHandle_t	xMutexTicVar;
+extern SemaphoreHandle_t	xMutexEnergize;
+extern SemaphoreHandle_t	xMutexRunning;
 
 void prvTask_TicControl(void *pParam) {
 	int i = 0;
@@ -148,8 +147,6 @@ void prvTask_TicConsole(void *pParam) {
 	tic_variables	* ticVariables = NULL;
 	tic_settings	* ticSettings = NULL;
 	tic_command		* ticCommand = NULL;
-
-	// static const portTickType xBlockTime = 100 / portTICK_RATE_MS;
 
 	prvFunc_Print("\nTic Console...\t\t\t     Started");
 

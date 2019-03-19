@@ -6,28 +6,24 @@
 #include "stufa_Task.h"
 
 // Tasks
-extern xTaskHandle		xHandleUSPi;
-extern xTaskHandle		xHandleTicCtrl;
-extern xTaskHandle		xHandleTicCnsl;
-extern xTaskHandle		xHandle8825Ctrl;
-extern xTaskHandle		xHandleBltInit;
+extern TaskHandle_t			xHandleUSPi;
+extern TaskHandle_t			xHandleTicCtrl;
+extern TaskHandle_t			xHandleTicCnsl;
+extern TaskHandle_t			xHandle8825Ctrl;
+extern TaskHandle_t			xHandleBltInit;
 
 // Semaphores
-extern xSemaphoreHandle	xSemUSPiInit;
-extern xSemaphoreHandle	xSemTicInit;
+extern SemaphoreHandle_t	xSemUSPiInit;
+extern SemaphoreHandle_t	xSemTicInit;
 
 // Queues
-extern xQueueHandle		xQueTicHdl;
+extern QueueHandle_t		xQueTicHdl;
 
 // Mutexs
-extern xSemaphoreHandle	xMutexMuart;
-extern xSemaphoreHandle	xMutexTicVar;
-extern xSemaphoreHandle	xMutexEnergize;
-
-extern const portTickType xBlockTime;
-
-extern xTaskHandle	xHandleWDog;
-extern TaskStatus_t xTaskDetails;
+extern const TickType_t 	xBlockTime;
+extern SemaphoreHandle_t	xMutexMuart;
+extern SemaphoreHandle_t	xMutexTicVar;
+extern SemaphoreHandle_t	xMutexEnergize;
 
 // WatchDog boot other tasks and 
 void prvTask_WatchDog(void *pParam) {
@@ -53,9 +49,6 @@ void prvTask_WatchDog(void *pParam) {
 
 		// WhatcDog Activity Led
 		SetGpio(47, i%2);
-
-		vTaskGetTaskInfo(xHandleWDog, &xTaskDetails, pdTRUE, eInvalid);
-		prvFunc_Print("WTCDOG Stack: %d", xTaskDetails.usStackHighWaterMark);
 
 		// IF Tic is energized send Reset Timeout
 		if(ticHandle != NULL && xMutexEnergize != NULL) {

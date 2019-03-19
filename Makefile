@@ -33,12 +33,12 @@ kernel.syms: kernel.elf
 # GCC 7.3.1 (ARM Toolchain)
 # kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi/lib/gcc/arm-none-eabi/7.3.1" -lgcc
 # kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi/arm-none-eabi/lib" -lc
-kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi/lib/gcc/arm-none-eabi/7.3.1/hard" -lgcc
-kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi/arm-none-eabi/lib/hard" -lc
+kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi-7-3-1/lib/gcc/arm-none-eabi/7.3.1/hard" -lgcc
+kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi-7-3-1/arm-none-eabi/lib/hard" -lc
 
 # GCC 8.2.0 (Crosstool-NG)
-# kernel.elf: LDFLAGS += -L "/home/fra/x-tools/arm-unknown-eabi/lib/gcc/arm-unknown-eabi/8.2.0" -lgcc
-# kernel.elf: LDFLAGS += -L "/home/fra/x-tools/arm-unknown-eabi/arm-unknown-eabi/lib" -lc
+# kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi-8-2-0/lib/gcc/arm-unknown-eabi/8.2.0" -lgcc
+# kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi-8-2-0/arm-unknown-eabi/lib" -lc
 
 kernel.elf: $(OBJECTS)
 	$(Q)$(LD) $(OBJECTS) -Map kernel.map -o $@ -T $(LINKER_SCRIPT) $(LDFLAGS)

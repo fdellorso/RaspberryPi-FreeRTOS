@@ -17,8 +17,8 @@
 	#define	printHex(a, b)	video_printHex(a, b, LOGGER_WHITE)
 	#define	printf(a, ...)	video_printf(a, LOGGER_WHITE, __VA_ARGS__)
 	#define	vprintf(a, ...)	video_vprintf(a, LOGGER_WHITE, __VA_ARGS__)
-	#define getc			dummy
-	#define gets			dummy
+	#define getc			NOOP
+	#define gets			NOOP
 #endif
 #ifdef ILI9340
 	#include <ili9340.h>
@@ -36,8 +36,8 @@
 	#define printhex(a, b)	ili9340_printHex(a, b, LOGGER_WHITE)
 	#define printf(a, ...)	ili3940_printf(a, LOGGER_WHITE, __VA_ARGS__)
 	#define vprintf(a, ...)	ili3940_vprintf(a, LOGGER_WHITE, __VA_ARGS__)
-	#define getc			dummy
-	#define gets			dummy
+	#define getc			NOOP
+	#define gets			NOOP
 #endif
 #ifdef MUART
 	#include <muart.h>

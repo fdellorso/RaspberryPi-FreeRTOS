@@ -15,7 +15,7 @@
             "cwd": "${workspaceFolder}",
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "${workspaceFolder}/../gcc-arm-none-eabi/bin/arm-none-eabi-gdb",
+            "miDebuggerPath": "${workspaceFolder}/../gcc-arm-none-eabi-7-3-1/bin/arm-none-eabi-gdb",
             "setupCommands": [
                 {"text": "file '${workspaceFolder}/kernel.elf'"},
                 {"text": "target remote :3333"},

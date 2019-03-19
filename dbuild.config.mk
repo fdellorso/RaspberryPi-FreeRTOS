@@ -2,10 +2,10 @@
 # TOOLCHAIN = arm-none-eabi-
 
 # GCC 7.3.1 (ARM Toolchain)
-TOOLCHAIN = $(BASE)../gcc-arm-none-eabi/bin/arm-none-eabi-
+TOOLCHAIN = $(BASE)../gcc-arm-none-eabi-7-3-1/bin/arm-none-eabi-
 
 # GCC 8.2.0 (Crosstool-NG)
-# TOOLCHAIN = /home/fra/x-tools/arm-unknown-eabi/bin/arm-unknown-eabi-
+# TOOLCHAIN = $(BASE)../gcc-arm-none-eabi-8-2-0/bin/arm-none-eabi-
 
 # Header Include
 CFLAGS += -I $(BASE)
@@ -66,8 +66,9 @@ CFLAGS +=	-Wbad-function-cast		\
 CFLAGS += -g
 
 # Optimization Options
+# CFLAGS += -Og
+# CFLAGS += -fdelete-null-pointer-checks
 # CFLAGS += -fno-zero-initialized-in-bss
-# CFLAGS += -Og # -fdelete-null-pointer-checks
 # CFLAGS += -fno-keep-static-consts
 # CFLAGS += -fno-omit-frame-pointer -ffloat-store -fno-common -fstrict-aliasing
 

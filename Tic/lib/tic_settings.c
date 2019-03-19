@@ -135,7 +135,7 @@ tic_error * tic_settings_create(tic_settings ** settings)
   tic_settings * new_settings = NULL;
   if (error == NULL)
   {
-    new_settings = (tic_settings *)calloc(1, sizeof(tic_settings)); // malloc(sizeof(tic_settings));
+    new_settings = (tic_settings *) calloc(1, sizeof(tic_settings)); // malloc(sizeof(tic_settings));
     if (new_settings == NULL) { error = &tic_error_no_memory; }
   }
 
@@ -174,7 +174,7 @@ tic_error * tic_settings_copy(const tic_settings * source, tic_settings ** dest)
   tic_settings * new_settings = NULL;
   if (error == NULL)
   {
-    new_settings = (tic_settings *)calloc(1, sizeof(tic_settings));
+    new_settings = (tic_settings *) calloc(1, sizeof(tic_settings));
     if (new_settings == NULL) { error = &tic_error_no_memory; }
   }
 

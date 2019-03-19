@@ -78,6 +78,7 @@ static unsigned s_nDeviceNumber = 1;
 static const char FromUSBPad[] = "usbpad";
 
 static boolean USBGamePadDeviceStartRequest (TUSBGamePadDevice *pThis);
+static void USBGamePadDeviceDecodeReport(TUSBGamePadDevice *pThis);
 static void USBGamePadDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pContext);
 static void USBGamePadDevicePS3Configure (TUSBGamePadDevice *pThis);
 
@@ -476,7 +477,7 @@ boolean USBGamePadDeviceStartRequest (TUSBGamePadDevice *pThis)
 	return DWHCIDeviceSubmitAsyncRequest (USBFunctionGetHost (&pThis->m_USBFunction), &pThis->m_URB);
 }
 
-void USBGamePadDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pContext)
+static void USBGamePadDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, void *pContext)
 {
 	(void) pParam;
 
@@ -515,7 +516,7 @@ void USBGamePadDeviceGetReport (TUSBGamePadDevice *pThis)
     }
 }
 
-void USBGamePadDevicePS3Configure (TUSBGamePadDevice *pThis)
+static void USBGamePadDevicePS3Configure (TUSBGamePadDevice *pThis)
 {
     static u8 writeBuf[] =
     {

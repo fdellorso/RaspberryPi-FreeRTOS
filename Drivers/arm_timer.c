@@ -23,11 +23,11 @@ void prvArmTimerIrqClear(void) {
 	pRegs->CLI = 0;
 }
 
-void prvArmTimerSetup(void) {
+void prvArmTimerIrqSetup(uint32_t portTimerPrescale) {
 	pRegs->CTL = 0x003E0000;
 	pRegs->LOD = 1000 - 1;
 	pRegs->RLD = 1000 - 1;
-	pRegs->DIV = portTIMER_PRESCALE;
+	pRegs->DIV = portTimerPrescale;
 	pRegs->CLI = 0;
 	pRegs->CTL = 0x003E00A2;
 }

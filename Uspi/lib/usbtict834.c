@@ -28,7 +28,7 @@
 
 static const char FromTicT834[] = "tict834";
 
-static unsigned s_nDeviceNumber = 0;
+static unsigned s_nDeviceNumber = 1;
 
 void USBTicT834Device (TUSBTicT834Device *pThis, TUSBFunction *pFunction)
 {

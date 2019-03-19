@@ -12,7 +12,8 @@
 #define TIC_SPEED	700		// Pulses/s
 #endif
 
-extern xSemaphoreHandle	xMutexRunning;
+extern const TickType_t		xBlockTime;
+extern SemaphoreHandle_t	xMutexRunning;
 
 tic_error * prvFunc_TicMotorInit(tic_handle * ticHandle) {
 	tic_error * error = NULL;
@@ -50,8 +51,6 @@ void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 	// ticErrorName[0] = '\0';
 
 	char * ticErrorName = (char *) malloc(sizeof(char) * 180);
-
-	static const portTickType xBlockTime = 100 / portTICK_RATE_MS;
 
 	tic_code_shifter(ticErrorName, tic_variables_get_error_status(ticVariables));
 	
@@ -110,7 +109,7 @@ void prvFunc_TicMenu(tic_variables * ticVariables, tic_settings * ticSettings) {
 int prvFunc_TicCommandInit(tic_command **ticCommand) {
 	tic_command * new_ticCommand = NULL;
 
-	new_ticCommand = (tic_command *)calloc(1, sizeof(tic_command));
+	new_ticCommand = (tic_command *) calloc(1, sizeof(tic_command));
     if(new_ticCommand == NULL) return -1;
 
 	new_ticCommand->command		= '0';

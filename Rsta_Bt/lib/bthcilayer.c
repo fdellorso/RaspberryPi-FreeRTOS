@@ -20,13 +20,13 @@
 #include <rsta_bt/bthcilayer.h>
 #include <uspi/devicenameservice.h>
 // #include <circle/logger.h>
-// #include <uspios.h>
+#include <uspios.h>
 #include <uspi/util.h>
 #include <uspi/assert.h>
 
 static const char FromHCILayer[] = "bthci";
 
-static TBTHCILayer *s_pThisHCI = 0;
+static TBTHCILayer *s_pThis = 0;
 
 void BTHCILayerEventHandler (TBTHCILayer *pThis, const void *pBuffer, unsigned nLength);
 static void BTHCILayerEventStub (const void *pBuffer, unsigned nLength);
@@ -49,8 +49,8 @@ void BTHCILayer (TBTHCILayer *pThis, u32 nClassOfDevice, const char *pLocalName)
 	pThis->m_pBuffer				= 0;
 	pThis->m_nCommandPackets		= 1;
 
-	assert (s_pThisHCI == 0);
-	s_pThisHCI = pThis;
+	assert (s_pThis == 0);
+	s_pThis = pThis;
 }
 
 void _BTHCILayer (TBTHCILayer *pThis)
@@ -64,7 +64,7 @@ void _BTHCILayer (TBTHCILayer *pThis)
 	free (pThis->m_pEventBuffer);
 	pThis->m_pEventBuffer = 0;
 
-	s_pThisHCI = 0;
+	s_pThis = 0;
 }
 
 boolean BTHCILayerInitialize (TBTHCILayer *pThis)
@@ -214,8 +214,8 @@ void BTHCILayerEventHandler (TBTHCILayer *pThis, const void *pBuffer, unsigned n
 	pThis->m_nEventFragmentOffset = 0;
 }
 
-void BTHCILayerEventStub (const void *pBuffer, unsigned nLength)
+static void BTHCILayerEventStub (const void *pBuffer, unsigned nLength)
 {
-	assert (s_pThisHCI != 0);
-	BTHCILayerEventHandler(s_pThisHCI, pBuffer, nLength);
+	assert (s_pThis != 0);
+	BTHCILayerEventHandler(s_pThis, pBuffer, nLength);
 }
