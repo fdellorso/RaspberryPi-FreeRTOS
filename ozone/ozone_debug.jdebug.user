@@ -1,21 +1,23 @@
-Breakpoint=btsubsystem.c:63, State=BP_STATE_DISABLED
-Breakpoint=btsubsystem.c:106, State=BP_STATE_DISABLED
-OpenDocument="main.c", FilePath="/home/fra/RaspberryPi-FreeRTOS/Main/main.c", Line=0
+Breakpoint=bluetooth_Task.c:29, State=BP_STATE_ON
+Breakpoint=main.c:208, State=BP_STATE_ON
+Breakpoint=dwhcidevice.c:1144, State=BP_STATE_ON
+Breakpoint=dwhcidevice.c:1241, State=BP_STATE_ON
+Breakpoint=000080EC, State=BP_STATE_ON
+OpenDocument="tasks.c", FilePath="/home/fra/RaspberryPi-StuFA/FreeRTOS/Source/tasks.c", Line=2981
+OpenDocument="main.c", FilePath="/home/fra/RaspberryPi-StuFA/Main/main.c", Line=148
+OpenDocument="bluetooth_Task.c", FilePath="/home/fra/RaspberryPi-StuFA/Task/bluetooth_Task.c", Line=41
+OpenDocument="dwhcidevice.c", FilePath="/home/fra/RaspberryPi-StuFA/Uspi/lib/dwhcidevice.c", Line=1160
 OpenToolbar="Debug", Floating=0, x=0, y=0
-OpenWindow="Registers 1", DockArea=RIGHT, x=0, y=3, w=622, h=95, FilterBarShown=0, FilteredItems=[]
-OpenWindow="Source Files", DockArea=LEFT, x=0, y=1, w=265, h=314, FilterBarShown=1
-OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=0, w=622, h=211, FilterBarShown=0, ExecCountersShown=0
+OpenWindow="Call Stack", DockArea=RIGHT, x=0, y=0, w=599, h=161, FilterBarShown=0
+OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=1, w=599, h=230, FilterBarShown=0, ExecCountersShown=0
 OpenWindow="Source", x=0, y=0, w=0, h=0, FilterBarShown=0, ExecCountersShown=0
-OpenWindow="Break & Tracepoints", DockArea=LEFT, x=0, y=0, w=265, h=213, FilterBarShown=0
-OpenWindow="Memory 1", DockArea=BOTTOM, x=1, y=0, w=787, h=153, FilterBarShown=0, EditorAddress=0x8000
-OpenWindow="Global Data", DockArea=RIGHT, x=0, y=1, w=622, h=374, FilterBarShown=1
-OpenWindow="Local Data", DockArea=RIGHT, x=0, y=2, w=622, h=99, FilterBarShown=0
-OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=822, h=153, FilterBarShown=0
-OpenWindow="Tasks", DockArea=LEFT, x=0, y=2, w=265, h=258, FilterBarShown=0
-TableHeader="Global Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[140;87;82;53;166;100]
-TableHeader="Break & Tracepoints", SortCol="None", SortOrder="ASCENDING", VisibleCols=["";"Type";"Location";"Extras"], ColWidths=[55;60;126;59]
-TableHeader="Local Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[122;130;100;48;100;122]
-TableHeader="Source Files", SortCol="File", SortOrder="ASCENDING", VisibleCols=["File";"Status";"Size";"#Insts";"Path"], ColWidths=[158;59;48;57;50]
+OpenWindow="Break & Tracepoints", DockArea=LEFT, x=0, y=1, w=462, h=337, FilterBarShown=0
+OpenWindow="Global Data", DockArea=RIGHT, x=0, y=2, w=599, h=153, FilterBarShown=1
+OpenWindow="Local Data", DockArea=RIGHT, x=0, y=3, w=599, h=394, FilterBarShown=0
+OpenWindow="Functions", DockArea=LEFT, x=0, y=0, w=462, h=613, FilterBarShown=1
+TableHeader="Global Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[127;87;82;67;61;160]
+TableHeader="Break & Tracepoints", SortCol="Location", SortOrder="ASCENDING", VisibleCols=["";"Type";"Location";"Extras"], ColWidths=[55;60;181;166]
+TableHeader="Local Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[235;101;100;48;100;59]
+TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Source"], ColWidths=[208;82;48;57;100]
+TableHeader="Call Stack", SortCol="Function", SortOrder="ASCENDING", VisibleCols=["Function";"Stack Info";"Source";"PC";"Return Address"], ColWidths=[162;108;50;29;250]
 TableHeader="tableWidgetSamples", SortCol="Index", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Channel 0"], ColWidths=[84;119;126]
-TableHeader="Registers 1", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Description"], ColWidths=[174;85;348]
-TableHeader="Tasks", SortCol="None", SortOrder="ASCENDING", VisibleCols=["ID";"Priority";"Name";"Status";"Timeout";"Notify Value";"Notify State";"Stack Info (Free / Size)";"Run Count";"Mutex Count"], ColWidths=[85;85;110;85;50;50;50;160;70;60]

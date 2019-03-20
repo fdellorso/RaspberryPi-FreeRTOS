@@ -9,14 +9,15 @@
 #include <uspi/synchronize.h>
 
 #include <FreeRTOS.h>
+#include <task.h>
 
 void *calloc(size_t num, size_t size) {
     uspi_EnterCritical();
-    int *p = pvPortMalloc(num*size);
+    void *ptr = pvPortMalloc(num*size);
     // while(*p++ = 0);
-    memset(p, 0, num*size);
+    memset(ptr, 0, num*size);
     uspi_LeaveCritical();
-    return p;
+    return ptr;
 }
 
 void *realloc(void *ptr, size_t new_size) {

@@ -139,7 +139,8 @@ boolean USBStringGetFromDescriptor (TUSBString *pThis, u8 ucID, u16 usLanguageID
 	size_t nLength = (pThis->m_pUSBString->bLength-2) / 2;
 
 	assert (nLength <= (255-2) / 2);
-	char Buffer[nLength+1];
+	// char Buffer[nLength+1];
+	char * Buffer = (char *) malloc (sizeof(char) * (nLength+1));
 	
 	for (unsigned i = 0; i < nLength; i++)
 	{
@@ -161,6 +162,8 @@ boolean USBStringGetFromDescriptor (TUSBString *pThis, u8 ucID, u16 usLanguageID
 	pThis->m_pString = malloc (sizeof (TString));
 	assert (pThis->m_pString != 0);
 	String2 (pThis->m_pString, Buffer);
+
+	free(Buffer);
 
 	return TRUE;
 }

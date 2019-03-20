@@ -80,9 +80,9 @@ void _BTUARTTransport (TBTUARTTransport *pThis)
 	{
 		// assert (pThis->m_pInterruptSystem != 0);
 		// pThis->m_pInterruptSystem->DisconnectIRQ (ARM_IRQ_UART);	// TODO
-		taskENTER_CRITICAL();
-		DisableInterrupt(BCM2835_IRQ_ID_UART);
-		taskEXIT_CRITICAL();
+		// taskENTER_CRITICAL();		// FIXME
+		// DisableInterrupt(BCM2835_IRQ_ID_UART);
+		// taskEXIT_CRITICAL();
 	}
 
 	// pThis->m_pInterruptSystem = 0;
@@ -106,10 +106,12 @@ boolean BTUARTTransportInitialize (TBTUARTTransport *pThis, unsigned nBaudrate)
 
 	// assert (pThis->m_pInterruptSystem != 0);
 	// pThis->m_pInterruptSystem->ConnectIRQ (ARM_IRQ_UART, IRQStub, this);			// TODO
-	taskENTER_CRITICAL();		// FIXME Possible to move after Init
-	RegisterInterrupt(BCM2835_IRQ_ID_UART, BTUARTTransportIRQStub, pThis);
-	EnableInterrupt(BCM2835_IRQ_ID_UART);
-	taskEXIT_CRITICAL();
+	// taskENTER_CRITICAL();		// FIXME Possible to move after Init
+	// RegisterInterrupt(BCM2835_IRQ_ID_UART, BTUARTTransportIRQStub, pThis);
+	// EnableInterrupt(BCM2835_IRQ_ID_UART);
+	// taskEXIT_CRITICAL();
+	ConnectInterrupt (BCM2835_IRQ_ID_UART, BTUARTTransportIRQStub, pThis,
+					  voidSetupFN, 0, 1);
 	pThis->m_bIRQConnected = TRUE;
 
 	DataSyncBarrier ();

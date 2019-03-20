@@ -9,10 +9,11 @@ OBJECTS += $(BUILD_DIR)Main/main.o
 OBJECTS += $(BUILD_DIR)Task/bluetooth_Task.o
 OBJECTS += $(BUILD_DIR)Task/drv8825_Task.o
 OBJECTS += $(BUILD_DIR)Task/shared_Task.o
+# OBJECTS += $(BUILD_DIR)Task/stdio_Task.o
 OBJECTS += $(BUILD_DIR)Task/tic_Task.o
 OBJECTS += $(BUILD_DIR)Task/ticfunc_Task.o
 OBJECTS += $(BUILD_DIR)Task/uspi_Task.o
-OBJECTS += $(BUILD_DIR)Task/watchdog_Task.o
+# OBJECTS += $(BUILD_DIR)Task/watchdog_Task.o
 
 #
 #	Startup and platform initialisation code.
@@ -140,7 +141,7 @@ OBJECTS += $(BUILD_DIR)Rsta_Bt/lib/btuarttransport.o
 #	FreeRTOS portable layer for RaspberryPi
 #
 OBJECTS += $(BUILD_DIR)FreeRTOS/Source/portable/GCC/RaspberryPi/port.o
-OBJECTS += $(BUILD_DIR)FreeRTOS/Source/portable/GCC/RaspberryPi/portisr.o
+# OBJECTS += $(BUILD_DIR)FreeRTOS/Source/portable/GCC/RaspberryPi/portisr.o
 
 #
 #	Selected HEAP implementation for FreeRTOS.

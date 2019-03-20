@@ -200,8 +200,8 @@ typedef struct TUSBStringDescriptor
 {
 	unsigned char	bLength;
 	unsigned char	bDescriptorType;
-	unsigned short	bString[0];
-	// unsigned short	*bString;
+	// unsigned short	bString[0];
+	unsigned short	bString[];
 }
 PACKED TUSBStringDescriptor;
 

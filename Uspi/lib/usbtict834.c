@@ -26,6 +26,8 @@
 #include <uspi/util.h>
 #include <uspios.h>
 
+#include <prvlib/stdlib.h>
+
 static const char FromTicT834[] = "tict834";
 
 static unsigned s_nDeviceNumber = 1;
@@ -70,7 +72,7 @@ boolean USBTicT834DeviceConfigure (TUSBFunction *pUSBFunction)
     pThis->product = pDeviceDesc->idProduct;
 
     // Get Serial Number from String Descriptor
-    unsigned char buffer[pDeviceDesc->bMaxPacketSize0];
+    uint8_t *buffer = (uint8_t *) malloc (sizeof(uint8_t) * pDeviceDesc->bMaxPacketSize0);
 
     if(!DWHCIDeviceGetDescriptor (USBFunctionGetHost (&pThis->m_USBFunction),
                                   USBFunctionGetEndpoint0 (&pThis->m_USBFunction),
@@ -85,7 +87,7 @@ boolean USBTicT834DeviceConfigure (TUSBFunction *pUSBFunction)
 		return FALSE;
     }
 
-    s8 * new_string = (s8*) malloc(sizeof(s8) * ((buffer[0] - 2) /2 +1));
+    uint8_t * new_string = (uint8_t*) malloc(sizeof(uint8_t) * ((buffer[0] - 2) /2 +1));
     assert (new_string != 0);
 
     int i;
@@ -97,9 +99,10 @@ boolean USBTicT834DeviceConfigure (TUSBFunction *pUSBFunction)
 
     new_string[index] = 0;
 
-    pThis->serial_number = new_string;
+    pThis->serial_number = (s8 *) new_string;
 
     free(new_string);
+    free(buffer);
 
     USBDescriptorPrinter(USBFunctionGetDevice (&pThis->m_USBFunction), FromTicT834);
 

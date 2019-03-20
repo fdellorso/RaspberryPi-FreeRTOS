@@ -276,9 +276,9 @@ u8 DWHCITransferStageDataGetEndpointType (TDWHCITransferStageData *pThis)
 		nEndpointType = DWHCI_HOST_CHAN_CHARACTER_EP_TYPE_INTERRUPT;
 		break;
 	
-	// case EndpointTypeIsochronous:
-	// 	nEndpointType = DWHCI_HOST_CHAN_CHARACTER_EP_TYPE_ISO;
-	// 	break;
+	case EndpointTypeIsochronous:
+		// nEndpointType = DWHCI_HOST_CHAN_CHARACTER_EP_TYPE_ISO;
+		break;
 
 	default:
 		assert (0);
