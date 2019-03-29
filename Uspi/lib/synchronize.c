@@ -64,6 +64,10 @@ void uspi_LeaveCritical (void)
 		{
 			EnableInterrupts ();
 		}
+		// else
+		// {
+		// 	DisableInterrupts();
+		// }
 	}
 }
 

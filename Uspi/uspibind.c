@@ -25,74 +25,59 @@
 
 #include <rpi_header.h>
 #include <rpi_logger.h>
-
-#include <FreeRTOS.h>
-#include <timers.h>
-
 #include <stufa_Task.h>
 
-__attribute__((no_instrument_function))
-void MsDelay(unsigned nMilliSeconds) {
-	/* volatile int* timeStamp = (int*)0x20003004;
-	int stop = *timeStamp + nMilliSeconds * 1000;
-	while (*timeStamp < stop) __asm__("nop"); */
-	//vTaskDelay(nMilliSeconds);
+#include <FreeRTOS.h>
+#include <task.h>
+#include <timers.h>
 
+void StartKernelTimer(unsigned int nDelay, PendedFunction_t pHandler, void *pContext, unsigned int nChannel);
+
+void MsDelay(unsigned nMilliSeconds)
+{
 	DelaySysTimer(nMilliSeconds * 1000);
 }
 
-__attribute__((no_instrument_function))
-void usDelay(unsigned nMicroSeconds) {
-	/* volatile int* timeStamp = (int*)0x20003004;
-	int stop = *timeStamp + nMicroSeconds;
-	while (*timeStamp < stop) __asm__("nop"); */
-
+void usDelay(unsigned nMicroSeconds)
+{
 	DelaySysTimer(nMicroSeconds);
 }
 
-unsigned StartKernelTimer(unsigned nDelay, PendedFunction_t pHandler, void *pContext, unsigned int nChannel) {
-	//TimerStartKernelTimer (TimerGet (), nDelay, pHandler, pParam, pContext);
-
-	(void) nDelay;
+// extern TimerHandle_t		xDWHCITimer;
+void StartKernelTimer(unsigned int nDelay, PendedFunction_t pHandler, void *pContext, unsigned int nChannel)
+{
+	(void) nDelay;		// FIXME Wunused
 
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-	if(xTimerPendFunctionCallFromISR(pHandler, pContext, nChannel, &xHigherPriorityTaskWoken) == pdPASS) {
-	// if(xTimerPendFunctionCall(pHandler, pContext, nChannel, pdMS_TO_TICKS(nDelay)) == pdPASS) {
-		prvFunc_Print("StartKernelTimer");
-		return 1;
-	}
-	else {
-		return 0;
-	}
-
-	// (void)nDelay;	// FIXME Wunused
+	xTimerPendFunctionCallFromISR(pHandler, pContext, nChannel, &xHigherPriorityTaskWoken);
+	
 	// (void)pHandler;	// FIXME Wunused
 	// (void)pContext;	// FIXME Wunused
 	// (void)nChannel;	// FIXME Wunused
 
 	// println("StartKernelTimer");
-
-	// return 1;
+	// xTimerChangePeriodFromISR( xDWHCITimer, nDelay, NULL );
+	// xTimerStartFromISR( xDWHCITimer, NULL );
 }
 
-void CancelKernelTimer(unsigned hTimer) {
-	//TimerCancelKernelTimer (TimerGet (), hTimer);
-
+void CancelKernelTimer(unsigned hTimer)
+{
 	(void)hTimer;	// FIXME Wunused
 
-	println("CancelKernelTimer");
+	// println("CancelKernelTimer");
 }
 
-//void ConnectInterrupt (unsigned nIRQ, TInterruptHandler *pfnHandler, void *pParam){
-void ConnectInterrupt(unsigned nIRQ, FN_INTERRUPT_HANDLER pfnHandler, void *pParam) {
-	//DisableInterrupts();
-	RegisterInterrupt(nIRQ, pfnHandler, pParam);
-	EnableInterrupt(nIRQ);
-	//EnableInterrupts();
-}
+// void ConnectInterrupt(unsigned nIRQ, FN_INTERRUPT_HANDLER pfnHandler, void *pParam)
+// {
+// 	DisableInterrupts();
+// 	RegisterInterrupt(nIRQ, pfnHandler, pParam);
+// 	EnableInterrupt(nIRQ);
+// 	EnableInterrupts();
+// }
 
-int SetPowerStateOn(unsigned nDeviceId) {
+int SetPowerStateOn(unsigned nDeviceId)
+{
 	unsigned int mailbuffer[8] __attribute__((aligned (16)));
 
 	//set power state
@@ -145,8 +130,8 @@ int GetMACAddress(unsigned char Buffer[6]) {
 	return 1;
 }
 
-__attribute__((no_instrument_function))
-void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...) {
+void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...)
+{
 	(void)pSource;	// FIXME Wunused
 	(void)Severity;	// FIXME Wunused
 
@@ -158,23 +143,26 @@ void LogWrite(const char *pSource, unsigned Severity, const char *pMessage, ...)
 	StringFormatV (&Message, pMessage, var);
 
 	// LoggerWriteV (LoggerGet (), pSource, (TLogSeverity) Severity, pMessage, var);
-	println(StringGet (&Message));
+	// println(StringGet (&Message));
+	prvFunc_Print(StringGet (&Message));
 
 	va_end (var);
 }
 
 #ifndef NDEBUG
 
-void uspi_assertion_failed(const char *pExpr, const char *pFile, unsigned nLine) {
-	
-	println(pExpr);
-	println(pFile);
-	printHex("Line ", nLine);
+void uspi_assertion_failed(const char *pExpr, const char *pFile, unsigned nLine)
+{
+	// println(pExpr);
+	// println(pFile);
+	// printHex("Line ", nLine);
+	prvFunc_Print("%s %s Line 0x%x", pExpr, pFile, nLine);
 
 	while(1){;} //system failure
 }
 
-void DebugHexdump (const void *pBuffer, unsigned nBufLen, const char *pSource) {
+void DebugHexdump (const void *pBuffer, unsigned nBufLen, const char *pSource)
+{
 	//debug_hexdump (pBuffer, nBufLen, pSource);
 
 	(void)pBuffer;	// FIXME Wunused
@@ -186,14 +174,16 @@ void DebugHexdump (const void *pBuffer, unsigned nBufLen, const char *pSource) {
 
 #endif
 
-void* malloc(unsigned nSize) {
+void* malloc(unsigned nSize)
+{
 	uspi_EnterCritical();
 	void* temp = pvPortMalloc(nSize);
 	uspi_LeaveCritical();
 	return temp;
 }
 
-void free(void* pBlock) {
+void free(void* pBlock)
+{
 	uspi_EnterCritical();
 	vPortFree(pBlock);
 	uspi_LeaveCritical();

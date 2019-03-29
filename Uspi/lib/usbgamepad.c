@@ -419,7 +419,10 @@ boolean USBGamePadDeviceConfigure (TUSBFunction *pUSBFunction)
 
         return FALSE;
     }
-    //DebugHexdump (pThis->m_pHIDReportDescriptor, pHIDDesc->wReportDescriptorLength, "hid");
+
+#ifndef NDEBUG
+    // DebugHexdump (pThis->m_pHIDReportDescriptor, pHIDDesc->wReportDescriptorLength, "hid");
+#endif
 
     pThis->m_pReportBuffer[0] = 0;
     USBGamePadDeviceDecodeReport (pThis);
@@ -490,7 +493,9 @@ static void USBGamePadDeviceCompletionRoutine (TUSBRequest *pURB, void *pParam, 
 	if (   USBRequestGetStatus (pURB) != 0
 	    && USBRequestGetResultLength (pURB) > 0)
 	{
-        //DebugHexdump (pThis->m_pReportBuffer, 16, "report");
+#ifndef NDEBUG
+        // DebugHexdump (pThis->m_pReportBuffer, 16, "report");
+#endif
         if (pThis->m_pHIDReportDescriptor != 0 && pThis->m_pStatusHandler != 0)
         {
             USBGamePadDeviceDecodeReport (pThis);

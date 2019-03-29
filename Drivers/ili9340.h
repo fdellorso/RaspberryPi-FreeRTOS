@@ -94,10 +94,6 @@
 #define KEY2                 23
 #define KEY3                 24
 
-
-char loaded;
-uint32_t width, height;
-
 void ili9340_init(void);
 void ili9340_close(void);
 void ili9340_set_rotation(unsigned char m);       

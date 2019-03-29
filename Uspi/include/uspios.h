@@ -75,13 +75,11 @@ void usDelay (unsigned nMicroSeconds);
 
 // typedef void TKernelTimerHandler (TKernelTimerHandle hTimer, void *pParam, void *pContext);
 
-typedef void (*PendedFunction_t)( void *, uint32_t );
-
 // returns the timer handle (hTimer)
-unsigned StartKernelTimer (unsigned nDelay,				// in HZ units (see "system configuration" above)
-			   			   PendedFunction_t pHandler,
-			   			   void *pContext,
-						   unsigned int nChannel);				// handed over to the timer handler
+// void StartKernelTimer (unsigned nDelay,			// in HZ units (see "system configuration" above)
+// 			   		   PendedFunction_t pHandler,
+// 			   		   void *pContext,
+// 					   unsigned int nChannel);	// handed over to the timer handler
 
 void CancelKernelTimer (unsigned hTimer);
 
@@ -92,7 +90,9 @@ void CancelKernelTimer (unsigned hTimer);
 
 // USPi uses USB IRQ 9
 // void ConnectInterrupt (unsigned nIRQ, TInterruptHandler *pHandler, void *pParam);
-void ConnectInterrupt (unsigned nIRQ, FN_INTERRUPT_HANDLER pHandler, void *pParam);
+// void ConnectInterrupt (unsigned nIRQ, FN_INTERRUPT_HANDLER pHandler, void *pParam);
+extern void ConnectInterrupt(int nIRQ, FN_INTERRUPT_HANDLER pfnHandler, void *pParamIRQ,
+					  		 FN_INTERRUPT_SETUP pfnSetup, uint32_t pParamSetup, int bTask);
 
 
 //

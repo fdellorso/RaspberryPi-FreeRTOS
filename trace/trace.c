@@ -12,11 +12,13 @@
 
 // #include <video.h>
 #include <rpi_logger.h>
-int depth = 0;
+
+static int depth = 0;
 
 __attribute__((no_instrument_function))
 void __cyg_profile_func_enter (void *this_fn, void *call_site){
-	if(loaded == 2){
+	// if(loaded == 2)
+	{
 		int intflag;
 		__asm volatile ("mrs %0, cpsr" : "=r" (intflag));
 		//uspi_EnterCritical();
@@ -47,7 +49,8 @@ void __cyg_profile_func_enter (void *this_fn, void *call_site){
 
 __attribute__((no_instrument_function))
 void __cyg_profile_func_exit  (void *this_fn, void *call_site){
-	if(loaded == 2){
+	// if(loaded == 2)
+	{
 		int intflag;
 		__asm volatile ("mrs %0, cpsr" : "=r" (intflag));
 		//uspi_EnterCritical();

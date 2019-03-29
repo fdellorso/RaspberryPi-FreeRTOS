@@ -7,10 +7,8 @@
 
 #include <prvlib/stdlib.h>
 
-extern xQueueHandle xQueBltProc;
-
-extern xTaskHandle	xHandleBltProc;
-extern TaskStatus_t xTaskDetails;
+extern TimerHandle_t		xWatchDogTimer;
+extern QueueHandle_t		xQueueBLTiProc;
 
 #define INQUIRY_SECONDS		20
 
@@ -20,6 +18,8 @@ void prvTask_BluetoothInitialize(void *pParam) {
 	/* Stop warnings. */
 	( void ) pParam;
 
+	xTimerChangePeriod( xWatchDogTimer, initWATCHDOG_TIMER_PERIOD, 0 );
+
 	prvFunc_Print("\nBluetooth Initialize...\t\t     Started");
 	prvFunc_Print("--------------------------------------------");
 
@@ -28,6 +28,8 @@ void prvTask_BluetoothInitialize(void *pParam) {
 
 	if(BTSubSystemInitialize(m_Bluetooth)) {
 		prvFunc_Print("Bluetooth Initialize...\t\t    Finished");
+
+		xTimerChangePeriod( xWatchDogTimer, mainWATCHDOG_TIMER_PERIOD, 0 );
 	}
 
 	prvFunc_Print("Inquiry is running for %u seconds", INQUIRY_SECONDS);
@@ -84,9 +86,9 @@ void prvTask_BluetoothProcess(void *pParam) {
 	
 	TBTSubSystem *m_pBTSubSystem = NULL;
 
-	if(xQueueReceive(xQueBltProc, &m_pBTSubSystem, portMAX_DELAY) == pdPASS) {
-		vQueueDelete(xQueBltProc);
-		prvFunc_Print("%cSubSystem...\t\t\t    Received", 0x3e);
+	if(xQueueReceive(xQueueBLTiProc, &m_pBTSubSystem, portMAX_DELAY) == pdPASS) {
+		vQueueDelete(xQueueBLTiProc);
+		prvFunc_Print("%cSubSystemFromInit...\t\t    Received", 0x3e);
 	}
 
 	while(1) {
@@ -94,10 +96,8 @@ void prvTask_BluetoothProcess(void *pParam) {
 
 		BTSubSystemProcess(m_pBTSubSystem);
 
-		vTaskGetTaskInfo(xHandleBltProc, &xTaskDetails, pdTRUE, eInvalid);
-		prvFunc_Print("BTPROC Stack: %d", xTaskDetails.usStackHighWaterMark);
+		// prvFunc_Print("BTPROC");
 
-		// taskYIELD();
-		vTaskDelay(100);
+		taskYIELD();
 	}
 }

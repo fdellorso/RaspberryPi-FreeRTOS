@@ -138,7 +138,10 @@ boolean USBMouseDeviceConfigure (TUSBFunction *pUSBFunction)
 
 		return FALSE;
 	}
-	//DebugHexdump (pThis->m_pHIDReportDescriptor, pThis->m_usReportDescriptorLength, FromUSBMouse);
+
+#ifndef NDEBUG
+	// DebugHexdump (pThis->m_pHIDReportDescriptor, pThis->m_usReportDescriptorLength, FromUSBMouse);
+#endif
 
 	if (!USBFunctionConfigure (&pThis->m_USBFunction))
 	{

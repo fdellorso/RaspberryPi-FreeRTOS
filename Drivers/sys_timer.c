@@ -16,13 +16,13 @@ typedef struct {
 
 static volatile BCM2835_SYS_TIMER_REGS * const pRegs = (BCM2835_SYS_TIMER_REGS *) (BCM2835_SYS_TIMER_BASE);
 
-void prvSystemTimerTickClear(void) {
-	pRegs->C1 += ST_TICK;
+void prvSystemTimerTickClear(uint32_t tickPeriod) {
+	pRegs->C1 += ((1000000 / tickPeriod) - 1);
 	pRegs->CS |= 0x02;
 }
 
-void prvSystemTimerTickSetup(void) {
-	pRegs->C1 = pRegs->CLO + ST_TICK;
+void prvSystemTimerTickSetup(uint32_t tickPeriod) {
+	pRegs->C1 = pRegs->CLO + ((1000000 / tickPeriod) - 1);
 	pRegs->CS |= 0x02;
 }
 

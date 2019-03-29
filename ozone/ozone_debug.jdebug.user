@@ -1,23 +1,28 @@
-Breakpoint=bluetooth_Task.c:29, State=BP_STATE_ON
-Breakpoint=main.c:208, State=BP_STATE_ON
-Breakpoint=dwhcidevice.c:1144, State=BP_STATE_ON
-Breakpoint=dwhcidevice.c:1241, State=BP_STATE_ON
+Breakpoint=bluetooth_Task.c:97, State=BP_STATE_ON
+Breakpoint=btuarttransport.c:266, State=BP_STATE_ON
+Breakpoint=port.c:156, State=BP_STATE_ON
+Breakpoint=btsubsystem.c:89, State=BP_STATE_ON
 Breakpoint=000080EC, State=BP_STATE_ON
-OpenDocument="tasks.c", FilePath="/home/fra/RaspberryPi-StuFA/FreeRTOS/Source/tasks.c", Line=2981
-OpenDocument="main.c", FilePath="/home/fra/RaspberryPi-StuFA/Main/main.c", Line=148
+OpenDocument="tasks.c", FilePath="/home/fra/RaspberryPi-StuFA/FreeRTOS/Source/tasks.c", Line=3561
 OpenDocument="bluetooth_Task.c", FilePath="/home/fra/RaspberryPi-StuFA/Task/bluetooth_Task.c", Line=41
-OpenDocument="dwhcidevice.c", FilePath="/home/fra/RaspberryPi-StuFA/Uspi/lib/dwhcidevice.c", Line=1160
+OpenDocument="port.c", FilePath="/home/fra/RaspberryPi-StuFA/FreeRTOS/Source/portable/GCC/RaspberryPi/port.c", Line=143
+OpenDocument="btuarttransport.c", FilePath="/home/fra/RaspberryPi-StuFA/Rsta_Bt/lib/btuarttransport.c", Line=208
+OpenDocument="btsubsystem.c", FilePath="/home/fra/RaspberryPi-StuFA/Rsta_Bt/lib/btsubsystem.c", Line=43
+OpenDocument="main.c", FilePath="/home/fra/RaspberryPi-StuFA/Main/main.c", Line=48
+OpenDocument="bthcilayer.c", FilePath="/home/fra/RaspberryPi-StuFA/Rsta_Bt/lib/bthcilayer.c", Line=102
 OpenToolbar="Debug", Floating=0, x=0, y=0
-OpenWindow="Call Stack", DockArea=RIGHT, x=0, y=0, w=599, h=161, FilterBarShown=0
-OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=1, w=599, h=230, FilterBarShown=0, ExecCountersShown=0
+OpenWindow="Call Stack", DockArea=RIGHT, x=0, y=1, w=539, h=87, FilterBarShown=0
+OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=2, w=539, h=122, FilterBarShown=0, ExecCountersShown=0
 OpenWindow="Source", x=0, y=0, w=0, h=0, FilterBarShown=0, ExecCountersShown=0
-OpenWindow="Break & Tracepoints", DockArea=LEFT, x=0, y=1, w=462, h=337, FilterBarShown=0
-OpenWindow="Global Data", DockArea=RIGHT, x=0, y=2, w=599, h=153, FilterBarShown=1
-OpenWindow="Local Data", DockArea=RIGHT, x=0, y=3, w=599, h=394, FilterBarShown=0
-OpenWindow="Functions", DockArea=LEFT, x=0, y=0, w=462, h=613, FilterBarShown=1
-TableHeader="Global Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[127;87;82;67;61;160]
+OpenWindow="Break & Tracepoints", DockArea=LEFT, x=0, y=1, w=462, h=362, FilterBarShown=0
+OpenWindow="Global Data", DockArea=RIGHT, x=0, y=3, w=539, h=280, FilterBarShown=1
+OpenWindow="Local Data", DockArea=RIGHT, x=0, y=4, w=539, h=254, FilterBarShown=0
+OpenWindow="Watched Data", DockArea=RIGHT, x=0, y=0, w=539, h=189, FilterBarShown=0
+OpenWindow="Functions", DockArea=LEFT, x=0, y=0, w=462, h=588, FilterBarShown=1
+TableHeader="Global Data", SortCol="Scope", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[127;87;82;67;59;102]
 TableHeader="Break & Tracepoints", SortCol="Location", SortOrder="ASCENDING", VisibleCols=["";"Type";"Location";"Extras"], ColWidths=[55;60;181;166]
-TableHeader="Local Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[235;101;100;48;100;59]
+TableHeader="Local Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[235;101;100;48;100;100]
 TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Source"], ColWidths=[208;82;48;57;100]
-TableHeader="Call Stack", SortCol="Function", SortOrder="ASCENDING", VisibleCols=["Function";"Stack Info";"Source";"PC";"Return Address"], ColWidths=[162;108;50;29;250]
+TableHeader="Call Stack", SortCol="Function", SortOrder="ASCENDING", VisibleCols=["Function";"Stack Info";"Source";"PC";"Return Address"], ColWidths=[162;108;50;29;175]
 TableHeader="tableWidgetSamples", SortCol="Index", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Channel 0"], ColWidths=[84;119;126]
+TableHeader="Watched Data", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Value";"Location"], ColWidths=[173;100;266]

@@ -173,7 +173,7 @@ boolean USBDeviceInitialize (TUSBDevice *pThis)
 	}
 
 #ifndef NDEBUG
-	//DebugHexdump (pThis->m_pDeviceDesc, sizeof *pThis->m_pDeviceDesc, FromDevice);
+	// DebugHexdump (pThis->m_pDeviceDesc, sizeof *pThis->m_pDeviceDesc, FromDevice);
 #endif
 	
 	u8 ucAddress = s_ucNextAddress++;
@@ -261,7 +261,7 @@ boolean USBDeviceInitialize (TUSBDevice *pThis)
 	}
 
 #ifndef NDEBUG
-	//DebugHexdump (pThis->m_pConfigDesc, nTotalLength, FromDevice);
+	// DebugHexdump (pThis->m_pConfigDesc, nTotalLength, FromDevice);
 #endif
 
 	assert (pThis->m_pConfigParser == 0);

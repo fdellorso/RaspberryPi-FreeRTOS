@@ -31,6 +31,9 @@
 
 #include <FreeRTOS.h>
 #include <task.h>
+#include <timers.h>
+
+// #include <stufa_Task.h>
 
 #define ARM_IRQ_USB		9		// for ConnectInterrupt()
 
@@ -84,7 +87,6 @@ void DWHCIDeviceStartTransaction (TDWHCIDevice *pThis, TDWHCITransferStageData *
 void DWHCIDeviceStartChannel (TDWHCIDevice *pThis, TDWHCITransferStageData *pStageData);
 void DWHCIDeviceChannelInterruptHandler (TDWHCIDevice *pThis, unsigned nChannel);
 void DWHCIDeviceInterruptHandler (int nIRQ, void *pParam);
-// void DWHCIDeviceTimerHandler (TKernelTimerHandle hTimer, void *pParam, void *pContext)
 void DWHCIDeviceTimerHandler (void *pContext, unsigned int nChannel);
 unsigned DWHCIDeviceAllocateChannel (TDWHCIDevice *pThis);
 void DWHCIDeviceFreeChannel (TDWHCIDevice *pThis, unsigned nChannel);
@@ -93,6 +95,11 @@ boolean DWHCIDeviceWaitForBit (TDWHCIDevice *pThis, TDWHCIRegister *pRegister, u
 void DWHCIDeviceDumpRegister (TDWHCIDevice *pThis, const char *pName, u32 nAddress);
 void DWHCIDeviceDumpStatus (TDWHCIDevice *pThis, unsigned nChannel /* = 0 */);
 #endif
+
+extern void StartKernelTimer(unsigned nDelay, PendedFunction_t pHandler, void *pContext, unsigned int nChannel);
+
+// TDWHCIDevice *e_pThis = NULL;
+// unsigned int e_nChannel = 0;
 
 void DWHCIDevice (TDWHCIDevice *pThis)
 {
@@ -138,7 +145,8 @@ boolean DWHCIDeviceInitialize (TDWHCIDevice *pThis)
 	DWHCIRegisterAnd (&AHBConfig, ~DWHCI_CORE_AHB_CFG_GLOBALINT_MASK);
 	DWHCIRegisterWrite (&AHBConfig);
 	
-	ConnectInterrupt (ARM_IRQ_USB, DWHCIDeviceInterruptHandler, pThis);
+	ConnectInterrupt (ARM_IRQ_USB, DWHCIDeviceInterruptHandler, pThis,
+					  voidSetupFN, 0, 1);
 
 	if (!DWHCIDeviceInitCore (pThis))
 	{
@@ -1015,7 +1023,8 @@ void DWHCIDeviceChannelInterruptHandler (TDWHCIDevice *pThis, unsigned nChannel)
 
 			unsigned nInterval = USBEndpointGetInterval (USBRequestGetEndpoint (pURB));
 
-			// StartKernelTimer (MSEC2HZ (nInterval), DWHCIDeviceTimerHandler, pStageData, pThis);
+			// e_pThis = pThis;
+			// e_nChannel = nChannel;
 			StartKernelTimer (MSEC2HZ (nInterval), DWHCIDeviceTimerHandler, pThis, nChannel);
 
 			break;
@@ -1130,7 +1139,8 @@ void DWHCIDeviceChannelInterruptHandler (TDWHCIDevice *pThis, unsigned nChannel)
 
 				unsigned nInterval = USBEndpointGetInterval (USBRequestGetEndpoint (pURB));
 
-				// StartKernelTimer (MSEC2HZ (nInterval), DWHCIDeviceTimerHandler, pStageData, pThis);
+				// e_pThis = pThis;
+				// e_nChannel = nChannel;
 				StartKernelTimer (MSEC2HZ (nInterval), DWHCIDeviceTimerHandler, pThis, nChannel);
 			}
 			break;
@@ -1220,15 +1230,11 @@ void DWHCIDeviceInterruptHandler (int nIRQ, void *pParam)
 	_DWHCIRegister (&IntStatus);
 }
 
-// void DWHCIDeviceTimerHandler (TKernelTimerHandle hTimer, void *pParam, void *pContext)
 void DWHCIDeviceTimerHandler (void *pContext, unsigned int nChannel)
 {
-	// (void) hTimer;
-
 	TDWHCIDevice *pThis = (TDWHCIDevice *) pContext;
 	assert (pThis != 0);
 	
-	// TDWHCITransferStageData *pStageData = (TDWHCITransferStageData *) pParam;
 	TDWHCITransferStageData *pStageData = (TDWHCITransferStageData *) &pThis->m_StageData[nChannel];
 	assert (pStageData != 0);
 	
@@ -1255,6 +1261,8 @@ void DWHCIDeviceTimerHandler (void *pContext, unsigned int nChannel)
 	DWHCIDeviceStartTransaction (pThis, pStageData);
 
 	DataMemBarrier ();
+
+	// prvFunc_Print("FTIMER");
 }
 
 unsigned DWHCIDeviceAllocateChannel (TDWHCIDevice *pThis)

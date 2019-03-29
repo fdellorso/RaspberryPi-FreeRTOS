@@ -23,9 +23,6 @@
 
 #define CLEAR_SCREEN                "\033[2J"
 
-
-char loaded;
-
 void muart_init(void);
 
 void muart_putc(unsigned char c);

@@ -31,7 +31,7 @@ typedef struct {
 
 static volatile BCM2835_MUART_REGS * const pRegs = (BCM2835_MUART_REGS *) (BCM2835_MUART_BASE);
 
-char loaded;
+static char loaded = 0;
 
 void muart_flush(void);
 

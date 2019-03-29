@@ -9,9 +9,9 @@
 
 #define KEY_IRQ 1
 
-uint32_t width, height;
-uint8_t hour, minute, second, current_clk;
-uint8_t exit_clk;
+static uint32_t width, height;
+static uint8_t hour, minute, second, current_clk;
+static uint8_t exit_clk;
 
 void ili9340_clock2(void);
 

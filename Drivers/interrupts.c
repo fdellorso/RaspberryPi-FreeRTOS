@@ -25,28 +25,25 @@ static volatile BCM2835_INTC_REGS * const pRegs = (BCM2835_INTC_REGS *) (BCM2835
 /**
  *	Enables all IRQ's in the CPU's CPSR register.
  **/
-__attribute__((no_instrument_function))
-static void irqEnable(void) {
-	__asm volatile("cpsie i" : : : "memory");
-}
+// static void irqEnable(void) {
+// 	__asm volatile("cpsie i" : : : "memory");
+// }
 
-__attribute__((no_instrument_function))
-static void irqDisable(void) {
-	__asm volatile("cpsid i" : : : "memory");
-}
+// static void irqDisable(void) {
+// 	__asm volatile("cpsid i" : : : "memory");
+// }
 
 #define clz(a) \
  __extension__({ unsigned long __value, __arg = (a); \
      asm ("clz\t%0, %1": "=r" (__value): "r" (__arg)); \
      __value; })
 
-__attribute__((no_instrument_function)) void irqHandler(void);
+void irqHandler(void);
 /**
  *	This is the global IRQ handler on this platform!
  *	It is based on the assembler code found in the Broadcom datasheet.
  *
  **/
-__attribute__((no_instrument_function))
 void irqHandler(void) {
 	register unsigned long ulMaskedStatus;
 	register unsigned long irqNumber;
@@ -89,7 +86,6 @@ void irqHandler(void) {
 	g_VectorTable[irqNumber].pfnHandler(irqNumber, g_VectorTable[irqNumber].pParam);
 }
 
-__attribute__((no_instrument_function))
 static void stubHandler(int nIRQ, void *pParam) {
 	/**
 	 *	Actually if we get here, we should probably disable the IRQ,
@@ -100,7 +96,6 @@ static void stubHandler(int nIRQ, void *pParam) {
 	(void)pParam;	// FIXME Wunused
 }
 
-__attribute__((no_instrument_function))
 int InitInterruptController(void) {
 	int i;
 	for(i = 0; i < BCM2835_INTC_TOTAL_IRQ; i++) {
@@ -110,21 +105,18 @@ int InitInterruptController(void) {
 	return 0;
 }
 
-__attribute__((no_instrument_function))
-int RegisterInterrupt(int nIRQ, FN_INTERRUPT_HANDLER pfnHandler, void *pParam) {
-	if(nIRQ<0 || nIRQ>71)
+int RegisterInterrupt(int nIRQ, FN_INTERRUPT_HANDLER pfnHandler, void *pParam)
+{
+	if(nIRQ<0 || nIRQ>71) {
 		return -1;
-
-	irqDisable();
-	{
-		g_VectorTable[nIRQ].pfnHandler = pfnHandler;
-		g_VectorTable[nIRQ].pParam	   = pParam;
 	}
-	irqEnable();
+
+	g_VectorTable[nIRQ].pfnHandler = pfnHandler;
+	g_VectorTable[nIRQ].pParam	   = pParam;
+
 	return 0;
 }
 
-__attribute__((no_instrument_function))
 int EnableInterrupt(int nIRQ) {
 	/* Datasheet says "All other bits are unaffected", and I'm counting on that. */
 	unsigned int mask=1<<(nIRQ%32);
@@ -141,7 +133,6 @@ int EnableInterrupt(int nIRQ) {
 	return 0;
 }
 
-__attribute__((no_instrument_function))
 int DisableInterrupt(int nIRQ) {
 	/* Datasheet says "All other bits are unaffected", and I'm counting on that. */
 	unsigned int mask=1<<(nIRQ%32);
@@ -160,14 +151,19 @@ int DisableInterrupt(int nIRQ) {
 	return 0;
 }
 
-__attribute__((no_instrument_function))
-int EnableInterrupts(void) {
-	irqEnable();
-	return 0;
-}
+// int EnableInterrupts(void) {
+// 	irqEnable();
+// 	return 0;
+// }
 
-__attribute__((no_instrument_function))
-int DisableInterrupts(void) {
-	irqDisable();
-	return 0;
+// int DisableInterrupts(void) {
+// 	irqDisable();
+// 	return 0;
+// }
+
+extern void NOOP(unsigned int);
+void voidSetupFN (uint32_t pParam){
+	(void) pParam;
+
+	NOOP(1);
 }

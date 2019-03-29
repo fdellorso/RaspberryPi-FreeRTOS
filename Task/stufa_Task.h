@@ -8,10 +8,17 @@
 #include <queue.h>
 #include <semphr.h>
 #include <timers.h>
+#include <event_groups.h>
 
 #include <uspi.h>
 #include <tic.h>
 #include <rsta_bt/btsubsystem.h>
+
+#define mainWATCHDOG_TIMER_PERIOD pdMS_TO_TICKS( 1000 )
+#define initWATCHDOG_TIMER_PERIOD pdMS_TO_TICKS( 200 )
+#define TICRESET_TIMER_PERIOD pdMS_TO_TICKS( 500 )
+
+#define BTLOGICALLAYER_BIT  ( 1UL << 0UL ) /* Event bit 0, which is set by a task. */ 
 
 tic_error * prvFunc_TicMotorInit(tic_handle * ticHandle);
 
@@ -36,6 +43,7 @@ void prvFunc_Print(const char *pMessage, ...);      // Print everywhere
 char * prvFunc_Scan(char * pDest);					// Scan only from UART
 
 // Tasks
+void prvTask_PrintPool(void *pParam); 
 void prvTask_WatchDog(void *pParam);
 void prvTask_UspiInitialize(void *pParam);
 void prvTask_TicControl(void *pParam);

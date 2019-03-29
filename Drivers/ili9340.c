@@ -7,19 +7,12 @@
 #define CHAR_WIDTH 	6
 #define CHAR_HEIGHT 8
 
-
-uint32_t width, height;
-
-char lcdbuffer[2 * ILI9340_TFTWIDTH * ILI9340_TFTHEIGHT];
-uint16_t dirty_x0;
-uint16_t dirty_y0;
-uint16_t dirty_x1;
-uint16_t dirty_y1;
-
-char loaded;
-uint16_t lcd_position_x = 0;
-uint16_t lcd_position_y = 0;
-
+static char loaded = 0;
+static char lcdbuffer[2 * ILI9340_TFTWIDTH * ILI9340_TFTHEIGHT];
+static uint32_t width, height;
+static uint16_t dirty_x0, dirty_y0, dirty_x1, dirty_y1;
+static uint16_t lcd_position_x = 0;
+static uint16_t lcd_position_y = 0;
 
 void ili9340_write_command(uint8_t command, int param_len, ...);
 void ili9340_update_display(void);

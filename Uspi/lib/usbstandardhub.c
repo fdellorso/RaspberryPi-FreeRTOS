@@ -127,7 +127,7 @@ boolean USBStandardHubConfigure (TUSBFunction *pUSBFunction)
 	}
 
 #ifndef NDEBUG
-	//DebugHexdump (pThis->m_pHubDesc, sizeof *pThis->m_pHubDesc, FromHub);
+	// DebugHexdump (pThis->m_pHubDesc, sizeof *pThis->m_pHubDesc, FromHub);
 #endif
 
 	pThis->m_nPorts = pThis->m_pHubDesc->bNbrPorts;

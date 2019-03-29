@@ -15,16 +15,9 @@
 extern "C" {
 #endif
 
-#ifndef PRVLIB
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <string.h>
-#else
-    #include "prvlib/stdio.h"
-    #include "prvlib/stdlib.h"
-    // #include "prvlib/string.h"
-    #include <uspi/util.h>
-#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /**
  * @defgroup export Export Definitions

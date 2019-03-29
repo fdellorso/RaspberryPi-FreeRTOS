@@ -1,8 +1,8 @@
 #ifndef _NULL_H_
 #define _NULL_H_
 
-extern  int     *__NULL_PTR_START;
+extern  int     *__NULL_ptr;
 
-#define NULL    (void *)&__NULL_PTR_START
+#define NULL    (void *) 0 //(void *)&__NULL_ptr
 
 #endif

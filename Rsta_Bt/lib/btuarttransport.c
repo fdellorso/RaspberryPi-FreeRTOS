@@ -31,6 +31,8 @@
 #include <gpio.h>
 #include <uart0.h>
 
+#include <stufa_Task.h>
+
 enum TBTUARTRxState
 {
 	RxStateStart,
@@ -56,8 +58,11 @@ static void BTUARTTransportIRQStub (int nIRQ, void *pParam);
 void BTUARTTransport (TBTUARTTransport *pThis) //, CInterruptSystem *pInterruptSystem)
 {
 	// to be sure there is no collision with the UART GPIO interface
-	SetGpioFunction(14, GPIO_FUNC_INPUT);
-	SetGpioFunction(15, GPIO_FUNC_INPUT);
+	// SetGpioFunction(14, GPIO_FUNC_INPUT);
+	// SetGpioFunction(15, GPIO_FUNC_INPUT);
+	// SetGpioFunction(45, GPIO_FUNC_OUTPUT);
+	SetGpioFunction(30, GPIO_FUNC_ALT_3);
+	SetGpioFunction(31, GPIO_FUNC_ALT_3);
 	SetGpioFunction(32, GPIO_FUNC_ALT_3);
 	SetGpioFunction(33, GPIO_FUNC_ALT_3);
 	// pThis->m_pInterruptSystem (pInterruptSystem);		// TODO
@@ -80,9 +85,9 @@ void _BTUARTTransport (TBTUARTTransport *pThis)
 	{
 		// assert (pThis->m_pInterruptSystem != 0);
 		// pThis->m_pInterruptSystem->DisconnectIRQ (ARM_IRQ_UART);	// TODO
-		// taskENTER_CRITICAL();		// FIXME
-		// DisableInterrupt(BCM2835_IRQ_ID_UART);
-		// taskEXIT_CRITICAL();
+		DisableInterrupts();
+		DisableInterrupt(BCM2835_IRQ_ID_UART);
+		EnableInterrupts();
 	}
 
 	// pThis->m_pInterruptSystem = 0;
@@ -91,7 +96,7 @@ void _BTUARTTransport (TBTUARTTransport *pThis)
 boolean BTUARTTransportInitialize (TBTUARTTransport *pThis, unsigned nBaudrate)
 {
 	// unsigned nClockRate = CMachineInfo::Get ()->GetClockRate (CLOCK_ID_UART);
-	unsigned nClockRate = GetClockRate(0); // CLOCK_ID_UART)	// TODO
+	unsigned nClockRate = GetClockRate(2); // CLOCK_ID_UART)	// TODO
 	assert (nClockRate > 0);
 
 	if(nBaudrate == 0) nBaudrate = 115200;
@@ -106,10 +111,6 @@ boolean BTUARTTransportInitialize (TBTUARTTransport *pThis, unsigned nBaudrate)
 
 	// assert (pThis->m_pInterruptSystem != 0);
 	// pThis->m_pInterruptSystem->ConnectIRQ (ARM_IRQ_UART, IRQStub, this);			// TODO
-	// taskENTER_CRITICAL();		// FIXME Possible to move after Init
-	// RegisterInterrupt(BCM2835_IRQ_ID_UART, BTUARTTransportIRQStub, pThis);
-	// EnableInterrupt(BCM2835_IRQ_ID_UART);
-	// taskEXIT_CRITICAL();
 	ConnectInterrupt (BCM2835_IRQ_ID_UART, BTUARTTransportIRQStub, pThis,
 					  voidSetupFN, 0, 1);
 	pThis->m_bIRQConnected = TRUE;
@@ -265,6 +266,8 @@ static void BTUARTTransportIRQStub (int nIRQ, void *pParam)
 
 	TBTUARTTransport *pThis = (TBTUARTTransport *) pParam;
 	assert (pThis != 0);
+
+	// prvFunc_Print("UART_IRQ");
 
 	BTUARTTransportIRQHandler(pThis);
 }

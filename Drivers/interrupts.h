@@ -9,6 +9,7 @@
 #define _INTERRUPTS_H_
 
 #include <rpi_header.h>
+#include <uspi/types.h>
 
 #define BCM2835_INTC_TOTAL_IRQ		64 + 8
 
@@ -52,17 +53,25 @@
 
 
 typedef void (*FN_INTERRUPT_HANDLER)(int nIRQ, void *pParam);
+typedef void (*FN_INTERRUPT_SETUP)(uint32_t pParam);
 
 typedef struct {
 	FN_INTERRUPT_HANDLER 	pfnHandler;			// Function that handles this IRQn
 	void 				   *pParam;				// A special parameter that the use can pass to the IRQ.
 } INTERRUPT_VECTOR;
 
-int InitInterruptController	(void);
-int RegisterInterrupt		(int nIRQ, FN_INTERRUPT_HANDLER pfnHandler, void *pParam);
-int EnableInterrupt			(int nIRQ);
-int DisableInterrupt		(int nIRQ);
-int EnableInterrupts		(void);
-int DisableInterrupts		(void);
+int InitInterruptController (void);
+int RegisterInterrupt (int nIRQ, FN_INTERRUPT_HANDLER pfnHandler, void *pParam);
+int EnableInterrupt (int nIRQ);
+int DisableInterrupt (int nIRQ);
+
+void EnableInterrupts (void);
+void DisableInterrupts (void);
+void EnableFIQ (void);
+void DisableFIQ (void);
+
+void voidSetupFN (uint32_t pParam);
+
+// uintptr_t setFiqFuncAddress (void(*ARMaddress)(void));
 
 #endif

@@ -2,12 +2,10 @@
 //authored by Francesco Dell'Orso
 //
 
+// TODO Implement resource control
 // TODO Resolve DRB8825 Interrupt
 // TODO Conversion loops -> pulses
 // TODO Tic Home Routine
-
-// TODO Update FreeRTOS 10.0
-// TODO Update USPi 2.00
 // TODO Understand if Uart FIFO Flush works
 // TODO Investigate Data Memory Barrier
 // TODO Investigate benefit of Cache
@@ -19,52 +17,67 @@
 #include <rpi_logger.h>
 #include <prvlib/null.h>
 
+// #include <uspi/dwhcidevice.h>
+
 // Semaphores
-xSemaphoreHandle	xSemUSPiInit	= NULL;
-xSemaphoreHandle	xSemTicInit		= NULL;
+SemaphoreHandle_t	xSemUSPiInit	= NULL;
+SemaphoreHandle_t	xSemTicInit		= NULL;
 
 // Mutexs
-xSemaphoreHandle	xMutexMuart		= NULL;
-xSemaphoreHandle	xMutexTicVar	= NULL;
-xSemaphoreHandle	xMutexEnergize	= NULL;
-xSemaphoreHandle	xMutexRunning	= NULL;
+const TickType_t xBlockTime = pdMS_TO_TICKS( 20 );
+SemaphoreHandle_t	xMutexMuart		= NULL;
+SemaphoreHandle_t	xMutexTicVar	= NULL;
+SemaphoreHandle_t	xMutexEnergize	= NULL;
+SemaphoreHandle_t	xMutexRunning	= NULL;
 
 // Queues
-xQueueHandle		xQueTicHdl		= NULL;
-xQueueHandle		xQueTicVar		= NULL;
-xQueueHandle		xQueTicSet		= NULL;
-xQueueHandle		xQueTicCmd		= NULL;
-xQueueHandle		xQueBltProc		= NULL;
+QueueHandle_t		xQuePrintPool	= NULL;
+QueueHandle_t		xQueTicHdl		= NULL;
+QueueHandle_t		xQueTicVar		= NULL;
+QueueHandle_t		xQueTicSet		= NULL;
+QueueHandle_t		xQueTicCmd		= NULL;
+QueueHandle_t		xQueueBLTiProc	= NULL;
+
+// Event Groups
+EventGroupHandle_t	xEventGroup		= NULL;
+
+// Timers
+TimerHandle_t		xWatchDogTimer	= NULL;
+TimerHandle_t		xTicResetTimer	= NULL;
+// TimerHandle_t		xDWHCITimer		= NULL;
+
 
 // Tasks
-xTaskHandle			xHandleWDog		= NULL;
-xTaskHandle			xHandleUSPi		= NULL;
-xTaskHandle			xHandleTicCtrl	= NULL;
-xTaskHandle			xHandleTicCnsl	= NULL;
-xTaskHandle			xHandle8825Ctrl	= NULL;
-xTaskHandle			xHandleBltInit	= NULL;
-xTaskHandle			xHandleBltProc	= NULL;
+TaskHandle_t		xHandlePrintPool= NULL;
+TaskHandle_t		xHandleWDog		= NULL;
+TaskHandle_t		xHandleUSPiInit	= NULL;
+TaskHandle_t		xHandleTIC1Ctrl	= NULL;
+TaskHandle_t		xHandleTIC1Cnsl	= NULL;
+TaskHandle_t		xHandle8825Ctrl	= NULL;
+TaskHandle_t		xHandleBLTiInit	= NULL;
+TaskHandle_t		xHandleBLTiProc	= NULL;
 
-const portTickType xBlockTime = 100 / portTICK_RATE_MS;
-
-TaskStatus_t xTaskDetails;
-
-// void vTimerInitializeFunction (void *pvParameter1, uint32_t ulParameter2);
+static uint8_t ucWatchDogCounter = 0;
+static void prvWatchDogTimerCallback( TimerHandle_t xTimer );
+static void prvTicResetTimerCallback( TimerHandle_t xTimer );
+// static void prvDWHCIDeviceTimerCallback( TimerHandle_t xTimer );
 
 int main(void) {
 
 	DelayMilliSysTimer(100);
+
+	SetGpio(41, 1);
+	SetGpio(45, 1);
 
 	DisableInterrupts();
 	InitInterruptController();
 
 	logger_init();
 	#ifdef ILI9340
-		bcm2835_init();
 		ili9340_set_rotation(1);
 	#endif
 
-	printf("StuFA Start");
+	println("StuFA Start");
 
 	vSemaphoreCreateBinary(xSemUSPiInit);
 	vSemaphoreCreateBinary(xSemTicInit);
@@ -74,31 +87,48 @@ int main(void) {
 	xMutexEnergize = xSemaphoreCreateMutex();
 	xMutexRunning = xSemaphoreCreateMutex();
 
+	xQuePrintPool = xQueueCreate(30, sizeof(char *));
 	xQueTicHdl = xQueueCreate(1, sizeof(tic_handle *));
 	xQueTicVar = xQueueCreate(1, sizeof(tic_variables *));
 	xQueTicSet = xQueueCreate(1, sizeof(tic_settings *));
 	xQueTicCmd = xQueueCreate(1, sizeof(tic_command *));
-	xQueBltProc = xQueueCreate(1, sizeof(TBTSubSystem *));
+	xQueueBLTiProc = xQueueCreate(1, sizeof(TBTSubSystem *));
 
-	// BaseType_t timerInitialize = 0;
-	// timerInitialize = xTimerPendFunctionCall((PendedFunction_t) vTimerInitializeFunction, NULL, (uint32_t) 0, pdMS_TO_TICKS(1000));
-	// if(timerInitialize != pdPASS) {
-	// 	printf("Timer Initialize error: %d", timerInitialize);
+	xEventGroup = xEventGroupCreate();
+
+	xWatchDogTimer = xTimerCreate( (const char *) "LedTimer",
+						mainWATCHDOG_TIMER_PERIOD, pdTRUE,
+						0, prvWatchDogTimerCallback );
+
+	xTicResetTimer = xTimerCreate( (const char *) "TicReset",
+						TICRESET_TIMER_PERIOD, pdTRUE,
+						0, prvTicResetTimerCallback );
+	
+	// xDWHCITimer    = xTimerCreate( (const char *) "DWHCITimer",
+	// 					initWATCHDOG_TIMER_PERIOD, pdFALSE,
+	// 					0, prvDWHCIDeviceTimerCallback );
+
+	// if(xTaskCreate(prvTask_WatchDog, (const char *) "WatchDog",
+	// 	configMINIMAL_STACK_SIZE, NULL, 1, &xHandleWDog) == pdPASS) {
+	// 	if(uxTaskPriorityGet(xHandleWDog) < configMAX_CO_ROUTINE_PRIORITIES) {
+	// 		vTaskSuspend(xHandleWDog);
+	// 	}
 	// }
 
-	if(xTaskCreate(prvTask_WatchDog, (const char *) "WatchDog",
-		configMINIMAL_STACK_SIZE, NULL, 1, &xHandleWDog) == pdPASS) {
-		// if(uxTaskPriorityGet(xHandleWDog) < configMAX_CO_ROUTINE_PRIORITIES) {
-		// 	vTaskSuspend(xHandleWDog);
-		// }
-	}
+	// if(xTaskCreate(prvTask_PrintPool, (const char *) "PrintPool",
+	// 	configMINIMAL_STACK_SIZE, NULL, 1, &xHandlePrintPool) == pdPASS) {
+	// 	// if(uxTaskPriorityGet(xHandleUSPi) < configMAX_CO_ROUTINE_PRIORITIES)
+	// 	// {
+	// 		// vTaskSuspend(xHandleUSPi);
+	// 	// }
+	// }
 
 	if(xTaskCreate(prvTask_UspiInitialize, (const char *) "UspiInit",
-		2 * configMINIMAL_STACK_SIZE, NULL, 0, &xHandleUSPi) == pdPASS) {
-		// if(uxTaskPriorityGet(xHandleUSPi) < configMAX_CO_ROUTINE_PRIORITIES)
-		{
-			vTaskSuspend(xHandleUSPi);
-		}
+		configMINIMAL_STACK_SIZE, NULL, 1, &xHandleUSPiInit) == pdPASS) {
+		// if(uxTaskPriorityGet(xHandleUSPiInit) < configMAX_CO_ROUTINE_PRIORITIES)
+		// {
+		// 	vTaskSuspend(xHandleUSPiInit);
+		// }
 	}
 
 	// if(xTaskCreate(prvTask_TicControl, (const char *) "TicControl",
@@ -124,22 +154,24 @@ int main(void) {
 	// }
 
 	if(xTaskCreate(prvTask_BluetoothInitialize, (const char *) "BluetoothInitialize",
-		configMINIMAL_STACK_SIZE, NULL, 0, &xHandleBltInit) == pdPASS) {
+		configMINIMAL_STACK_SIZE, NULL, 1, &xHandleBLTiInit) == pdPASS) {
 		// if(uxTaskPriorityGet(xHandleBltInit) < configMAX_CO_ROUTINE_PRIORITIES)
 		{
-			vTaskSuspend(xHandleBltInit);
+			vTaskSuspend(xHandleBLTiInit);
 		}
 	}
 
 	if(xTaskCreate(prvTask_BluetoothProcess, (const char *) "BluetoothProcess",
-		2 * configMINIMAL_STACK_SIZE, NULL, 1, &xHandleBltProc) == pdPASS) {
+		configMINIMAL_STACK_SIZE, NULL, 1, &xHandleBLTiProc) == pdPASS) {
 		// if(uxTaskPriorityGet(xHandleBltProc) < configMAX_CO_ROUTINE_PRIORITIES)
 		{
-			vTaskSuspend(xHandleBltProc);
+			vTaskSuspend(xHandleBLTiProc);
 		}
 	}
 
-	vTaskStartScheduler();
+	if(xTimerStart(xWatchDogTimer, 0) == pdPASS) {
+		vTaskStartScheduler();
+	}
 
 	/*
 	 *	We should never get here, but just in case something goes wrong,
@@ -150,9 +182,31 @@ int main(void) {
 	}
 }
 
-// void vTimerInitializeFunction (void *pvParameter1, uint32_t ulParameter2) {
-// 	(void) pvParameter1;
-// 	(void) ulParameter2;
+static void prvWatchDogTimerCallback( TimerHandle_t xTimer ) 
+{
+	(void) xTimer;
 
-// 	portNOP();
+	// WhatcDog Activity Led
+	SetGpio(47, ucWatchDogCounter % 2);
+
+	ucWatchDogCounter++;
+}
+
+static void prvTicResetTimerCallback( TimerHandle_t xTimer ) 
+{
+	(void) xTimer;
+
+
+}
+
+// extern TDWHCIDevice *e_pThis;
+// extern int e_nChannel;
+// extern void DWHCIDeviceTimerHandler (void *pContext, unsigned int nChannel);
+// static void prvDWHCIDeviceTimerCallback( TimerHandle_t xTimer ) 
+// {
+// 	(void) xTimer;
+
+// 	if(e_pThis != NULL && e_nChannel > -1) {
+// 		DWHCIDeviceTimerHandler(e_pThis, (unsigned int) e_nChannel);
+// 	}
 // }

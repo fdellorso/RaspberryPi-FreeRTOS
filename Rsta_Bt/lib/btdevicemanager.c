@@ -132,12 +132,13 @@ void BTDeviceManagerProcess (TBTDeviceManager *pThis)
 						assert (pThis->m_State == BTDeviceStateWriteRAMPending);
 
 						assert (pThis->m_nFirmwareOffset + 3 <= sizeof Firmware);
-						u16   nOpCode  = Firmware[pThis->m_nFirmwareOffset++];
-							  nOpCode |= Firmware[pThis->m_nFirmwareOffset++] << 8;
+						u16 *nOpCode = (u16 *) malloc (sizeof(u16));
+							*nOpCode  = Firmware[pThis->m_nFirmwareOffset++];
+							*nOpCode |= Firmware[pThis->m_nFirmwareOffset++] << 8;
 						/* (u8) */	nLength  = Firmware[pThis->m_nFirmwareOffset++];
 
 						TBTHCIBcmVendorCommand Cmd;
-						Cmd.Header.OpCode = nOpCode;
+						Cmd.Header.OpCode = *nOpCode;
 						Cmd.Header.ParameterTotalLength = nLength;
 
 						unsigned i;
@@ -149,10 +150,11 @@ void BTDeviceManagerProcess (TBTDeviceManager *pThis)
 
 						BTHCILayerSendCommand(pThis->m_pHCILayer, &Cmd, sizeof Cmd.Header + nLength);
 
-						if (nOpCode == OP_CODE_LAUNCH_RAM)
+						if (*nOpCode == OP_CODE_LAUNCH_RAM)
 						{
 							pThis->m_State = BTDeviceStateLaunchRAMPending;
 						}
+						free(nOpCode);
 					} break;
 
 					case OP_CODE_LAUNCH_RAM: {

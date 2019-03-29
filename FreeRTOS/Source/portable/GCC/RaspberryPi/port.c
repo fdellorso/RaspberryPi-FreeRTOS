@@ -5,48 +5,38 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "interrupts.h"
-#include "arm_timer.h"
 #include "sys_timer.h"
 
 /* Constants required to setup the task context. */
-#define portINITIAL_SPSR						( ( portSTACK_TYPE ) 0x1f ) /* System mode, ARM mode, interrupts enabled. */
-#define portTHUMB_MODE_BIT						( ( portSTACK_TYPE ) 0x20 )
-#define portINSTRUCTION_SIZE					( ( portSTACK_TYPE ) 4 )
-#define portNO_CRITICAL_SECTION_NESTING			( ( portSTACK_TYPE ) 0 )
-// #define portTIMER_PRESCALE 						( ( unsigned long ) 0xF9 )
-#define portPRESCALE_VALUE						0
+#define portINITIAL_SPSR				( ( StackType_t ) 0x1f ) /* System mode, ARM mode, interrupts enabled. */
+#define portTHUMB_MODE_BIT				( ( StackType_t ) 0x20 )
+#define portINSTRUCTION_SIZE			( ( StackType_t ) 4 )
 
+/* Constants required to setup the tick ISR. */
+// #define portTIMER_PRESCALE 				( ( StackType_t ) 0xF9 )
+// #define portPRESCALE_VALUE				0x00
 
-/* Constants required to setup the VIC for the tick ISR. */
-// #define portTIMER_BASE                    		( (unsigned long ) 0x2000B400 )
+/* Constants required to handle critical sections. */
+#define portNO_CRITICAL_NESTING		( ( uint32_t ) 0 )
+volatile uint32_t ulCriticalNesting = 9999UL;
 
-// typedef struct {
-// 	unsigned long LOD;
-// 	unsigned long VAL;
-// 	unsigned long CTL;
-// 	unsigned long CLI;
-// 	unsigned long RIS;
-// 	unsigned long MIS;
-// 	unsigned long RLD;
-// 	unsigned long DIV;
-// 	unsigned long CNT;
-// } BCM2835_TIMER_REGS;
-
-// static volatile BCM2835_TIMER_REGS * const pRegs = (BCM2835_TIMER_REGS *) (portTIMER_BASE);
 /*-----------------------------------------------------------*/
 
 /* Setup the timer to generate the tick interrupts. */
 static void prvSetupTimerInterrupt( void );
+void vTickISR(int nIRQ, void *pParam );
 
 /* 
  * The scheduler can only be started from ARM mode, so 
  * vPortISRStartFirstSTask() is defined in portISR.c. 
  */
-extern void vPortISRStartFirstTask( void );
+// extern void vPortISRStartFirstTask( void );
 
 /*-----------------------------------------------------------*/
 
-__attribute__((no_instrument_function)) void vTickISR(int nIRQ, void *pParam );
+void ConnectInterrupt(int nIRQ, FN_INTERRUPT_HANDLER pfnHandler, void *pParamIRQ,
+					  FN_INTERRUPT_SETUP pfnSetup, uint32_t pParamSetup, int bTask);
+
 
 /* 
  * Initialise the stack of a task to look exactly as if a call to 
@@ -54,9 +44,9 @@ __attribute__((no_instrument_function)) void vTickISR(int nIRQ, void *pParam );
  *
  * See header file for description. 
  */
-__attribute__((no_instrument_function))
-portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE pxCode, void *pvParameters ) {
-	portSTACK_TYPE *pxOriginalTOS;
+StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, TaskFunction_t pxCode, void *pvParameters )
+{
+StackType_t *pxOriginalTOS;
 
 	pxOriginalTOS = pxTopOfStack;
 
@@ -70,48 +60,48 @@ portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE
 	/* First on the stack is the return address - which in this case is the
 	start of the task.  The offset is added to make the return address appear
 	as it would within an IRQ ISR. */
-	*pxTopOfStack = ( portSTACK_TYPE ) pxCode + portINSTRUCTION_SIZE;		
+	*pxTopOfStack = ( StackType_t ) pxCode + portINSTRUCTION_SIZE;		
 	pxTopOfStack--;
 
-	*pxTopOfStack = ( portSTACK_TYPE ) 0xaaaaaaaa;	/* R14 */
+	*pxTopOfStack = ( StackType_t ) 0xaaaaaaaa;	/* R14 */
 	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) pxOriginalTOS; /* Stack used when task starts goes in R13. */
+	*pxTopOfStack = ( StackType_t ) pxOriginalTOS; /* Stack used when task starts goes in R13. */
 	pxTopOfStack--;
-	*pxTopOfStack = ( portSTACK_TYPE ) 0x12121212;	/* R12 */
+	*pxTopOfStack = ( StackType_t ) 0x12121212;	/* R12 */
 	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) 0x11111111;	/* R11 */
+	*pxTopOfStack = ( StackType_t ) 0x11111111;	/* R11 */
 	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) 0x10101010;	/* R10 */
+	*pxTopOfStack = ( StackType_t ) 0x10101010;	/* R10 */
 	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) 0x09090909;	/* R9 */
+	*pxTopOfStack = ( StackType_t ) 0x09090909;	/* R9 */
 	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) 0x08080808;	/* R8 */
+	*pxTopOfStack = ( StackType_t ) 0x08080808;	/* R8 */
 	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) 0x07070707;	/* R7 */
+	*pxTopOfStack = ( StackType_t ) 0x07070707;	/* R7 */
 	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) 0x06060606;	/* R6 */
+	*pxTopOfStack = ( StackType_t ) 0x06060606;	/* R6 */
 	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) 0x05050505;	/* R5 */
+	*pxTopOfStack = ( StackType_t ) 0x05050505;	/* R5 */
 	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) 0x04040404;	/* R4 */
+	*pxTopOfStack = ( StackType_t ) 0x00000000;	/* R4  Must be zero see the align 8 issue in portSaveContext */
 	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) 0x03030303;	/* R3 */
+	*pxTopOfStack = ( StackType_t ) 0x03030303;	/* R3 */
 	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) 0x02020202;	/* R2 */
+	*pxTopOfStack = ( StackType_t ) 0x02020202;	/* R2 */
 	pxTopOfStack--;	
-	*pxTopOfStack = ( portSTACK_TYPE ) 0x01010101;	/* R1 */
+	*pxTopOfStack = ( StackType_t ) 0x01010101;	/* R1 */
 	pxTopOfStack--;	
 
-	/* When the task starts it will expect to find the function parameter in
+	/* When the task starts is will expect to find the function parameter in
 	R0. */
-	*pxTopOfStack = ( portSTACK_TYPE ) pvParameters; /* R0 */
+	*pxTopOfStack = ( StackType_t ) pvParameters; /* R0 */
 	pxTopOfStack--;
 
 	/* The last thing onto the stack is the status register, which is set for
 	system mode, with interrupts enabled. */
-	*pxTopOfStack = ( portSTACK_TYPE ) portINITIAL_SPSR;
+	*pxTopOfStack = ( StackType_t ) portINITIAL_SPSR;
 
-	if( ( ( unsigned long ) pxCode & 0x01UL ) != 0x00 )
+	if( ( ( uint32_t ) pxCode & 0x01UL ) != 0x00 )
 	{
 		/* We want the task to start in thumb mode. */
 		*pxTopOfStack |= portTHUMB_MODE_BIT;
@@ -123,28 +113,30 @@ portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE
 	means the interrupt flags cannot always be stored on the stack and will
 	instead be stored in a variable, which is then saved as part of the
 	tasks context. */
-	*pxTopOfStack = portNO_CRITICAL_SECTION_NESTING;
+	*pxTopOfStack = portNO_CRITICAL_NESTING;
 
 	return pxTopOfStack;
 }
 /*-----------------------------------------------------------*/
 
-__attribute__((no_instrument_function))
-portBASE_TYPE xPortStartScheduler( void ) {
+extern void restore_context (void);
+BaseType_t xPortStartScheduler( void )
+{
 	/* Start the timer that generates the tick ISR.  Interrupts are disabled
 	here already. */
 	prvSetupTimerInterrupt();
 
 	/* Start the first task. */
-	vPortISRStartFirstTask();	
+	// vPortISRStartFirstTask();
+	restore_context();
 
 	/* Should not get here! */
 	return 0;
 }
 /*-----------------------------------------------------------*/
 
-__attribute__((no_instrument_function))
-void vPortEndScheduler( void ) {
+void vPortEndScheduler( void )
+{
 	/* It is unlikely that the ARM port will require this function as there
 	is nothing to return to.  */
 }
@@ -156,61 +148,99 @@ void vPortEndScheduler( void ) {
  *
  *	See bt_interrupts.c in the RaspberryPi Drivers folder.
  */
-__attribute__((no_instrument_function))
-void vTickISR(int nIRQ, void *pParam) {
+void vTickISR(int nIRQ, void *pParam)
+{
 	(void)nIRQ;		// FIXME Wunused
 	(void)pParam;	// FIXME Wunused
 
 	xTaskIncrementTick();
-
-	#if ( configUSE_PREEMPTION == 1 )
-	{
-		vTaskSwitchContext();
-	}
+	#if configUSE_PREEMPTION == 1
+	vTaskSwitchContext();
 	#endif
-
-	// pRegs->CLI = 0;			// Acknowledge the timer interrupt.
-	// prvArmTimerIrqClear();
-	prvSystemTimerTickClear();
+	prvSystemTimerTickClear(configTICK_RATE_HZ);
 }
 
 /*
  * Setup the timer 0 to generate the tick interrupts at the required frequency.
  */
-__attribute__((no_instrument_function))
-static void prvSetupTimerInterrupt( void ) {
-	unsigned long ulCompareMatch;
-	
-	(void)ulCompareMatch;
-	
-	/* Calculate the match value required for our wanted tick rate. */
-	ulCompareMatch = 1000000 / configTICK_RATE_HZ;
+static void prvSetupTimerInterrupt( void )
+{
+	// DisableInterrupts();
+	// prvSystemTimerTickSetup(configTICK_RATE_HZ);
+	// RegisterInterrupt(BCM2835_IRQ_ID_ST_C1, vTickISR, NULL);
+	// EnableInterrupt(BCM2835_IRQ_ID_ST_C1);
+	// EnableInterrupts();
 
-	/* Protect against divide by zero.  Using an if() statement still results
-	in a warning - hence the #if. */
-	#if ( portPRESCALE_VALUE != 0 )
-	{
-		ulCompareMatch /= ( portPRESCALE_VALUE + 1 );
-	}
-	#endif
-
-	DisableInterrupts();
-
-	// pRegs->CTL = 0x003E0000;
-	// pRegs->LOD = 1000 - 1;
-	// pRegs->RLD = 1000 - 1;
-	// pRegs->DIV = portTIMER_PRESCALE;
-	// pRegs->CLI = 0;
-	// pRegs->CTL = 0x003E00A2;
-
-	// prvArmTimerSetup();
-	// RegisterInterrupt(64, vTickISR, NULL);
-	// EnableInterrupt(64);
-
-	prvSystemTimerTickSetup();
-	RegisterInterrupt(BCM2835_IRQ_ID_ST_C1, vTickISR, NULL);
-	EnableInterrupt(BCM2835_IRQ_ID_ST_C1);
-
-	EnableInterrupts();
+	ConnectInterrupt(BCM2835_IRQ_ID_ST_C1, vTickISR, NULL,
+					 prvSystemTimerTickSetup, configTICK_RATE_HZ, 0);
 }
 /*-----------------------------------------------------------*/
+
+// static volatile uint32_t s_bWereEnabled;		// BUG Smette di funzionare il timer se ON
+/* The code generated by the GCC compiler uses the stack in different ways at
+different optimisation levels.  The interrupt flags can therefore not always
+be saved to the stack.  Instead the critical section nesting level is stored
+in a variable, which is then saved as part of the stack context. */
+void vPortEnterCritical( void )
+{
+	// int nFlags;
+	// __asm volatile ("mrs %0, cpsr" : "=r" (nFlags));
+	// s_bWereEnabled = nFlags & 0x80 ? 0 : 1; 
+	// if(!s_bWereEnabled) return;
+
+	/* Disable interrupts as per portDISABLE_INTERRUPTS(); 							*/
+	__asm volatile ( 
+		"STMDB	SP!, {R0}			\n\t"	/* Push R0.							*/
+		"MRS	R0, CPSR			\n\t"	/* Get CPSR.						*/
+		"ORR	R0, R0, #0xC0		\n\t"	/* Disable IRQ, FIQ.				*/
+		"MSR	CPSR, R0			\n\t"	/* Write back modified value.		*/
+		"LDMIA	SP!, {R0}" );				/* Pop R0.							*/
+
+	/* Now interrupts are disabled ulCriticalNesting can be accessed 
+	directly.  Increment ulCriticalNesting to keep a count of how many times
+	portENTER_CRITICAL() has been called. */
+	ulCriticalNesting++;
+}
+
+void vPortExitCritical( void )
+{
+	// if(s_bWereEnabled) return;
+
+	if( ulCriticalNesting > portNO_CRITICAL_NESTING )
+	{
+		/* Decrement the nesting count as we are leaving a critical section.	*/
+		ulCriticalNesting--;
+
+		/* If the nesting level has reached zero then interrupts should be
+		re-enabled. */
+		if( ulCriticalNesting == portNO_CRITICAL_NESTING )
+		{
+			/* Enable interrupts as per portEXIT_CRITICAL().					*/
+			__asm volatile ( 
+				"STMDB	SP!, {R0}		\n\t"	/* Push R0.						*/	
+				"MRS	R0, CPSR		\n\t"	/* Get CPSR.					*/	
+				"BIC	R0, R0, #0xC0	\n\t"	/* Enable IRQ, FIQ.				*/	
+				"MSR	CPSR, R0		\n\t"	/* Write back modified value.	*/	
+				"LDMIA	SP!, {R0}" );			/* Pop R0.						*/
+		}
+	}
+}
+
+void ConnectInterrupt(int nIRQ, FN_INTERRUPT_HANDLER pfnHandler, void *pParamIRQ,
+					  FN_INTERRUPT_SETUP pfnSetup, uint32_t pParamSetup, int bTask)
+{
+	(void) bTask;
+	
+	// if (bTask) vPortEnterCritical();
+	// else DisableInterrupts();
+	DisableInterrupts();
+
+	if (pfnSetup != voidSetupFN) pfnSetup(pParamSetup);
+
+	RegisterInterrupt(nIRQ, pfnHandler, pParamIRQ);
+	EnableInterrupt(nIRQ);
+
+	// if (bTask) vPortExitCritical();
+	// else EnableInterrupts();
+	EnableInterrupts();
+}

@@ -12,9 +12,8 @@
 #define ST_TICK                         (0x000003E8 - 1)
 #define ST_STEP_MIN                     (0x000186A0 / 20)
 
-
-void prvSystemTimerTickClear(void);
-void prvSystemTimerTickSetup(void);
+void prvSystemTimerTickClear(uint32_t tickPeriod);
+void prvSystemTimerTickSetup(uint32_t tickPeriod);
 
 void prvSystemTimerStepClear(void);
 void prvSystemTimerStepSetup(void);

@@ -66,6 +66,7 @@ void USBEndpoint2 (TUSBEndpoint *pThis, TUSBDevice *pDevice, const TUSBEndpointD
 	pThis->m_ucNumber       = pDesc->bEndpointAddress & 0x0F;
 	pThis->m_bDirectionIn   = pDesc->bEndpointAddress & 0x80 ? TRUE : FALSE;
 	pThis->m_nMaxPacketSize = pDesc->wMaxPacketSize;
+	// pThis->m_nMaxPacketSize = *(char*)((char*)pDesc + 5) * 256 + *(char*)((char*)pDesc + 4);
 	
 	if (pThis->m_Type == EndpointTypeInterrupt)
 	{

@@ -3,6 +3,7 @@
 
 #ifdef VIDEO
 	#include <video.h>
+	extern void NOOP(unsigned int);
 
 	#define LOGGER_BLUE		VIDEO_BLUE
 	#define LOGGER_GREEN	VIDEO_GREEN
@@ -13,15 +14,16 @@
 	#define logger_init		video_init
 	#define	putc			video_putc
 	#define	puts			video_puts
-	#define	println(a)		video_println(a, LOGGER_WHITE)
-	#define	printHex(a, b)	video_printHex(a, b, LOGGER_WHITE)
-	#define	printf(a, ...)	video_printf(a, LOGGER_WHITE, __VA_ARGS__)
-	#define	vprintf(a, ...)	video_vprintf(a, LOGGER_WHITE, __VA_ARGS__)
+	#define	println(a)		video_println(LOGGER_WHITE, a)
+	#define	printHex(a, b)	video_printHex(LOGGER_WHITE, a, b)
+	#define	printf(a, ...)	video_printf(LOGGER_WHITE, a, __VA_ARGS__)
+	#define	vprintf(a, ...)	video_vprintf(LOGGER_WHITE, a, __VA_ARGS__)
 	#define getc			NOOP
 	#define gets			NOOP
 #endif
 #ifdef ILI9340
 	#include <ili9340.h>
+	extern void NOOP(unsigned int);
 
 	#define	LOGGER_BLUE		ILI9340_BLUE
 	#define	LOGGER_GREEN	ILI9340_GREEN

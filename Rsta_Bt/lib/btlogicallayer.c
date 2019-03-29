@@ -22,6 +22,10 @@
 #include <uspi/util.h>
 #include <uspi/assert.h>
 
+#include <stufa_Task.h>
+
+extern EventGroupHandle_t	xEventGroup;
+
 void BTLogicalLayer (TBTLogicalLayer *pThis, TBTHCILayer *pHCILayer)
 {
 	pThis->m_pHCILayer 				= pHCILayer;
@@ -82,6 +86,7 @@ void BTLogicalLayerProcess (TBTLogicalLayer *pThis)
 					pThis->m_pInquiryResults = 0;
 
 					// m_Event.Set ();		// TODO
+					xEventGroupSetBits( xEventGroup, BTLOGICALLAYER_BIT );
 
 					break;
 				}
@@ -90,6 +95,7 @@ void BTLogicalLayerProcess (TBTLogicalLayer *pThis)
 				if (pThis->m_nNameRequestsPending == 0)
 				{
 					// m_Event.Set ();		// TODO
+					xEventGroupSetBits( xEventGroup, BTLOGICALLAYER_BIT );
 
 					break;
 				}
@@ -122,6 +128,7 @@ void BTLogicalLayerProcess (TBTLogicalLayer *pThis)
 				if (--pThis->m_nNameRequestsPending == 0)
 				{
 					// m_Event.Set ();		// TODO
+					xEventGroupSetBits( xEventGroup, BTLOGICALLAYER_BIT );
 				}
 			} break;
 
@@ -142,6 +149,7 @@ TBTInquiryResults *BTLogicalLayerInquiry (TBTLogicalLayer *pThis, unsigned nSeco
 	assert (pThis->m_pInquiryResults != 0);
 
 	// m_Event.Clear ();					// TODO
+	// not needed
 
 	TBTHCIInquiryCommand Cmd;
 	Cmd.Header.OpCode = OP_CODE_INQUIRY;
@@ -154,6 +162,7 @@ TBTInquiryResults *BTLogicalLayerInquiry (TBTLogicalLayer *pThis, unsigned nSeco
 	BTHCILayerSendCommand(pThis->m_pHCILayer, &Cmd, sizeof Cmd);
 
 	// m_Event.Wait ();					// TODO
+	xEventGroupWaitBits( xEventGroup, BTLOGICALLAYER_BIT, pdTRUE, pdTRUE, portMAX_DELAY );
 
 	TBTInquiryResults *pResult = pThis->m_pInquiryResults;
 	pThis->m_pInquiryResults = 0;

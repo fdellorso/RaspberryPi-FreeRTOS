@@ -33,6 +33,7 @@ kernel.syms: kernel.elf
 # GCC 7.3.1 (ARM Toolchain)
 # kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi/lib/gcc/arm-none-eabi/7.3.1" -lgcc
 # kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi/arm-none-eabi/lib" -lc
+# GCC 7.3.1 (ARM Toolchain Hardware Floating Point)
 kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi-7-3-1/lib/gcc/arm-none-eabi/7.3.1/hard" -lgcc
 kernel.elf: LDFLAGS += -L "$(BASE)../gcc-arm-none-eabi-7-3-1/arm-none-eabi/lib/hard" -lc
 

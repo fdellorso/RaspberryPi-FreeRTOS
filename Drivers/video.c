@@ -6,8 +6,8 @@
 #include "video.h"
 #include "font_5x5.h"
 
+#include <prvlib/stdlib.h>
 #include <uspi/string.h>
-
 
 #define CHAR_WIDTH		6
 #define CHAR_HEIGHT 	8
@@ -19,10 +19,9 @@
 #define VIDEO_HEIGHT	1050
 #endif
 
-
-char loaded = 0;
-int position_x = 0;
-int position_y = 0;
+static char loaded = 0;
+static int position_x = 0;
+static int position_y = 0;
 
 void enablelogging(void) { loaded = 1; }
 
@@ -143,7 +142,7 @@ void video_puts(const char* str, int x, int y, unsigned int colour) {
 	}
 }
 
-void video_println(const char* message, unsigned int colour) {
+void video_println(unsigned int colour, const char* message) {
 	if(loaded == 0) return; //if video isn't loaded don't bother
 
 	int nFlags;
@@ -175,7 +174,7 @@ void video_println(const char* message, unsigned int colour) {
 	if(s_bWereEnabled) __asm volatile ("cpsie i" : : : "memory");
 }
 
-void video_printHex(const char* message, unsigned int hexi, unsigned int colour) {
+void video_printHex(unsigned int colour, const char* message, unsigned int hexi) {
 if(loaded == 0) return; //if video isn't loaded don't bother
 
 	// TODO disabilitata perche usa memcpy della stdlib
@@ -203,12 +202,12 @@ if(loaded == 0) return; //if video isn't loaded don't bother
 	m[i + 7] = hex[(hexi >> 0)&0xF];
 	m[i + 8] = 0; //null termination
 
-	video_println(m, colour);
+	video_println(colour, m);
 
 	free(m);
 }
 
-void video_printf(const char *pMessage, unsigned int colour, ...) {
+void video_printf(unsigned int colour, const char *pMessage, ...) {
 	va_list var;
 	va_start (var, pMessage);
 
@@ -216,18 +215,18 @@ void video_printf(const char *pMessage, unsigned int colour, ...) {
 	String(&Message);
 	StringFormatV(&Message, pMessage, var);
 
-	video_println(StringGet(&Message), colour);
+	video_println(colour, StringGet(&Message));
 
 	_String(&Message);
 	va_end (var);
 }
 
-void video_vprintf(const char *pMessage, unsigned int colour, va_list var) {
+void video_vprintf(unsigned int colour, const char *pMessage, va_list var) {
 	TString Message;
 	String(&Message);
 	StringFormatV(&Message, pMessage, var);
 
-	video_println(StringGet(&Message), colour);
+	video_println(colour, StringGet(&Message));
 
 	_String(&Message);
 }

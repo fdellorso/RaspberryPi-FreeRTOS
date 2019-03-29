@@ -35,17 +35,10 @@ SOFTWARE.
 
 #include <yaml.h>
 
-#ifndef PRVLIB
-    #include <assert.h>
-    #include <limits.h>
-    #include <stddef.h>
-    #include <stdint.h>
-#else
-    #include "prvlib/assert.h"
-    #include "prvlib/limits.h"
-    #include "prvlib/stddef.h"
-    #include "prvlib/stdint.h"
-#endif
+#include <assert.h>
+#include <limits.h>
+#include <stddef.h>
+#include <stdint.h>
 
 // #ifndef _MSC_VER
 // #include <stdint.h>

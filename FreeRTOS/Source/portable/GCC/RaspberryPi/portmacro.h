@@ -1,6 +1,8 @@
 #ifndef PORTMACRO_H
 #define PORTMACRO_H
 
+#include <uspi/types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -21,144 +23,41 @@ extern "C" {
 #define portDOUBLE		double
 #define portLONG		long
 #define portSHORT		short
-#define portSTACK_TYPE	unsigned portLONG
+#define portSTACK_TYPE	uint32_t
 #define portBASE_TYPE	portLONG
 
 typedef portSTACK_TYPE StackType_t;
-typedef long BaseType_t;
-typedef unsigned long UBaseType_t;
+typedef portLONG BaseType_t;
 
 #if( configUSE_16_BIT_TICKS == 1 )
-	typedef uint16_t TickType_t;
-	#define portMAX_DELAY ( TickType_t ) 0xffff
+#error "The Raspberry Pi port does not support 16 bit timer ticks"
 #else
-	typedef StackType_t TickType_t;
-	#define portMAX_DELAY ( TickType_t ) 0xffffffffUL
+typedef uint32_t UBaseType_t;
+typedef uint32_t TickType_t;
+#define portMAX_DELAY ( TickType_t ) 0xffffffffUL
+#define portBYTE_ALIGNMENT			8
 
-	/* 32-bit tick type on a 32-bit architecture, so reads of the tick count do
-	not need to be guarded with a critical section. */
-	#define portTICK_TYPE_IS_ATOMIC 1
+/* 32-bit tick type on a 32-bit architecture, so reads of the tick count do
+not need to be guarded with a critical section. */
+#define portTICK_TYPE_IS_ATOMIC 1
 #endif
 /*-----------------------------------------------------------*/	
 
 /* Architecture specifics. */
 #define portSTACK_GROWTH			( -1 )
-// #define portTICK_RATE_MS			( ( portTickType ) 1000 / configTICK_RATE_HZ )
 #define portTICK_PERIOD_MS			( ( TickType_t ) 1000 / configTICK_RATE_HZ )
-#define portBYTE_ALIGNMENT			8
 #define portNOP()					__asm volatile ( "NOP" );
 /*-----------------------------------------------------------*/	
 
-
-/* Scheduler utilities. */
-
-/*
- * portSAVE_CONTEXT, portRESTORE_CONTEXT, portENTER_SWITCHING_ISR
- * and portEXIT_SWITCHING_ISR can only be called from ARM mode, but
- * are included here for efficiency.  An attempt to call one from
- * THUMB mode code will result in a compile time error.
- */
-
-#define portRESTORE_CONTEXT()												\
-{																			\
-	extern volatile void * volatile pxCurrentTCB;							\
-	extern volatile unsigned portLONG ulCriticalNesting;					\
-																			\
-	/* Set the LR to the task stack. */										\
-	__asm volatile (														\
-	/* Put the address of the current TCB into R1. */						\
-	"LDR	R0, =pxCurrentTCB										\n\t"	\
-	/* Load the 32-bit value stored at the address in R1. */				\
-	/* First item in the TCB is the top of the stack for the current TCB. */\
-	"LDR	R0, [R0]												\n\t"	\
-																			\
-	/* Move the value into the Link Register! */							\
-	"LDR	LR, [R0]												\n\t"	\
-																							\
-	/* The critical nesting depth is the first item on the stack. */		\
-	/* Load it into the ulCriticalNesting variable. */						\
-	"LDR	R0, =ulCriticalNesting									\n\t"	\
-	"LDMFD	LR!, {R1}												\n\t"	\
-	"STR	R1, [R0]												\n\t"	\
-																			\
-	/* Get the SPSR from the stack. */										\
-	"LDMFD	LR!, {R0}												\n\t"	\
-	"MSR	SPSR_cxsf, R0											\n\t"	\
-																			\
-	/* Restore all system mode registers for the task. */					\
-	"LDMFD	LR, {R0-R14}^											\n\t"	\
-	"NOP															\n\t"	\
-																			\
-	/* Restore the return address. */										\
-	"LDR	LR, [LR, #+60]											\n\t"	\
-																			\
-	/* And return - correcting the offset in the LR to obtain the */		\
-	/* correct address. */													\
-	"SUBS	PC, LR, #4												\n\t"	\
-	"NOP															\n\t"	\
-	"NOP															\n\t"	\
-	);																		\
-	( void ) ulCriticalNesting;												\
-	( void ) pxCurrentTCB;													\
-}
-/*-----------------------------------------------------------*/
-
-#define portSAVE_CONTEXT()													\
-{																			\
-	extern volatile void * volatile pxCurrentTCB;							\
-	extern volatile unsigned portLONG ulCriticalNesting;					\
-																			\
-	/* Push R0 as we are going to use the register. */						\
-	__asm volatile (														\
-	"STMDB	SP!, {R0}												\n\t"	\
-																			\
-	/* Set R0 to point to the task stack pointer. */						\
-	"STMDB	SP,{SP}^	\n\t"	/* ^ means get the user mode SP value. */	\
-	/*"NOP															\n\t" */\
-	"SUB	SP, SP, #4												\n\t"	\
-	"LDMIA	SP!,{R0}												\n\t"	\
-																			\
-	/* Push the return address onto the stack. */							\
-	"STMDB	R0!, {LR}												\n\t"	\
-																			\
-	/* Now we have saved LR we can use it instead of R0. */					\
-	"MOV	LR, R0													\n\t"	\
-																			\
-	/* Pop R0 so we can save it onto the system mode stack. */				\
-	"LDMIA	SP!, {R0}												\n\t"	\
-																			\
-	/* Push all the system mode registers onto the task stack. */			\
-	"STMDB	LR,{R0-LR}^												\n\t"	\
-	"NOP															\n\t"	\
-	"SUB	LR, LR, #60												\n\t"	\
-																			\
-	/* Push the SPSR onto the task stack. */								\
-	"MRS	R0, SPSR												\n\t"	\
-	"STMDB	LR!, {R0}												\n\t"	\
-																			\
-	"LDR	R0, =ulCriticalNesting									\n\t"	\
-	"LDR	R0, [R0]												\n\t"	\
-	"STMDB	LR!, {R0}												\n\t"	\
-																			\
-	/* Store the new top of stack for the task. */							\
-	"LDR	R0, =pxCurrentTCB										\n\t"	\
-	"LDR	R0, [R0]												\n\t"	\
-	"STR	LR, [R0]												\n\t"	\
-	);																		\
-	( void ) ulCriticalNesting;												\
-	( void ) pxCurrentTCB;													\
-}
-
-extern void vTaskSwitchContext( void );
-#define portYIELD_FROM_ISR()		vTaskSwitchContext()
+// extern void vTaskSwitchContext( void );
+// #define portYIELD_FROM_ISR()		vTaskSwitchContext()
 #define portYIELD()					__asm volatile ( "SWI 0" )
 /*-----------------------------------------------------------*/
-
 
 /* Critical section management. */
 
 /*
- * The interrupt management utilities can only be called from ARM mode.	 When
+ * The interrupt management utilities can only be called from ARM mode.  When
  * THUMB_INTERWORK is defined the utilities are defined as functions in 
  * portISR.c to ensure a switch to ARM mode.  When THUMB_INTERWORK is not 
  * defined then the utilities are defined as macros here - as per other ports.

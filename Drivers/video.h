@@ -14,19 +14,16 @@
 #define VIDEO_VIOLET    0xFFCC88CC
 #define VIDEO_WHITE     0xFFFFFFFF
 
-
-char loaded;
-
 void enablelogging(void);
 
 void video_init(void);
 
 void video_putc(unsigned char c, int x, int y, unsigned int colour);
 void video_puts(const char* str, int x, int y, unsigned int colour);
-void video_println(const char* message, unsigned int colour);
-void video_printHex(const char* message, unsigned int hexi, unsigned int colour);
-void video_printf(const char *pMessage, unsigned int colour, ...);
-void video_vprintf(const char *pMessage, unsigned int colour, va_list var);
+void video_println(unsigned int colour, const char* message);
+void video_printHex(unsigned int colour, const char* message, unsigned int hexi);
+void video_printf(unsigned int colour, const char *pMessage, ...);
+void video_vprintf(unsigned int colour, const char *pMessage, va_list var);
 
 void videotest(void);
 void dumpDebug(void);

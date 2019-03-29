@@ -19,22 +19,14 @@
 //
 #include <rsta_bt/btsubsystem.h>
 // #include <rsta_bt/bttask.h>
+#include <stufa_Task.h>
 
 #include <uspi/devicenameservice.h>
 #include <uspi/util.h>
 #include <uspi/assert.h>
 
-#include <FreeRTOS.h>
-#include <task.h>
-#include <queue.h>
-
-#include <stufa_Task.h>
-
-extern xTaskHandle	xHandleBltProc;
-extern xQueueHandle	xQueBltProc;
-
-extern xTaskHandle	xHandleBltInit;
-extern TaskStatus_t xTaskDetails;
+extern TaskHandle_t			xHandleBLTiProc;
+extern QueueHandle_t		xQueueBLTiProc;
 
 void BTSubSystem (TBTSubSystem *pThis, u32 nClassOfDevice, const char *pLocalName)
 {
@@ -83,15 +75,14 @@ boolean BTSubSystemInitialize (TBTSubSystem *pThis)
 		return FALSE;
 	}
 
-	if(xQueueSend(xQueBltProc, &pThis, 0) == pdPASS) {
-		prvFunc_Print("%cSubSystem...\t\t\t      Sended", 0x3e);
-		vTaskResume(xHandleBltProc);
+	if(xQueueSend(xQueueBLTiProc, &pThis, 0) == pdPASS) {
+		prvFunc_Print("%cSubSystemToProc...\t\t      Sended", 0x3e);
+		vTaskResume(xHandleBLTiProc);
 	}
 
 	while (!BTDeviceManagerDeviceIsRunning(BTHCILayerGetDeviceManager(pThis->m_pHCILayer)))
 	{
-		vTaskGetTaskInfo(xHandleBltInit, &xTaskDetails, pdTRUE, eInvalid);
-		prvFunc_Print("BTINIT Stack: %d", xTaskDetails.usStackHighWaterMark);
+		// prvFunc_Print("BTINIT");
 
 		taskYIELD();
 	}

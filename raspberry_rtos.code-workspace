@@ -91,7 +91,8 @@
 			"null.h": "c",
 			"time.h": "c",
 			"unistd.h": "c",
-			"deprecated_definitions.h": "c"
+			"deprecated_definitions.h": "c",
+			"queue.h": "c"
 		}
 	}
 }

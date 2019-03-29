@@ -35,13 +35,13 @@ your application. */
 #define configUSE_PREEMPTION                    1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
 #define configUSE_TICKLESS_IDLE                 0
-#define configCPU_CLOCK_HZ                      24000000
-#define configTICK_RATE_HZ                      1000
-#define configMAX_PRIORITIES                    5
-#define configMINIMAL_STACK_SIZE                128
-#define configMAX_TASK_NAME_LEN                 16
+#define configCPU_CLOCK_HZ                      ( ( size_t ) 250000000 )
+#define configTICK_RATE_HZ                      ( ( TickType_t ) 1000 )
+#define configMAX_PRIORITIES                    ( 5 )
+#define configMINIMAL_STACK_SIZE                ( 512 )
+#define configMAX_TASK_NAME_LEN                 ( 16 )
 #define configUSE_16_BIT_TICKS                  0
-#define configIDLE_SHOULD_YIELD                 1
+#define configIDLE_SHOULD_YIELD                 0
 #define configUSE_TASK_NOTIFICATIONS            1
 #define configUSE_MUTEXES                       1
 #define configUSE_RECURSIVE_MUTEXES             0
@@ -59,7 +59,7 @@ your application. */
 /* Memory allocation related definitions. */
 #define configSUPPORT_STATIC_ALLOCATION         0
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
-#define configTOTAL_HEAP_SIZE                   ( 131072 )
+#define configTOTAL_HEAP_SIZE                   ( ( size_t ) ( 128 * 1024 ) )
 #define configAPPLICATION_ALLOCATED_HEAP        0
 
 /* Hook function related definitions. */
@@ -80,15 +80,15 @@ your application. */
 
 /* Software timer related definitions. */
 #define configUSE_TIMERS                        1
-#define configTIMER_TASK_PRIORITY               3
-#define configTIMER_QUEUE_LENGTH                10
+#define configTIMER_TASK_PRIORITY               ( 3 )
+#define configTIMER_QUEUE_LENGTH                ( 10 )
 #define configTIMER_TASK_STACK_DEPTH            configMINIMAL_STACK_SIZE
 
 /* Interrupt nesting behaviour configuration. */
-#define configKERNEL_INTERRUPT_PRIORITY         255
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY    191
-#define configMAX_API_CALL_INTERRUPT_PRIORITY   191
-#define configLIBRARY_KERNEL_INTERRUPT_PRIORITY	15
+#define configKERNEL_INTERRUPT_PRIORITY         ( 255 )
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY    ( 191 )
+#define configMAX_API_CALL_INTERRUPT_PRIORITY   ( 191 )
+#define configLIBRARY_KERNEL_INTERRUPT_PRIORITY	( 15 )
 
 /* Define to trap errors during development. */
 // #define configASSERT( ( x ) ) if( ( x ) == 0 ) vAssertCalled( __FILE__, __LINE__ )

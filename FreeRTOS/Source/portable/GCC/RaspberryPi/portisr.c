@@ -22,21 +22,22 @@
 	  than each line having its own asm block.
 */
 
+
 /* Scheduler includes. */
 #include "FreeRTOS.h"
 
 /* Constants required to handle interrupts. */
-#define portTIMER_MATCH_ISR_BIT		( ( unsigned char ) 0x01 )
-#define portCLEAR_VIC_INTERRUPT		( ( unsigned long ) 0 )
+#define portTIMER_MATCH_ISR_BIT		( ( uint8_t ) 0x01 )
+#define portCLEAR_VIC_INTERRUPT		( ( uint32_t ) 0 )
 
 /* Constants required to handle critical sections. */
-#define portNO_CRITICAL_NESTING		( ( unsigned long ) 0 )
-volatile unsigned long ulCriticalNesting = 9999UL;
+#define portNO_CRITICAL_NESTING		( ( uint32_t ) 0 )
+volatile uint32_t ulCriticalNesting = 9999UL;
 
 /*-----------------------------------------------------------*/
 
 /* ISR to handle manual context switches (from a call to taskYIELD()). */
-void vPortYieldProcessor( void ) __attribute__((interrupt("SWI"), naked, no_instrument_function));
+void vPortYieldProcessor( void ) __attribute__((interrupt("SWI"), naked));
 
 /* 
  * The scheduler can only be started from ARM mode, hence the inclusion of this
@@ -44,19 +45,16 @@ void vPortYieldProcessor( void ) __attribute__((interrupt("SWI"), naked, no_inst
  */
 void vPortISRStartFirstTask( void );
 /*-----------------------------------------------------------*/
+char s_bWereEnabled;
+extern void irqHandler(void);
 
-int g_bStarted = 0;
-__attribute__((no_instrument_function))
-void vPortISRStartFirstTask( void ) {
-
+void vPortISRStartFirstTask( void )
+{
 	/*
 	 *	Change from System to IRQ mode.
 	 *
 	 *
 	 */
-
-	g_bStarted++;
-
 	__asm volatile("mrs 	r0,cpsr");		// Read in the cpsr register.
 	__asm volatile("bic		r0,r0,#0x80");	// Clear bit 8, (0x80) -- Causes IRQs to be enabled
 	__asm volatile("msr		cpsr_c, r0");	// Write it back to the CPSR register
@@ -69,7 +67,6 @@ void vPortISRStartFirstTask( void ) {
 	__asm volatile (
 		"LDMFD	SP!, {LR}	\n"
 		"SUB	LR,	LR, #4	\n"
-		
 		"BX		LR			\n"
 	);
 }
@@ -83,8 +80,8 @@ void vPortISRStartFirstTask( void ) {
  * way the same restore context function can be used when restoring the context
  * saved from the ISR or that saved from a call to vPortYieldProcessor.
  */
-__attribute__((no_instrument_function))
-void vPortYieldProcessor( void ) {
+void vPortYieldProcessor( void )
+{
 	/* Within an IRQ ISR the link register has an offset from the true return 
 	address, but an SWI ISR does not.  Add the offset manually so the same 
 	ISR return code can be used in both cases. */
@@ -115,20 +112,20 @@ void vPortYieldProcessor( void ) {
  *
  *	On return from the BitThunder ISR we simply restore the context :D
  **/
-extern void irqHandler(void);
-// #include <video.h>
 
-void vFreeRTOS_ISR( void ) __attribute__((naked, no_instrument_function));
-
-void vFreeRTOS_ISR( void ) {												
+void vTickISR( void ) __attribute__((naked));
+void vTickISR( void )
+{
+	/* Save the context of the interrupted task. */
 	portSAVE_CONTEXT();
-	//if(loaded != 0) println("vFreeRTOS_ISR", 0xFFFFFFFF);
+
 	irqHandler();
-	//if(loaded == 2) println("vFreeRTOS_ISR", 0xFFFFFFFF);
+
 	portRESTORE_CONTEXT();
 	//shouldn't get here, but if it does just return
 	__asm volatile("subs pc, lr, #4");
 }
+/*-----------------------------------------------------------*/
 
 /*
  * The interrupt management utilities can only be called from ARM mode.  When
@@ -138,10 +135,11 @@ void vFreeRTOS_ISR( void ) {
  */
 #ifdef THUMB_INTERWORK
 
-	void vPortDisableInterruptsFromThumb( void ) __attribute__ ((naked, no_instrument_function));
-	void vPortEnableInterruptsFromThumb( void ) __attribute__ ((naked, no_instrument_function));
+	void vPortDisableInterruptsFromThumb( void ) __attribute__ ((naked));
+	void vPortEnableInterruptsFromThumb( void ) __attribute__ ((naked));
 
-	void vPortDisableInterruptsFromThumb( void ) {
+	void vPortDisableInterruptsFromThumb( void )
+	{
 		__asm volatile ( 
 			"STMDB	SP!, {R0}		\n\t"	/* Push R0.							*/
 			"MRS	R0, CPSR		\n\t"	/* Get CPSR.						*/
@@ -151,7 +149,8 @@ void vFreeRTOS_ISR( void ) {
 			"BX		R14" );					/* Return back to thumb.			*/
 	}
 			
-	void vPortEnableInterruptsFromThumb( void ) {
+	void vPortEnableInterruptsFromThumb( void )
+	{
 		__asm volatile ( 
 			"STMDB	SP!, {R0}		\n\t"	/* Push R0.							*/	
 			"MRS	R0, CPSR		\n\t"	/* Get CPSR.						*/	
@@ -167,16 +166,14 @@ void vFreeRTOS_ISR( void ) {
 different optimisation levels.  The interrupt flags can therefore not always
 be saved to the stack.  Instead the critical section nesting level is stored
 in a variable, which is then saved as part of the stack context. */
-char s_bWereEnabled;
-
-//__attribute__((no_instrument_function))
-void vPortEnterCritical( void ){
+void vPortEnterCritical( void )
+{
 	int nFlags;
 	__asm volatile ("mrs %0, cpsr" : "=r" (nFlags));
 	s_bWereEnabled = nFlags & 0x80 ? 0 : 1; 
 	if(!s_bWereEnabled) return;
 
-	/* Disable interrupts as per portDISABLE_INTERRUPTS(); 						*/
+	/* Disable interrupts as per portDISABLE_INTERRUPTS(); 							*/
 	__asm volatile ( 
 		"STMDB	SP!, {R0}			\n\t"	/* Push R0.							*/
 		"MRS	R0, CPSR			\n\t"	/* Get CPSR.						*/
@@ -190,17 +187,19 @@ void vPortEnterCritical( void ){
 	ulCriticalNesting++;
 }
 
-//__attribute__((no_instrument_function))
-void vPortExitCritical( void ){
+void vPortExitCritical( void )
+{
 	if(!s_bWereEnabled) return;
 
-	if( ulCriticalNesting > portNO_CRITICAL_NESTING ) {
+	if( ulCriticalNesting > portNO_CRITICAL_NESTING )
+	{
 		/* Decrement the nesting count as we are leaving a critical section.	*/
 		ulCriticalNesting--;
 
 		/* If the nesting level has reached zero then interrupts should be
 		re-enabled. */
-		if( ulCriticalNesting == portNO_CRITICAL_NESTING ) {
+		if( ulCriticalNesting == portNO_CRITICAL_NESTING )
+		{
 			/* Enable interrupts as per portEXIT_CRITICAL().					*/
 			__asm volatile ( 
 				"STMDB	SP!, {R0}		\n\t"	/* Push R0.						*/	
